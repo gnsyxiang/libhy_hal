@@ -37,13 +37,15 @@ _ldadd_com      =
 # ---------------------
 _no_error_com   +=
 
-_include_com    += -I$(top_srcdir)/include
+_include_com    += \
+                   -I$(top_srcdir)/include/linux \
+                   -I$(top_srcdir)/include
 
 if COMPILE_LIBHY_UTILS
 _include_com    += $(HY_UTILS_INCS)
 endif
 
-_sources_com    += module_a.c
+_sources_com    += hy_mem.c
 
 _cppflags_com   += $(_no_error_com) $(_include_com)
 

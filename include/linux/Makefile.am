@@ -31,7 +31,7 @@ install_includedir      = $(includedir)/@project_name@
 # ---------------------
 _no_install_headers_com +=
 
-_install_headers_com    += module_a.h
+_install_headers_com    += hy_mem.h
 
 # ------------------
 # make install files
