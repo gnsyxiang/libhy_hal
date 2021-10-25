@@ -25,6 +25,7 @@ CHECK_VERSION_INFO
 CHECK_DOXYGEN
 # CHECK_JAVA
 
+SELECT_TARGET_OS
 # Checks for programs.
 AC_PROG_CXX
 AC_PROG_AWK
@@ -49,6 +50,8 @@ AC_CONFIG_FILES([Makefile
                  doc/Makefile
                  example/Makefile
                  include/Makefile
+                 include/linux/Makefile
                  res/Makefile
-                 src/Makefile])
+                 src/Makefile
+                 src/linux/Makefile])
 AC_OUTPUT

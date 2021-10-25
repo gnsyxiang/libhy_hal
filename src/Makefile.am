@@ -18,6 +18,28 @@
 #     last modified: 05/03 2021 10:35
 # ===============================================================
 
+if COMPILE_SELECT_TARGET_OS_LINUX
+select_target_os = linux
+endif
+
+if COMPILE_SELECT_TARGET_OS_MAC
+select_target_os = mac
+endif
+
+if COMPILE_SELECT_TARGET_OS_WINDOW
+select_target_os = window
+endif
+
+if COMPILE_SELECT_TARGET_OS_RTOS
+select_target_os = rtos
+endif
+
+if COMPILE_SELECT_TARGET_OS_MCU
+select_target_os = mcu
+endif
+
+SUBDIRS = $(select_target_os)
+
 lib_LTLIBRARIES = lib@project_name@.la
 
 # ------------------
@@ -39,7 +61,7 @@ _no_error_com   +=
 
 _include_com    += -I$(top_srcdir)/include
 
-_sources_com    += module_a.c
+_sources_com    +=
 
 _cppflags_com   += $(_no_error_com) $(_include_com)
 
@@ -49,10 +71,9 @@ _cxxflags_com   +=
 
 _ldflags_com    += \
                    -export-symbols-regex 'Hy*' \
-                   -version-info @current@:@revision@:@age@ \
-                   $(LIB_LDFLAGS_COM)
+                   -version-info @current@:@revision@:@age@
 
-_ldadd_com      +=
+_ldadd_com      += $(top_builddir)/src/$(select_target_os)/libhy_hal_os.la
 
 lib@project_name@_la_SOURCES    = $(_sources_com)
 lib@project_name@_la_CPPFLAGS   = $(_cppflags_com)

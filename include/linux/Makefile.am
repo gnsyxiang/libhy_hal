@@ -18,28 +18,6 @@
 #     last modified: 05/03 2021 10:35
 # ===============================================================
 
-if COMPILE_SELECT_TARGET_OS_LINUX
-select_target_os = linux
-endif
-
-if COMPILE_SELECT_TARGET_OS_MAC
-select_target_os = mac
-endif
-
-if COMPILE_SELECT_TARGET_OS_WINDOW
-select_target_os = window
-endif
-
-if COMPILE_SELECT_TARGET_OS_RTOS
-select_target_os = rtos
-endif
-
-if COMPILE_SELECT_TARGET_OS_MCU
-select_target_os = mcu
-endif
-
-SUBDIRS = $(select_target_os)
-
 # ------------------
 # defining variables
 # ------------------
@@ -53,7 +31,7 @@ install_includedir      = $(includedir)/@project_name@
 # ---------------------
 _no_install_headers_com +=
 
-_install_headers_com    +=
+_install_headers_com    += module_a.h
 
 # ------------------
 # make install files
