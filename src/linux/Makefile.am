@@ -39,6 +39,10 @@ _no_error_com   +=
 
 _include_com    += -I$(top_srcdir)/include
 
+if COMPILE_LIBHY_UTILS
+_include_com    += $(HY_UTILS_INCS)
+endif
+
 _sources_com    += module_a.c
 
 _cppflags_com   += $(_no_error_com) $(_include_com)
