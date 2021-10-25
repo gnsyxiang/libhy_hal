@@ -1,0 +1,17 @@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+includedir=@includedir@
+libdir=@libdir@
+
+Name: @PACKAGE@
+Version: @VERSION@
+URL: @PACKAGE_URL@
+Description: autotools demo for lib
+
+Requires:
+Requires.private:
+Conflicts:
+
+Cflags: -I${includedir}
+Libs: -L${libdir} -l@PACKAGE@
+Libs.private:

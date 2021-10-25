@@ -1,0 +1,88 @@
+#===============================================================
+#
+#Release under GPLv-3.0.
+#
+#@file    .gitignore
+#@brief   
+#@author  gnsyxiang <gnsyxiang@163.com>
+#@date    05/03 2021 13:46
+#@version v0.0.1
+#
+#@since    note
+#@note     note
+#
+#    change log:
+#    NO.     Author              Date            Modified
+#    00      zhenquan.qiu        05/03 2021      create the file
+#
+#    last modified: 05/03 2021 13:46
+#===============================================================
+
+#---------------
+# ignore for vim
+#---------------
+.SpaceVim.d/
+.clang
+.ccls
+.ccls-cache
+.clang-format
+compile_commands.json
+
+
+#---------------------
+# ignore for autotools
+#---------------------
+
+# ignore for autoscan
+autoscan.log
+configure.scan
+
+# ignore for autogen.sh
+build-aux/
+autom4te.cache/
+
+m4/check_project_info.m4
+m4/libtool.m4
+m4/lt~obsolete.m4
+m4/ltoptions.m4
+m4/ltsugar.m4
+m4/ltversion.m4
+aclocal.m4
+
+configure
+config.h.in~
+
+*.in
+
+# ignore for configure
+.deps/
+
+Makefile
+config.h
+config.log
+config.status
+libtool
+stamp-h1
+
+
+#--------------------
+# ignore for markdown 
+#--------------------
+*.svg
+
+#--------------------
+# ignore for building
+#--------------------
+.libs/
+_build/
+install/
+doxygen/
+
+*.o
+*.lo
+*.la
+
+example/main
+hy_hal.pc
+
+
