@@ -35,7 +35,7 @@ _ldadd_com      =
 # ---------------------
 # add necessary content
 # ---------------------
-_no_error_com   +=
+_no_error_com   += -Wno-error=address
 
 _include_com    += \
                    -I$(top_srcdir)/include/linux \
@@ -46,6 +46,7 @@ _include_com    += $(HY_UTILS_INCS)
 endif
 
 _sources_com    += \
+                   hy_signal.c \
                    hy_string.c \
                    hy_mem.c
 
