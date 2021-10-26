@@ -45,7 +45,9 @@ if COMPILE_LIBHY_UTILS
 _include_com    += $(HY_UTILS_INCS)
 endif
 
-_sources_com    += hy_mem.c
+_sources_com    += \
+                   hy_string.c \
+                   hy_mem.c
 
 _cppflags_com   += $(_no_error_com) $(_include_com)
 
