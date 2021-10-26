@@ -56,6 +56,7 @@ AC_CONFIG_FILES([Makefile
                  $project_name.pc
                  doc/Makefile
                  example/Makefile
+                 example/linux/Makefile
                  include/Makefile
                  include/linux/Makefile
                  res/Makefile

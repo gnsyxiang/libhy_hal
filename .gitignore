@@ -83,6 +83,7 @@ doxygen/
 *.la
 
 example/main
+example/linux/hy_*_test
 hy_hal.pc
 
 

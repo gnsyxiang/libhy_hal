@@ -5,7 +5,7 @@
 # @file    Makefile.am
 # @brief   
 # @author  gnsyxiang <gnsyxiang@163.com>
-# @date    05/03 2021 10:38
+# @date    26/10 2021 08:39
 # @version v0.0.1
 # 
 # @since    note
@@ -13,32 +13,10 @@
 # 
 #     change log:
 #     NO.     Author              Date            Modified
-#     00      zhenquan.qiu        05/03 2021      create the file
+#     00      zhenquan.qiu        26/10 2021      create the file
 # 
-#     last modified: 05/03 2021 10:38
+#     last modified: 26/10 2021 08:39
 # ===============================================================
-
-if COMPILE_SELECT_TARGET_OS_LINUX
-select_target_os = linux
-endif
-
-if COMPILE_SELECT_TARGET_OS_MAC
-select_target_os = mac
-endif
-
-if COMPILE_SELECT_TARGET_OS_WINDOW
-select_target_os = window
-endif
-
-if COMPILE_SELECT_TARGET_OS_RTOS
-select_target_os = rtos
-endif
-
-if COMPILE_SELECT_TARGET_OS_MCU
-select_target_os = mcu
-endif
-
-SUBDIRS = $(select_target_os)
 
 # ------------------
 # defining variables
@@ -58,7 +36,9 @@ bin_PROGRAMS    =
 # ---------------------
 _no_error_com   +=
 
-_include_com    += -I$(top_srcdir)/include
+_include_com    += \
+                   -I$(top_srcdir)/include/linux \
+                   -I$(top_srcdir)/include
 
 _sources_com    +=
 
@@ -74,14 +54,14 @@ _ldadd_com      += $(top_builddir)/src/lib@project_name@.la
 
 if COMPILE_LIBHY_UTILS
 _include_com    += $(HY_UTILS_INCS)
-_ldadd_com      += $(HY_UTILS_LIBS)
+_ldadd_com      += $(HY_UTILS_LIBS) -lpthread
 endif
 
-bin_PROGRAMS    += main
-main_SOURCES    = $(_sources_com) main.c
-main_CPPFLAGS   = $(_cppflags_com)
-main_CFLAGS     = $(_cflags_com)
-main_CXXFLAGS   = $(_cxxflags_com)
-main_LDFLAGS    = $(_ldflags_com)
-main_LDADD      = $(_ldadd_com)
+bin_PROGRAMS                += hy_template_test
+hy_template_test_SOURCES    = $(_sources_com) hy_template_test.c
+hy_template_test_CPPFLAGS   = $(_cppflags_com)
+hy_template_test_CFLAGS     = $(_cflags_com)
+hy_template_test_CXXFLAGS   = $(_cxxflags_com)
+hy_template_test_LDFLAGS    = $(_ldflags_com)
+hy_template_test_LDADD      = $(_ldadd_com)
 
