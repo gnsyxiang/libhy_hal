@@ -55,6 +55,7 @@ _no_install_headers_com +=
 
 _install_headers_com    += \
                            hy_hal_utils.h \
+                           hy_log.h \
                            hy_module.h \
                            hy_error.h \
                            hy_compile.h \
