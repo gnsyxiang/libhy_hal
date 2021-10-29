@@ -41,10 +41,6 @@ _include_com    += \
                    -I$(top_srcdir)/include/linux \
                    -I$(top_srcdir)/include
 
-if COMPILE_LIBHY_UTILS
-_include_com    += $(HY_UTILS_INCS)
-endif
-
 _sources_com    += \
                    hy_signal.c \
                    hy_string.c \

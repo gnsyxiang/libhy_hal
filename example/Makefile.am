@@ -72,11 +72,6 @@ _ldflags_com    +=
 
 _ldadd_com      += $(top_builddir)/src/lib@project_name@.la
 
-if COMPILE_LIBHY_UTILS
-_include_com    += $(HY_UTILS_INCS)
-_ldadd_com      += $(HY_UTILS_LIBS)
-endif
-
 bin_PROGRAMS    += main
 main_SOURCES    = $(_sources_com) main.c
 main_CPPFLAGS   = $(_cppflags_com)
