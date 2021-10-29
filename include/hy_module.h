@@ -50,7 +50,7 @@ typedef struct {
 #define RUN_CREATE(module)                                              \
     do {                                                                \
         int32_t i;                                                      \
-        int32_t len = HyUtilsArrayCnt(module);                          \
+        int32_t len = HyHalUtilsArrayCnt(module);                       \
         for (i = 0; i < len; ++i) {                                     \
             module_create_t *create = &module[i];                       \
             if (create->create) {                                       \
@@ -77,7 +77,7 @@ typedef struct {
 #define RUN_DESTROY(module)                                             \
     do {                                                                \
         int32_t i;                                                      \
-        for (i = 0; i < HyUtilsArrayCnt(module); ++i) {                 \
+        for (i = 0; i < HyHalUtilsArrayCnt(module); ++i) {              \
             module_destroy_t *destroy = &module[i];                     \
             if (destroy->destroy) {                                     \
                 destroy->destroy(destroy->handle);                      \
