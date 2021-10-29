@@ -43,6 +43,7 @@ _include_com    += \
 
 _sources_com    += \
                    hy_log.c \
+                   hy_dlopen.c \
                    hy_signal.c \
                    hy_string.c \
                    hy_mem.c

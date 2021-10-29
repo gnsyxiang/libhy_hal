@@ -60,3 +60,11 @@ hy_template_test_CXXFLAGS   = $(_cxxflags_com)
 hy_template_test_LDFLAGS    = $(_ldflags_com)
 hy_template_test_LDADD      = $(_ldadd_com)
 
+bin_PROGRAMS                += hy_dlopen_test
+hy_dlopen_test_SOURCES      = $(_sources_com) hy_dlopen_test.c
+hy_dlopen_test_CPPFLAGS     = $(_cppflags_com)
+hy_dlopen_test_CFLAGS       = $(_cflags_com)
+hy_dlopen_test_CXXFLAGS     = $(_cxxflags_com)
+hy_dlopen_test_LDFLAGS      = $(_ldflags_com)
+hy_dlopen_test_LDADD        = $(_ldadd_com)
+
