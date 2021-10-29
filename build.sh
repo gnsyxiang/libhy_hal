@@ -4,7 +4,7 @@
 
 help_info()
 {
-    echo "eg: ./build.sh pc/arm/mcu [_build]"
+    echo "eg: ./build.sh pc/arm/mac/mcu/rtos/window [_build]"
     exit
 }
 
@@ -42,6 +42,12 @@ elif [ x$1 = x"arm" ]; then
     gcc_version=arm-himix200-linux
     gcc_prefix=arm-himix200-linux
     cross_gcc_path=${data_disk_path}/opt/toolchains/${vender}/${gcc_version}/bin/${gcc_prefix}-
+elif [ x$1 = x"mac" ]; then
+    vender=
+    host=
+    gcc_version=
+    gcc_prefix=
+    cross_gcc_path=${data_disk_path}/opt/toolchains/${vender}/${gcc_version}/bin/${gcc_prefix}-
 elif [ x$1 = x"mcu" ]; then
     vender=gnu_arm_embedded
     host=arm-none-eabi
@@ -50,6 +56,20 @@ elif [ x$1 = x"mcu" ]; then
     cross_gcc_path=${data_disk_path}/opt/toolchains/${vender}/${gcc_version}/bin/${gcc_prefix}-
 
     _ldflag_com="${_ldflag_com} -specs=nano.specs -specs=nosys.specs"
+elif [ x$1 = x"rtos" ]; then
+    vender=gnu_arm_embedded
+    host=arm-none-eabi
+    gcc_version=gcc-arm-none-eabi-5_4-2016q3
+    gcc_prefix=arm-none-eabi
+    cross_gcc_path=${data_disk_path}/opt/toolchains/${vender}/${gcc_version}/bin/${gcc_prefix}-
+
+    _ldflag_com="${_ldflag_com} -specs=nano.specs -specs=nosys.specs"
+elif [ x$1 = x"window" ]; then
+    vender=
+    host=
+    gcc_version=
+    gcc_prefix=
+    cross_gcc_path=${data_disk_path}/opt/toolchains/${vender}/${gcc_version}/bin/${gcc_prefix}-
 else
     help_info
 fi

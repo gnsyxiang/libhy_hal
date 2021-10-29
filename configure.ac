@@ -43,11 +43,15 @@ AC_CHECK_LIB([pthread], [pthread_create])
 AC_CHECK_LIB([dl], [dlopen])
 
 # Checks for header files.
-AC_CHECK_HEADERS([stdint.h stdlib.h string.h unistd.h])
+AC_CHECK_HEADERS([inttypes.h stdint.h stdlib.h string.h unistd.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
+AC_C_INLINE
+AC_TYPE_INT32_T
 AC_TYPE_INT8_T
 AC_TYPE_SIZE_T
+AC_TYPE_UINT32_T
+AC_TYPE_UINT8_T
 
 # Checks for library functions.
 AC_FUNC_MALLOC
@@ -58,9 +62,21 @@ AC_CONFIG_FILES([Makefile
                  doc/Makefile
                  example/Makefile
                  example/linux/Makefile
+                 example/mac/Makefile
+                 example/mcu/Makefile
+                 example/rtos/Makefile
+                 example/window/Makefile
                  include/Makefile
                  include/linux/Makefile
+                 include/mac/Makefile
+                 include/mcu/Makefile
+                 include/rtos/Makefile
+                 include/window/Makefile
                  res/Makefile
                  src/Makefile
-                 src/linux/Makefile])
+                 src/linux/Makefile
+                 src/mac/Makefile
+                 src/mcu/Makefile
+                 src/rtos/Makefile
+                 src/window/Makefile])
 AC_OUTPUT
