@@ -27,9 +27,9 @@
 #include "hy_string.h"
 #include "hy_signal.h"
 
-#include "hy_utils/hy_module.h"
-#include "hy_utils/hy_log.h"
-#include "hy_utils/hy_utils.h"
+#include "hy_module.h"
+#include "hy_hal_utils.h"
+#include "hy_log.h"
 
 #define ALONE_DEBUG 1
 
