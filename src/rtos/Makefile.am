@@ -35,9 +35,9 @@ _ldadd_com      =
 # ---------------------
 # add necessary content
 # ---------------------
-_no_error_com   += -Wno-error=address
+_no_error_com   +=
 
-_include_com    += \
+_include_com    +=                              \
                    -I$(top_srcdir)/include/rtos \
                    -I$(top_srcdir)/include
 

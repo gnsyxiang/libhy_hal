@@ -53,12 +53,12 @@ install_includedir      = $(includedir)/@project_name@
 # ---------------------
 _no_install_headers_com +=
 
-_install_headers_com    += \
-                           hy_hal_utils.h \
-                           hy_log.h \
-                           hy_module.h \
-                           hy_error.h \
-                           hy_compile.h \
+_install_headers_com    +=                  \
+                           hy_compile.h     \
+                           hy_error.h       \
+                           hy_hal_utils.h   \
+                           hy_log.h         \
+                           hy_module.h      \
                            hy_type.h
 
 # ------------------

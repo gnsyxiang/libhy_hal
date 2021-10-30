@@ -69,8 +69,8 @@ _cflags_com     +=
 
 _cxxflags_com   +=
 
-_ldflags_com    += \
-                   -export-symbols-regex 'Hy*' \
+_ldflags_com    +=                                              \
+                   -export-symbols-regex 'Hy*'                  \
                    -version-info @current@:@revision@:@age@
 
 _ldadd_com      += $(top_builddir)/src/$(select_target_os)/libhy_hal_os.la

@@ -35,10 +35,10 @@ _ldadd_com      =
 # ---------------------
 # add necessary content
 # ---------------------
-_no_error_com   += -Wno-error=address
+_no_error_com   +=
 
-_include_com    += \
-                   -I$(top_srcdir)/include/mcu \
+_include_com    +=                              \
+                   -I$(top_srcdir)/include/mcu  \
                    -I$(top_srcdir)/include
 
 _sources_com    +=

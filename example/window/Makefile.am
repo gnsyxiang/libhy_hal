@@ -36,8 +36,8 @@ bin_PROGRAMS    =
 # ---------------------
 _no_error_com   +=
 
-_include_com    += \
-                   -I$(top_srcdir)/include/window \
+_include_com    +=                                  \
+                   -I$(top_srcdir)/include/window   \
                    -I$(top_srcdir)/include
 
 _sources_com    +=

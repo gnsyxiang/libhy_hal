@@ -22,6 +22,7 @@
 # defining variables
 # ------------------
 _no_error_com   =
+_define_com     =
 _include_com    =
 _sources_com    =
 _cppflags_com   =
@@ -36,13 +37,15 @@ bin_PROGRAMS    =
 # ---------------------
 _no_error_com   +=
 
-_include_com    += \
-                   -I$(top_srcdir)/include/linux \
+_define_com     +=
+
+_include_com    +=                                  \
+                   -I$(top_srcdir)/include/linux    \
                    -I$(top_srcdir)/include
 
 _sources_com    +=
 
-_cppflags_com   += $(_no_error_com) $(_include_com)
+_cppflags_com   += $(_no_error_com) $(_include_com) $(_define_com)
 
 _cflags_com     +=
 
@@ -52,22 +55,6 @@ _ldflags_com    +=
 
 _ldadd_com      += $(top_builddir)/src/lib@project_name@.la
 
-bin_PROGRAMS                += hy_template_test
-hy_template_test_SOURCES    = $(_sources_com) hy_template_test.c
-hy_template_test_CPPFLAGS   = $(_cppflags_com)
-hy_template_test_CFLAGS     = $(_cflags_com)
-hy_template_test_CXXFLAGS   = $(_cxxflags_com)
-hy_template_test_LDFLAGS    = $(_ldflags_com)
-hy_template_test_LDADD      = $(_ldadd_com)
-
-bin_PROGRAMS                += hy_uart_test
-hy_uart_test_SOURCES        = $(_sources_com) hy_uart_test.c
-hy_uart_test_CPPFLAGS       = $(_cppflags_com)
-hy_uart_test_CFLAGS         = $(_cflags_com)
-hy_uart_test_CXXFLAGS       = $(_cxxflags_com)
-hy_uart_test_LDFLAGS        = $(_ldflags_com)
-hy_uart_test_LDADD          = $(_ldadd_com)
-
 bin_PROGRAMS                += hy_dir_test
 hy_dir_test_SOURCES         = $(_sources_com) hy_dir_test.c
 hy_dir_test_CPPFLAGS        = $(_cppflags_com)
@@ -75,6 +62,22 @@ hy_dir_test_CFLAGS          = $(_cflags_com)
 hy_dir_test_CXXFLAGS        = $(_cxxflags_com)
 hy_dir_test_LDFLAGS         = $(_ldflags_com)
 hy_dir_test_LDADD           = $(_ldadd_com)
+
+bin_PROGRAMS                += hy_dlopen_test
+hy_dlopen_test_SOURCES      = $(_sources_com) hy_dlopen_test.c
+hy_dlopen_test_CPPFLAGS     = $(_cppflags_com)
+hy_dlopen_test_CFLAGS       = $(_cflags_com)
+hy_dlopen_test_CXXFLAGS     = $(_cxxflags_com)
+hy_dlopen_test_LDFLAGS      = $(_ldflags_com)
+hy_dlopen_test_LDADD        = $(_ldadd_com)
+
+bin_PROGRAMS                += hy_template_test
+hy_template_test_SOURCES    = $(_sources_com) hy_template_test.c
+hy_template_test_CPPFLAGS   = $(_cppflags_com)
+hy_template_test_CFLAGS     = $(_cflags_com)
+hy_template_test_CXXFLAGS   = $(_cxxflags_com)
+hy_template_test_LDFLAGS    = $(_ldflags_com)
+hy_template_test_LDADD      = $(_ldadd_com)
 
 bin_PROGRAMS                += hy_thread_test
 hy_thread_test_SOURCES      = $(_sources_com) hy_thread_test.c
@@ -84,11 +87,11 @@ hy_thread_test_CXXFLAGS     = $(_cxxflags_com)
 hy_thread_test_LDFLAGS      = $(_ldflags_com)
 hy_thread_test_LDADD        = $(_ldadd_com)
 
-bin_PROGRAMS                += hy_dlopen_test
-hy_dlopen_test_SOURCES      = $(_sources_com) hy_dlopen_test.c
-hy_dlopen_test_CPPFLAGS     = $(_cppflags_com)
-hy_dlopen_test_CFLAGS       = $(_cflags_com)
-hy_dlopen_test_CXXFLAGS     = $(_cxxflags_com)
-hy_dlopen_test_LDFLAGS      = $(_ldflags_com)
-hy_dlopen_test_LDADD        = $(_ldadd_com)
+bin_PROGRAMS                += hy_uart_test
+hy_uart_test_SOURCES        = $(_sources_com) hy_uart_test.c
+hy_uart_test_CPPFLAGS       = $(_cppflags_com)
+hy_uart_test_CFLAGS         = $(_cflags_com)
+hy_uart_test_CXXFLAGS       = $(_cxxflags_com)
+hy_uart_test_LDFLAGS        = $(_ldflags_com)
+hy_uart_test_LDADD          = $(_ldadd_com)
 

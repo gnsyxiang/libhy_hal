@@ -36,23 +36,23 @@ _ldadd_com      =
 # ---------------------
 # add necessary content
 # ---------------------
-_no_error_com   += -Wno-error=address
+_no_error_com   +=
 
 _define_com     += -D_GNU_SOURCE
 
-_include_com    += \
-                   -I$(top_srcdir)/include/linux \
+_include_com    +=                                  \
+                   -I$(top_srcdir)/include/linux    \
                    -I$(top_srcdir)/include
 
-_sources_com    += \
-                   hy_uart.c \
-                   hy_dir.c \
-                   hy_thread.c \
-                   hy_log.c \
-                   hy_dlopen.c \
-                   hy_signal.c \
-                   hy_string.c \
-                   hy_mem.c
+_sources_com    +=                  \
+                   hy_dir.c         \
+                   hy_dlopen.c      \
+                   hy_log.c         \
+                   hy_mem.c         \
+                   hy_signal.c      \
+                   hy_string.c      \
+                   hy_thread.c      \
+                   hy_uart.c
 
 _cppflags_com   += $(_no_error_com) $(_include_com) $(_define_com)
 
@@ -63,6 +63,7 @@ _cxxflags_com   +=
 _ldflags_com    +=
 
 _ldadd_com      +=
+
 
 libhy_hal_os_la_SOURCES    = $(_sources_com)
 libhy_hal_os_la_CPPFLAGS   = $(_cppflags_com)
