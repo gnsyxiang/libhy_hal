@@ -60,6 +60,14 @@ hy_template_test_CXXFLAGS   = $(_cxxflags_com)
 hy_template_test_LDFLAGS    = $(_ldflags_com)
 hy_template_test_LDADD      = $(_ldadd_com)
 
+bin_PROGRAMS                += hy_uart_test
+hy_uart_test_SOURCES        = $(_sources_com) hy_uart_test.c
+hy_uart_test_CPPFLAGS       = $(_cppflags_com)
+hy_uart_test_CFLAGS         = $(_cflags_com)
+hy_uart_test_CXXFLAGS       = $(_cxxflags_com)
+hy_uart_test_LDFLAGS        = $(_ldflags_com)
+hy_uart_test_LDADD          = $(_ldadd_com)
+
 bin_PROGRAMS                += hy_dir_test
 hy_dir_test_SOURCES         = $(_sources_com) hy_dir_test.c
 hy_dir_test_CPPFLAGS        = $(_cppflags_com)
