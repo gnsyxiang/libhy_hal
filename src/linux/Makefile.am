@@ -30,6 +30,7 @@ _cppflags_com   =
 _cflags_com     =
 _cxxflags_com   =
 _ldflags_com    =
+_define_com     =
 _ldadd_com      =
 
 # ---------------------
@@ -37,18 +38,21 @@ _ldadd_com      =
 # ---------------------
 _no_error_com   += -Wno-error=address
 
+_define_com     += -D_GNU_SOURCE
+
 _include_com    += \
                    -I$(top_srcdir)/include/linux \
                    -I$(top_srcdir)/include
 
 _sources_com    += \
+                   hy_thread.c \
                    hy_log.c \
                    hy_dlopen.c \
                    hy_signal.c \
                    hy_string.c \
                    hy_mem.c
 
-_cppflags_com   += $(_no_error_com) $(_include_com)
+_cppflags_com   += $(_no_error_com) $(_include_com) $(_define_com)
 
 _cflags_com     +=
 

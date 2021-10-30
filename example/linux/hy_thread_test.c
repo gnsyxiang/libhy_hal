@@ -2,10 +2,10 @@
  * 
  * Release under GPLv-3.0.
  * 
- * @file    hy_template_test.c
+ * @file    hy_thread_test.c
  * @brief   
  * @author  gnsyxiang <gnsyxiang@163.com>
- * @date    25/10 2021 19:56
+ * @date    30/10 2021 08:35
  * @version v0.0.1
  * 
  * @since    note
@@ -13,14 +13,16 @@
  * 
  *     change log:
  *     NO.     Author              Date            Modified
- *     00      zhenquan.qiu        25/10 2021      create the file
+ *     00      zhenquan.qiu        30/10 2021      create the file
  * 
- *     last modified: 25/10 2021 19:56
+ *     last modified: 30/10 2021 08:35
  */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+
+#include "hy_thread.h"
 
 #include "hy_type.h"
 #include "hy_mem.h"
@@ -35,9 +37,22 @@
 typedef struct {
     void *log_handle;
     void *signal_handle;
+    void *thread_handle;
 
     hy_s32_t exit_flag;
 } _main_context_t;
+
+static int32_t _print_loop_cb(void *args)
+{
+    _main_context_t *context = args;
+
+    while (!context->exit_flag) {
+        LOGE("haha \n");
+        sleep(1);
+    }
+
+    return -1;
+}
 
 static void _signal_error_cb(void *args)
 {
@@ -61,6 +76,7 @@ static void _module_destroy(_main_context_t **context_pp)
 
     // note: 增加或删除要同步到module_create_t中
     module_destroy_t module[] = {
+        {"thread",  &context->thread_handle,    HyThreadDestroy},
         {"signal",  &context->signal_handle,    HySignalDestroy},
         {"log",     &context->log_handle,       HyLogDestroy},
     };
@@ -98,10 +114,16 @@ static _main_context_t *_module_create(void)
     signal_config.save_config.user_cb       = _signal_user_cb;
     signal_config.save_config.args          = context;
 
+    HyThreadConfig_t thread_config;
+    thread_config.save_config.thread_loop_cb    = _print_loop_cb;
+    thread_config.save_config.args              = context;
+    HY_STRNCPY(thread_config.save_config.name, HY_THREAD_NAME_LEN_MAX, "print", HY_STRLEN("print"));
+
     // note: 增加或删除要同步到module_destroy_t中
     module_create_t module[] = {
         {"log",     &context->log_handle,       &log_config,        (create_t)HyLogCreate,      HyLogDestroy},
         {"signal",  &context->signal_handle,    &signal_config,     (create_t)HySignalCreate,   HySignalDestroy},
+        {"thread",  &context->thread_handle,    &thread_config,     (create_t)HyThreadCreate,   HyThreadDestroy},
     };
 
     RUN_CREATE(module);
