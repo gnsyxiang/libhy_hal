@@ -6,12 +6,12 @@ libdir=@libdir@
 Name: @PACKAGE@
 Version: @VERSION@
 URL: @PACKAGE_URL@
-Description: autotools demo for lib
+Description: system isolation layer（系统隔离层）
 
 Requires:
 Requires.private:
 Conflicts:
 
 Cflags: -I${includedir}
-Libs: -L${libdir} -l@PACKAGE@
+Libs: -L${libdir} -l@project_name@
 Libs.private:
