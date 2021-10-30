@@ -42,8 +42,17 @@ extern "C" {
 
 #define HY_STRLEN(str)                      strlen(str)
 #define HY_STRCMP(src, dst, len)            strcmp(src, dst)
-#define HY_STRNCPY(dst, src, len)           strncpy(dst, src, len)
 #define HY_STRNCMP(src, dst, len)           strncmp(src, dst, len)
+
+#define HY_STRNCPY(dst, dst_len, src, src_len)  \
+    do {                                        \
+        size_t len = src_len;                   \
+        if (len >= dst_len) {                   \
+            len -= 1;                           \
+        }                                       \
+        memset(dst, '\0', dst_len);             \
+        strncpy(dst, src, len);                 \
+    } while(0)
 
 /**
  * @brief 从右边开始拷贝字符，直到指定字符停止，不拷贝指定字符
