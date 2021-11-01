@@ -133,7 +133,7 @@ static inline void _output_reset_color(HyLogLevel_t level, hy_u32_t *ret)
 void HyLogWrite(int level, const char *file, const char *func,
         uint32_t line, char *fmt, ...)
 {
-    if (context && context->save_config.level > level) {
+    if (context && context->save_config.level >= level) {
         #define _SHORT_FILE_LEN_MAX (32)
         char short_file[_SHORT_FILE_LEN_MAX] = {0};
         hy_u32_t ret = 0;
