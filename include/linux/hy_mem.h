@@ -28,9 +28,9 @@ extern "C" {
 #include <stdlib.h>
 
 #define HY_MEM_ALIGN(len, align)    (((len) + (align) - 1) & ~((align) - 1))    ///< 字节对齐
-#define HY_MEM_ALIGN2(len)          BYTE_ALIGN(len, 2)                          ///< 2字节对齐
-#define HY_MEM_ALIGN4(len)          BYTE_ALIGN(len, 4)                          ///< 4字节对齐
-#define HY_MEM_ALIGN4_UP(len)       (BYTE_ALIGN(len, 4) + ALIGN4(1))            ///< 4字节向上对齐(原来已经事4字节对齐，使用后再增加4个字节)
+#define HY_MEM_ALIGN2(len)          HY_MEM_ALIGN(len, 2)                        ///< 2字节对齐
+#define HY_MEM_ALIGN4(len)          HY_MEM_ALIGN(len, 4)                        ///< 4字节对齐
+#define HY_MEM_ALIGN4_UP(len)       (HY_MEM_ALIGN(len, 4) + HY_MEM_ALIGN4(1))   ///< 4字节向上对齐(原来已经事4字节对齐，使用后再增加4个字节)
 
 #define HY_MEM_MALLOC_BREAK(type, size)         \
     ({                                          \
