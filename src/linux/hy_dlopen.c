@@ -33,7 +33,7 @@ void *HyDlLibLoadSymbol(void *handle, const char *symbol)
 
     void *symbol_handle = dlsym(handle, symbol);
     if (!symbol_handle) {
-        LOGE("dlsym failed, %s \n", dlerror());
+        LOGE("dlsym %s failed, %s \n", symbol, dlerror());
     }
 
     return symbol_handle;
@@ -54,7 +54,7 @@ void *HyDlLibOpen(const char *so_name)
 
     void *handle = dlopen(so_name, RTLD_LAZY);
     if (!handle) {
-        LOGE("dlopen failed, %s \n", dlerror());
+        LOGE("dlopen %s failed, %s \n", so_name, dlerror());
     }
 
     return handle;

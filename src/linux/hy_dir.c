@@ -83,7 +83,7 @@ static int32_t _dir_read(int32_t type, const char *path, const char *filter,
 
     dir = opendir(path);
     if (!dir) {
-        LOGE("opendir failed \n");
+        LOGE("opendir %s failed \n", path);
         return -1;
     }
 
