@@ -1,0 +1,78 @@
+# ===============================================================
+# 
+# Release under GPLv-3.0.
+# 
+# @file    log4cplus.rc
+# @brief   
+# @author  gnsyxiang <gnsyxiang@163.com>
+# @date    02/11 2021 14:14
+# @version v0.0.1
+# 
+# @since    note
+# @note     note
+# 
+#     change log:
+#     NO.     Author              Date            Modified
+#     00      zhenquan.qiu        02/11 2021      create the file
+# 
+#     last modified: 02/11 2021 14:14
+# ===============================================================
+
+# 告警级别由低到高排序: TRACE, DEBUG, INFO, WARN, ERROR, FATAL
+#log4cplus.rootLogger=TRACE, ALL_MSGS, DEBUG_FATAL_MSGS, INFO_FATAL_MSGS, DATABASE_INFO_FATAL_MSGS
+log4cplus.rootLogger=TRACE, ALL_MSGS, DEBUG_FATAL_MSGS, INFO_FATAL_MSGS
+
+log4cplus.appender.ALL_MSGS=log4cplus::ConsoleAppender
+log4cplus.appender.ALL_MSGS.layout=log4cplus::PatternLayout
+log4cplus.appender.ALL_MSGS.layout.ConversionPattern=[%-5p][%-40l] %m
+log4cplus.appender.ALL_MSGS.filters.1=log4cplus::spi::LogLevelRangeFilter
+log4cplus.appender.ALL_MSGS.filters.1.LogLevelMin=TRACE
+log4cplus.appender.ALL_MSGS.filters.1.LogLevelMax=FATAL
+log4cplus.appender.ALL_MSGS.filters.1.AcceptOnMatch=true
+log4cplus.appender.ALL_MSGS.filters.2=log4cplus::spi::DenyAllFilter
+
+log4cplus.appender.DEBUG_FATAL_MSGS=log4cplus::RollingFileAppender
+log4cplus.appender.DEBUG_FATAL_MSGS.File=debug_fatal_msgs.log
+log4cplus.appender.DEBUG_FATAL_MSGS.layout=log4cplus::PatternLayout
+log4cplus.appender.DEBUG_FATAL_MSGS.layout.ConversionPattern=[%-5p][%D{%Y/%m/%d %H:%M:%S:%q}][%t][%-l] %m
+log4cplus.appender.DEBUG_FATAL_MSGS.filters.1=log4cplus::spi::LogLevelRangeFilter
+log4cplus.appender.DEBUG_FATAL_MSGS.filters.1.LogLevelMin=DEBUG
+log4cplus.appender.DEBUG_FATAL_MSGS.filters.1.LogLevelMax=FATAL
+log4cplus.appender.DEBUG_FATAL_MSGS.filters.1.AcceptOnMatch=true
+log4cplus.appender.DEBUG_FATAL_MSGS.filters.2=log4cplus::spi::DenyAllFilter
+log4cplus.appender.DEBUG_FATAL_MSGS.MaxFileSize=1MB
+log4cplus.appender.DEBUG_FATAL_MSGS.MaxBackupIndex=5
+log4cplus.appender.DEBUG_FATAL_MSGS.ImmediateFlush=true
+log4cplus.appender.DEBUG_FATAL_MSGS.Append=false
+log4cplus.appender.DEBUG_FATAL_MSGS.Encoding=utf-8
+
+log4cplus.appender.INFO_FATAL_MSGS=log4cplus::RollingFileAppender
+log4cplus.appender.INFO_FATAL_MSGS.File=info_fatal_msgs.log
+log4cplus.appender.INFO_FATAL_MSGS.layout=log4cplus::PatternLayout
+log4cplus.appender.INFO_FATAL_MSGS.layout.ConversionPattern=[%-5p][%D{%Y/%m/%d %H:%M:%S:%q}][%t][%-l] %m
+log4cplus.appender.INFO_FATAL_MSGS.filters.1=log4cplus::spi::LogLevelRangeFilter
+log4cplus.appender.INFO_FATAL_MSGS.filters.1.LogLevelMin=INFO
+log4cplus.appender.INFO_FATAL_MSGS.filters.1.LogLevelMax=FATAL
+log4cplus.appender.INFO_FATAL_MSGS.filters.1.AcceptOnMatch=true
+log4cplus.appender.INFO_FATAL_MSGS.filters.2=log4cplus::spi::DenyAllFilter
+log4cplus.appender.INFO_FATAL_MSGS.MaxFileSize=1MB
+log4cplus.appender.INFO_FATAL_MSGS.MaxBackupIndex=5
+log4cplus.appender.INFO_FATAL_MSGS.ImmediateFlush=true
+log4cplus.appender.INFO_FATAL_MSGS.Append=false
+log4cplus.appender.INFO_FATAL_MSGS.Encoding=utf-8
+
+#log4cplus.appender.DATABASE_INFO_FATAL_MSGS=log4cplus::RollingFileAppender
+#log4cplus.appender.DATABASE_INFO_FATAL_MSGS.File=database_info_fatal_msgs.log
+#log4cplus.appender.DATABASE_INFO_FATAL_MSGS.layout=log4cplus::PatternLayout
+#log4cplus.appender.DATABASE_INFO_FATAL_MSGS.layout.ConversionPattern=[%-5p][%D{%Y/%m/%d %H:%M:%S:%q}][%t][%-l] %m
+#log4cplus.appender.DATABASE_INFO_FATAL_MSGS.filters.1=log4cplus::spi::LogLevelRangeFilter
+#log4cplus.appender.DATABASE_INFO_FATAL_MSGS.filters.1.LogLevelMin=INFO
+#log4cplus.appender.DATABASE_INFO_FATAL_MSGS.filters.1.LogLevelMax=FATAL
+#log4cplus.appender.DATABASE_INFO_FATAL_MSGS.filters.1.AcceptOnMatch=true
+#log4cplus.appender.DATABASE_INFO_FATAL_MSGS.filters.2=log4cplus::spi::DenyAllFilter
+#log4cplus.appender.DATABASE_INFO_FATAL_MSGS.MaxFileSize=1MB
+#log4cplus.appender.DATABASE_INFO_FATAL_MSGS.MaxBackupIndex=5
+#log4cplus.appender.DATABASE_INFO_FATAL_MSGS.ImmediateFlush=true
+#log4cplus.appender.DATABASE_INFO_FATAL_MSGS.Append=false
+#log4cplus.appender.DATABASE_INFO_FATAL_MSGS.Encoding=utf-8
+

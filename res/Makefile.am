@@ -22,12 +22,27 @@
 # defining variables
 # ------------------
 _dist_file_com  =
+resdir          = $(prefix)/res/@project_name@
+res_DATA        =
+
+# ------------------
+# make install files
+# ------------------
+if COMPILE_LIBLOG4CPLUS
+res_DATA        += log4cplus.rc
+endif
+
 
 # ---------------
 # make dist files
 # ---------------
 _dist_file_com  += \
-                   Doxyfile \
+                   Doxyfile             \
                    get_project_info.sh
+
+if COMPILE_LIBLOG4CPLUS
+_dist_file_com  += log4cplus.rc
+endif
+
 EXTRA_DIST      = $(_dist_file_com)
 
