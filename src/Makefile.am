@@ -69,7 +69,7 @@ _cflags_com     +=
 
 _cxxflags_com   +=
 
-_ldflags_com    +=                                              \
+_ldflags_com    += \
                    -export-symbols-regex 'Hy*'                  \
                    -version-info @current@:@revision@:@age@
 
