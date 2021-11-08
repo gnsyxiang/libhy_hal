@@ -45,6 +45,7 @@ _include_com    += \
                    -I$(top_srcdir)/include
 
 _sources_com    += \
+                   hy_file.c        \
                    hy_dir.c         \
                    hy_dlopen.c      \
                    hy_mem.c         \
