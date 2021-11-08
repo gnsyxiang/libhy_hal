@@ -13,6 +13,13 @@ generate_version_num()
     cd -  >/dev/null 2>&1
 }
 
+get_cross_gcc_info()
+{
+    cd ${BUILD_AUX_DIR}
+    ./get_cross_gcc_info.sh $1
+    cd -  >/dev/null 2>&1
+}
+
 # use autotools to configure
 autotools_configure()
 {
@@ -20,5 +27,7 @@ autotools_configure()
 }
 
 generate_version_num
+
+get_cross_gcc_info $1
 
 autotools_configure

@@ -5,7 +5,7 @@
 # @file    Makefile.am
 # @brief   
 # @author  gnsyxiang <gnsyxiang@163.com>
-# @date    29/10 2021 21:00
+# @date    08/11 2021 16:01
 # @version v0.0.1
 # 
 # @since    note
@@ -13,22 +13,18 @@
 # 
 #     change log:
 #     NO.     Author              Date            Modified
-#     00      zhenquan.qiu        29/10 2021      create the file
+#     00      zhenquan.qiu        08/11 2021      create the file
 # 
-#     last modified: 29/10 2021 21:00
+#     last modified: 08/11 2021 16:01
 # ===============================================================
 
-if COMPILE_SELECT_MCU_AT
-_mcu_vender = at
+if COMPILE_SELECT_MCU_AT32F4XX
+_mcu_type = at32f4xx
 endif
 
-if COMPILE_SELECT_MCU_HC
-_mcu_vender = hc
-endif
+SUBDIRS = $(_mcu_type)
 
-SUBDIRS = $(_mcu_vender)
-
-noinst_LTLIBRARIES = libhy_hal_os.la
+noinst_LTLIBRARIES = libmcu_vender.la
 
 # ------------------
 # defining variables
@@ -61,12 +57,12 @@ _cxxflags_com   +=
 
 _ldflags_com    +=
 
-_ldadd_com      += $(top_builddir)/src/mcu/$(_mcu_vender)/libmcu_vender.la
+_ldadd_com      += $(top_builddir)/src/mcu/at/$(_mcu_type)/libmcu.la
 
-libhy_hal_os_la_SOURCES    = $(_sources_com)
-libhy_hal_os_la_CPPFLAGS   = $(_cppflags_com)
-libhy_hal_os_la_CFLAGS     = $(_cflags_com)
-libhy_hal_os_la_CXXFLAGS   = $(_cxxflags_com)
-libhy_hal_os_la_LDFLAGS    = $(_ldflags_com)
-libhy_hal_os_la_LIBADD     = $(_ldadd_com)
+libmcu_vender_la_SOURCES    = $(_sources_com)
+libmcu_vender_la_CPPFLAGS   = $(_cppflags_com)
+libmcu_vender_la_CFLAGS     = $(_cflags_com)
+libmcu_vender_la_CXXFLAGS   = $(_cxxflags_com)
+libmcu_vender_la_LDFLAGS    = $(_ldflags_com)
+libmcu_vender_la_LIBADD     = $(_ldadd_com)
 

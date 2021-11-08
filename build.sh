@@ -29,20 +29,24 @@ _cppflags_com="${_cppflags_com} -Wno-error=unused-function"
 _cppflags_com="${_cppflags_com} -pipe"
 _cppflags_com="${_cppflags_com} -ffunction-sections"
 _cppflags_com="${_cppflags_com} -fdata-sections"
-_cppflags_com="${_cppflags_com} -fstack-protector-all"
-_ldflag_com="${_ldflag_com} -rdynamic"
 _ldflag_com="${_ldflag_com} -Wl,--gc-sections"
 _ldflag_com="${_ldflag_com} -Wl,--as-needed"
 
 if [ x$1 = x"pc" ]; then
     vender=pc
     gcc_version=x86_64-linux-gnu
+
+    _cppflags_com="${_cppflags_com} -fstack-protector-all"
+    _ldflag_com="${_ldflag_com} -rdynamic"
 elif [ x$1 = x"arm" ]; then
     vender=hisi
     host=arm-himix200-linux
     gcc_version=arm-himix200-linux
     gcc_prefix=arm-himix200-linux
     cross_gcc_path=${data_disk_path}/opt/toolchains/${vender}/${gcc_version}/bin/${gcc_prefix}-
+
+    _cppflags_com="${_cppflags_com} -fstack-protector-all"
+    _ldflag_com="${_ldflag_com} -rdynamic"
 elif [ x$1 = x"mac" ]; then
     vender=
     host=
@@ -55,6 +59,7 @@ elif [ x$1 = x"mcu" ]; then
     gcc_version=gcc-arm-none-eabi-5_4-2016q3
     gcc_prefix=arm-none-eabi
     cross_gcc_path=${data_disk_path}/opt/toolchains/${vender}/${gcc_version}/bin/${gcc_prefix}-
+    _param_com="${_param_com} --with-target_os=mcu --with-mcu=at32f4xx"
 
     _ldflag_com="${_ldflag_com} -specs=nano.specs -specs=nosys.specs"
 elif [ x$1 = x"rtos" ]; then
@@ -84,7 +89,7 @@ _ldflag_com="${_ldflag_com} -L${lib_3rd_path}/lib"
 target_path=`pwd`
 prefix_path=${lib_3rd_path}
 
-cd ${target_path} && ./autogen.sh && cd -
+cd ${target_path} && ./autogen.sh ${cross_gcc_path} && cd - >/dev/null 2>&1
 
 if [ $# = 2 ]; then
     mkdir -p $2/${vender}
