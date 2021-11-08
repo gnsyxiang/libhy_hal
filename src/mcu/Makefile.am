@@ -51,7 +51,9 @@ _include_com    += \
                    -I$(top_srcdir)/include/mcu  \
                    -I$(top_srcdir)/include
 
-_sources_com    +=
+_sources_com    += \
+                   hy_log.c \
+                   hy_mem.c
 
 _cppflags_com   += $(_no_error_com) $(_include_com)
 
