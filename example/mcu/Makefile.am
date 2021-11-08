@@ -39,6 +39,7 @@ _cflags_com     =
 _cxxflags_com   =
 _ldflags_com    =
 _ldadd_com      =
+_elf_file       =
 bin_PROGRAMS    =
 
 # ---------------------
@@ -67,11 +68,23 @@ _include_com    += $(HY_MCU_INCS)
 _ldadd_com      += $(HY_MCU_LIBS)
 endif
 
+if COMPILE_SELECT_MCU_AT
+if COMPILE_SELECT_MCU_AT32F4XX
+_ldflags_com    += -T$(prefix)/res/hy_mcu/AT32F407xG_FLASH.ld
+endif
+endif
+
+_elf_file                   += hy_gpio_test
 bin_PROGRAMS                += hy_gpio_test
 hy_gpio_test_SOURCES        = $(_sources_com) hy_gpio_test.c
 hy_gpio_test_CPPFLAGS       = $(_cppflags_com)
 hy_gpio_test_CFLAGS         = $(_cflags_com)
 hy_gpio_test_CXXFLAGS       = $(_cxxflags_com)
-hy_gpio_test_LDFLAGS        = $(_ldflags_com)
+hy_gpio_test_LDFLAGS        = $(_ldflags_com) -Wl,--gc-sections,-Map=hy_gpio_test.map,-cref,-u,Reset_Handler
 hy_gpio_test_LDADD          = $(_ldadd_com)
 
+install-exec-hook:
+	for file in $(_elf_file); do \
+		@gcc_prefix@objcopy -O binary $$file $$file.bin; \
+	done
+	$(INSTALL_PROGRAM_ENV) $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(INSTALL_PROGRAM) *.bin "$(DESTDIR)$(bindir)$$dir"
