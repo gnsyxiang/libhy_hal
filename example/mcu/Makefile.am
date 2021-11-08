@@ -70,7 +70,7 @@ endif
 
 if COMPILE_SELECT_MCU_AT
 if COMPILE_SELECT_MCU_AT32F4XX
-_ldflags_com    += -T$(prefix)/res/hy_mcu/AT32F407xG_FLASH.ld
+_ldflags_com    += -T$(top_srcdir)/src/mcu/at/at32f4xx/AT32F407xG_FLASH.ld
 endif
 endif
 

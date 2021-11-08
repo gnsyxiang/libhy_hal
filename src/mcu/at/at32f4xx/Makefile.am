@@ -32,6 +32,8 @@ _cxxflags_com   =
 _ldflags_com    =
 _ldadd_com      =
 
+_dist_files_com =
+
 # ---------------------
 # add necessary content
 # ---------------------
@@ -66,3 +68,8 @@ libmcu_la_CXXFLAGS   = $(_cxxflags_com)
 libmcu_la_LDFLAGS    = $(_ldflags_com)
 libmcu_la_LIBADD     = $(_ldadd_com)
 
+# ---------------
+# make dist files
+# ---------------
+_dist_files_com     += AT32F407xG_FLASH.ld
+EXTRA_DIST          = $(_dist_files_com)
