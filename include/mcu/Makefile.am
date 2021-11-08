@@ -46,6 +46,7 @@ _no_install_headers_com += \
 _install_headers_com    += \
                            hy_gpio.h    \
                            hy_mem.h     \
+                           hy_system.h  \
                            hy_uart.h
 
 # ------------------
