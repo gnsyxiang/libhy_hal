@@ -25,8 +25,8 @@
 
 static void _delay(void)
 {
-    for (int i = 0; i < 10000; ++i) {
-        for (int j = 0; j < 10000; ++j) {
+    for (int i = 0; i < 5000; ++i) {
+        for (int j = 0; j < 1000; ++j) {
         }
     }
 }
