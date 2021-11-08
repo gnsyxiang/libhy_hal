@@ -83,6 +83,15 @@ hy_gpio_test_CXXFLAGS       = $(_cxxflags_com)
 hy_gpio_test_LDFLAGS        = $(_ldflags_com) -Wl,--gc-sections,-Map=hy_gpio_test.map,-cref,-u,Reset_Handler
 hy_gpio_test_LDADD          = $(_ldadd_com)
 
+_elf_file                   += hy_template_test
+bin_PROGRAMS                += hy_template_test
+hy_template_test_SOURCES    = $(_sources_com) hy_template_test.c
+hy_template_test_CPPFLAGS   = $(_cppflags_com)
+hy_template_test_CFLAGS     = $(_cflags_com)
+hy_template_test_CXXFLAGS   = $(_cxxflags_com)
+hy_template_test_LDFLAGS    = $(_ldflags_com) -Wl,--gc-sections,-Map=hy_template_test.map,-cref,-u,Reset_Handler
+hy_template_test_LDADD      = $(_ldadd_com)
+
 install-exec-hook:
 	for file in $(_elf_file); do \
 		@gcc_prefix@objcopy -O binary $$file $$file.bin; \
