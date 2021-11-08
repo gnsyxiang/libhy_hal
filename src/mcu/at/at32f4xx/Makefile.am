@@ -46,7 +46,8 @@ _include_com    += $(HY_MCU_INCS)
 endif
 
 _sources_com    += \
-                   hy_gpio.c
+                   hy_gpio.c \
+                   hy_uart.c
 
 _cppflags_com   += $(_no_error_com) $(_include_com)
 

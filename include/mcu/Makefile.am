@@ -39,11 +39,14 @@ install_includedir      = $(includedir)/@project_name@
 # ---------------------
 # add necessary content
 # ---------------------
-_no_install_headers_com +=
+_no_install_headers_com += \
+                           gpio_2_str.h \
+                           uart_2_str.h
 
 _install_headers_com    += \
-                           hy_gpio.h \
-                           hy_mem.h
+                           hy_gpio.h    \
+                           hy_mem.h     \
+                           hy_uart.h
 
 # ------------------
 # make install files
