@@ -50,7 +50,6 @@ _sources_com    += \
                    hy_dlopen.c      \
                    hy_mem.c         \
                    hy_signal.c      \
-                   hy_string.c      \
                    hy_thread.c      \
                    hy_uart.c
 
