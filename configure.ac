@@ -55,7 +55,6 @@ AC_TYPE_INT32_T
 AC_TYPE_INT8_T
 AC_TYPE_SIZE_T
 AC_TYPE_SSIZE_T
-AC_TYPE_UINT16_T
 AC_TYPE_UINT32_T
 AC_TYPE_UINT8_T
 
@@ -70,12 +69,16 @@ AC_CONFIG_FILES([Makefile
                  example/linux/Makefile
                  example/mac/Makefile
                  example/mcu/Makefile
+                 example/mcu/at/Makefile
+                 example/mcu/hc/Makefile
                  example/rtos/Makefile
                  example/window/Makefile
                  include/Makefile
                  include/linux/Makefile
                  include/mac/Makefile
                  include/mcu/Makefile
+                 include/mcu/at/Makefile
+                 include/mcu/hc/Makefile
                  include/rtos/Makefile
                  include/window/Makefile
                  res/Makefile

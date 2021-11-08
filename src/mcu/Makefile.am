@@ -51,6 +51,10 @@ _include_com    += \
                    -I$(top_srcdir)/include/mcu  \
                    -I$(top_srcdir)/include
 
+if COMPILE_LIBHY_MCU
+_include_com    += $(HY_MCU_INCS)
+endif
+
 _sources_com    += \
                    hy_log.c \
                    hy_mem.c

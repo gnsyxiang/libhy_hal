@@ -85,6 +85,10 @@ doxygen/
 
 example/main
 example/linux/hy_*_test
+example/mac/hy_*_test
+example/mcu/hy_*_test
+example/rtos/hy_*_test
+example/window/hy_*_test
 hy_hal.pc
 
 

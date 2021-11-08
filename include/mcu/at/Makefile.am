@@ -5,7 +5,7 @@
 # @file    Makefile.am
 # @brief   
 # @author  gnsyxiang <gnsyxiang@163.com>
-# @date    29/10 2021 20:59
+# @date    08/11 2021 16:59
 # @version v0.0.1
 # 
 # @since    note
@@ -13,20 +13,10 @@
 # 
 #     change log:
 #     NO.     Author              Date            Modified
-#     00      zhenquan.qiu        29/10 2021      create the file
+#     00      zhenquan.qiu        08/11 2021      create the file
 # 
-#     last modified: 29/10 2021 20:59
+#     last modified: 08/11 2021 16:59
 # ===============================================================
-
-if COMPILE_SELECT_MCU_AT
-_mcu_vender = at
-endif
-
-if COMPILE_SELECT_MCU_HC
-_mcu_vender = hc
-endif
-
-SUBDIRS = $(_mcu_vender)
 
 # ------------------
 # defining variables
@@ -41,9 +31,7 @@ install_includedir      = $(includedir)/@project_name@
 # ---------------------
 _no_install_headers_com +=
 
-_install_headers_com    += \
-                           hy_gpio.h \
-                           hy_mem.h
+_install_headers_com    +=
 
 # ------------------
 # make install files

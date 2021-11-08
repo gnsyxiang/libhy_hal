@@ -5,7 +5,7 @@ dnl
 dnl @file    check_libhy_mcu.m4
 dnl @brief   
 dnl @author  gnsyxiang <gnsyxiang@163.com>
-dnl @date    08/11 2021 15:52
+dnl @date    08/05 2021 10:29
 dnl @version v0.0.1
 dnl 
 dnl @since    note
@@ -13,9 +13,9 @@ dnl @note     note
 dnl 
 dnl     change log:
 dnl     NO.     Author              Date            Modified
-dnl     00      zhenquan.qiu        08/11 2021      create the file
+dnl     00      zhenquan.qiu        08/05 2021      create the file
 dnl 
-dnl     last modified: 08/11 2021 15:52
+dnl     last modified: 08/05 2021 10:29
 dnl ===============================================================
 
 # CHECK_LIBHY_MCU()
@@ -88,5 +88,8 @@ to disable support for hy_mcu encryption])
             esac
         ;;
     esac
+
+    # check if we have and should use hy_mcu
+    AM_CONDITIONAL(COMPILE_LIBHY_MCU, [test "$enable_hy_mcu" != "no" && test "$have_hy_mcu" = "yes"])
 ])
 

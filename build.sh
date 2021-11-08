@@ -59,9 +59,18 @@ elif [ x$1 = x"mcu" ]; then
     gcc_version=gcc-arm-none-eabi-5_4-2016q3
     gcc_prefix=arm-none-eabi
     cross_gcc_path=${data_disk_path}/opt/toolchains/${vender}/${gcc_version}/bin/${gcc_prefix}-
-    _param_com="${_param_com} --with-target_os=mcu --with-mcu=at32f4xx"
-
     _ldflag_com="${_ldflag_com} -specs=nano.specs -specs=nosys.specs"
+
+    # -----------
+    # 雅特力
+    # -----------
+    #
+    # M4系列
+    #
+    _cppflags_com="${_cppflags_com} -DAT32F407VGT7 -DAT_START_F407_V1_0 -DUSE_STDPERIPH_DRIVER -DSYSCLK_FREQ_240MHz=240000000"
+    _cppflags_com="${_cppflags_com} -mcpu=cortex-m4 -mthumb -mfpu=fpv4-sp-d16 -mfloat-abi=hard"
+    _ldflag_com="${_ldflag_com} -mcpu=cortex-m4 -mthumb -mfpu=fpv4-sp-d16 -mfloat-abi=hard"
+    _param_com="${_param_com} --with-target_os=mcu --with-mcu=at32f4xx"
 elif [ x$1 = x"rtos" ]; then
     vender=gnu_arm_embedded
     host=arm-none-eabi
@@ -84,6 +93,10 @@ fi
 lib_3rd_path=${data_disk_path}/install/${vender}/${gcc_version}
 _cppflags_com="${_cppflags_com} -I${lib_3rd_path}/include"
 _ldflag_com="${_ldflag_com} -L${lib_3rd_path}/lib"
+
+if [ x$1 = x"mcu" ]; then
+    _cppflags_com="${_cppflags_com} -I${lib_3rd_path}/include/hy_mcu"
+fi
 
 # target
 target_path=`pwd`
