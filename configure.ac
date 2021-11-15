@@ -55,11 +55,11 @@ AC_TYPE_INT32_T
 AC_TYPE_INT8_T
 AC_TYPE_SIZE_T
 AC_TYPE_SSIZE_T
+AC_TYPE_UINT16_T
 AC_TYPE_UINT32_T
 AC_TYPE_UINT8_T
 
 # Checks for library functions.
-AC_FUNC_MALLOC
 AC_CHECK_FUNCS([memset])
 
 AC_CONFIG_FILES([Makefile
@@ -81,6 +81,10 @@ AC_CONFIG_FILES([Makefile
                  include/mcu/hc/Makefile
                  include/rtos/Makefile
                  include/window/Makefile
+                 keil_project/Makefile
+                 keil_project/at/Makefile
+                 keil_project/at/at32f4xx/Makefile
+                 keil_project/hc/Makefile
                  res/Makefile
                  src/Makefile
                  src/linux/Makefile
