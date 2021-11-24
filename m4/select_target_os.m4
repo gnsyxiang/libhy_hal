@@ -34,11 +34,7 @@ AC_DEFUN([SELECT_TARGET_OS],
             mac)    AC_DEFINE(HAVE_SELECT_TARGET_OS_MAC,    1, [select mac target system]) ;;
             window) AC_DEFINE(HAVE_SELECT_TARGET_OS_WINDOW, 1, [select window target system]) ;;
             rtos)   AC_DEFINE(HAVE_SELECT_TARGET_OS_RTOS,   1, [select rtos target system]) ;;
-            mcu)
-                AC_DEFINE(HAVE_SELECT_TARGET_OS_MCU,    1, [select mcu target system])
-                SELECT_MCU
-                CHECK_LIBHY_MCU
-            ;;
+            mcu)    AC_DEFINE(HAVE_SELECT_TARGET_OS_MCU,    1, [select mcu target system]) ;;
             *)      AC_MSG_ERROR([bad value ${with_target_os} for --with-target_os=@<:@linux|mac|window|rtos|mcu@:>@]) ;;
         esac
 

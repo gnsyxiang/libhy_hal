@@ -38,6 +38,8 @@ if [ x$1 = x"pc" ]; then
 
     _cppflags_com="${_cppflags_com} -fstack-protector-all"
     _ldflag_com="${_ldflag_com} -rdynamic"
+
+    _param_com="${_param_com} --with-target_os=linux"
 elif [ x$1 = x"arm" ]; then
     vender=hisi
     host=arm-himix200-linux
@@ -47,12 +49,16 @@ elif [ x$1 = x"arm" ]; then
 
     _cppflags_com="${_cppflags_com} -fstack-protector-all"
     _ldflag_com="${_ldflag_com} -rdynamic"
+
+    _param_com="${_param_com} --with-target_os=linux"
 elif [ x$1 = x"mac" ]; then
     vender=
     host=
     gcc_version=
     gcc_prefix=
     cross_gcc_path=${data_disk_path}/opt/toolchains/${vender}/${gcc_version}/bin/${gcc_prefix}-
+
+    _param_com="${_param_com} --with-target_os=mac"
 elif [ x$1 = x"mcu" ]; then
     vender=gnu_arm_embedded
     host=arm-none-eabi
@@ -79,12 +85,16 @@ elif [ x$1 = x"rtos" ]; then
     cross_gcc_path=${data_disk_path}/opt/toolchains/${vender}/${gcc_version}/bin/${gcc_prefix}-
 
     _ldflag_com="${_ldflag_com} -specs=nano.specs -specs=nosys.specs"
+
+    _param_com="${_param_com} --with-target_os=rtos"
 elif [ x$1 = x"window" ]; then
     vender=
     host=
     gcc_version=
     gcc_prefix=
     cross_gcc_path=${data_disk_path}/opt/toolchains/${vender}/${gcc_version}/bin/${gcc_prefix}-
+
+    _param_com="${_param_com} --with-target_os=window"
 else
     help_info
 fi

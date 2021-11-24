@@ -80,7 +80,7 @@ AC_DEFUN([CHECK_LIBHY_MCU], [
                     AC_DEFINE(HAVE_HY_MCU, 1, [Define if the system has hy_mcu])
                 ;;
                 *)
-                    AC_MSG_ERROR([hy_mcu is a must but can not be found. You should add the \
+                    AC_MSG_WARN([hy_mcu is a must but can not be found. You should add the \
 directory containing `hy_mcu.pc' to the `PKG_CONFIG_PATH' environment variable, \
 or set `CPPFLAGS' and `LDFLAGS' directly for hy_mcu, or use `--disable-hy_mcu' \
 to disable support for hy_mcu encryption])
