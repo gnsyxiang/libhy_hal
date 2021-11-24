@@ -85,7 +85,7 @@ static void _dump_backtrace(void)
         printf("  [%02d] %s\n", j, strings[j]);
     }
 
-    free(strings);
+    HY_MEM_FREE_P(strings);
 }
 
 static void _error_handler(int signo)

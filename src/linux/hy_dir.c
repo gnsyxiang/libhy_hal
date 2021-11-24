@@ -25,6 +25,7 @@
 #include "hy_dir.h"
 
 #include "hy_type.h"
+#include "hy_mem.h"
 #include "hy_string.h"
 #include "hy_log.h"
 
@@ -62,17 +63,12 @@ static void _handle_sub_dir(const char *path, char *name, const char *filter,
         HyDirReadCb_t handle_cb, void *args)
 {
     size_t len = strlen(path) + strlen(name) + 1 + 1; // 1 for space('\0'), 1 for '/'
-    char *sub_path = malloc(len);
-    if (!sub_path) {
-        LOGE("malloc failed \n");
-        return ;
-    }
-    memset(sub_path, '\0', len);
+    char *sub_path = HY_MEM_MALLOC_RET(char *, len);
 
     snprintf(sub_path, len, "%s/%s", path, name);
     HyDirReadRecurse(sub_path, filter, handle_cb, args);
 
-    free(sub_path);
+    HY_MEM_FREE_P(sub_path);
 }
 
 static int32_t _dir_read(int32_t type, const char *path, const char *filter,
