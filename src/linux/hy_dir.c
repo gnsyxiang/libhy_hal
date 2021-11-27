@@ -25,55 +25,61 @@
 #include "hy_dir.h"
 
 #include "hy_type.h"
+#include "hy_assert.h"
 #include "hy_mem.h"
 #include "hy_string.h"
 #include "hy_log.h"
 
 #define ALONE_DEBUG 1
 
-static void _filter_file(const char *path, const char *name,
+static hy_s32_t _filter_file(const char *path, const char *name,
         uint8_t type, void *args,
         HyDirReadCb_t read_cb, const char *filter)
 {
-    char buf[HY_STRING_BUF_MAX_LEN_64] = {0};
+    char buf[HY_STRING_BUF_MAX_LEN_128] = {0};
     size_t len;
-
-    if (!read_cb) {
-        return;
-    }
 
     if (filter) {
         buf[0] = '.';
         len = strlen(filter);
-        HyStrCopyRight(name, buf + 1, HY_STRING_BUF_MAX_LEN_64, '.');
-        if (len > HY_STRING_BUF_MAX_LEN_64) {
+        HyStrCopyRight(name, buf + 1, HY_STRING_BUF_MAX_LEN_128, '.');
+        if (len > HY_STRING_BUF_MAX_LEN_128) {
             LOGE("the suffix is too long \n");
-            return;
-        } else {
-            if (0 == strncmp(buf, filter, strlen(filter))) {
-                read_cb(path, name, type, args);
-            }
+            return -1;
+        }
+
+        if (0 == strncmp(buf, filter, strlen(filter))) {
+            return read_cb(path, name, type, args);
         }
     } else {
-        read_cb(path, name, type, args);
+        return read_cb(path, name, type, args);
     }
+
+    return 0;
 }
 
-static void _handle_sub_dir(const char *path, char *name, const char *filter,
+static hy_s32_t _handle_sub_dir(const char *path, char *name, const char *filter,
         HyDirReadCb_t handle_cb, void *args)
 {
-    size_t len = strlen(path) + strlen(name) + 1 + 1; // 1 for space('\0'), 1 for '/'
-    char *sub_path = HY_MEM_MALLOC_RET(char *, len);
+    size_t len = strlen(path) + 1 + strlen(name) + 1; // 1 for space('\0'), 1 for '/'
+    char *sub_path = HY_MEM_MALLOC_RET_VAL(char *, len, -1);
+    hy_s32_t ret;
 
     snprintf(sub_path, len, "%s/%s", path, name);
-    HyDirReadRecurse(sub_path, filter, handle_cb, args);
+    ret = HyDirReadRecurse(sub_path, filter, handle_cb, args);
 
     HY_MEM_FREE_P(sub_path);
+
+    return ret;
 }
 
 static int32_t _dir_read(int32_t type, const char *path, const char *filter,
         HyDirReadCb_t read_cb, void *args)
 {
+    HY_ASSERT_VAL_RET_VAL(!path || !read_cb, -1);
+    LOGD("path: %s, filter: %s \n", path, filter);
+
+    hy_s32_t ret;
     DIR *dir;
     struct dirent *ptr;
 
@@ -90,23 +96,30 @@ static int32_t _dir_read(int32_t type, const char *path, const char *filter,
 
         switch (ptr->d_type) {
             case DT_REG:
-                _filter_file(path, ptr->d_name, HY_DIR_TYPE_FILE, args,
+                ret = _filter_file(path, ptr->d_name, HY_DIR_TYPE_FILE, args,
                         read_cb, filter);
                 break;
 
             case DT_DIR:
                 if (type) {
-                    _handle_sub_dir(path, ptr->d_name, filter, read_cb, args);
+                    ret = _handle_sub_dir(path, ptr->d_name,
+                            filter, read_cb, args);
                 } else {
-                    _filter_file(path, ptr->d_name, HY_DIR_TYPE_FILE, args,
-                            read_cb, filter);
+                    ret = _filter_file(path, ptr->d_name,
+                            HY_DIR_TYPE_FILE, args, read_cb, filter);
                 }
                 break;
 
             default:
                 break;
         }
+
+        if (ret != 0) {
+            goto _ERR_DIR_1;
+        }
     }
+
+_ERR_DIR_1:
 
     closedir(dir);
 

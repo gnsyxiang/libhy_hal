@@ -43,8 +43,10 @@ typedef enum {
  * @param name 文件名
  * @param type 文件的类型，详见HyDirType_t
  * @param args 上层传递的参数
+ *
+ * @return 返回0表示继续查找，返回-1表示退出查找(找到了需要的文件，直接退出)
  */
-typedef void (*HyDirReadCb_t)(const char *path, const char *name,
+typedef int32_t (*HyDirReadCb_t)(const char *path, const char *name,
         uint8_t type, void *args);
 
 /**
