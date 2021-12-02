@@ -26,6 +26,7 @@
 #include "hy_log.h"
 
 #include "hy_assert.h"
+#include "hy_compile.h"
 #include "hy_string.h"
 #include "hy_type.h"
 #include "hy_mem.h"
@@ -75,7 +76,7 @@ typedef struct {
 
 static _log_context_t *context = NULL;
 
-void HyLogHex(const char *name, uint32_t line,
+HY_WEAK void HyLogHex(const char *name, uint32_t line,
         void *_buf, size_t len, int8_t flag)
 {
     if (len <= 0) {
@@ -130,7 +131,7 @@ static inline void _output_reset_color(HyLogLevel_t level, hy_u32_t *ret)
             PRINT_ATTR_RESET);
 }
 
-void HyLogWrite(int level, const char *file, const char *func,
+HY_WEAK void HyLogWrite(int level, const char *file, const char *func,
         uint32_t line, char *fmt, ...)
 {
     if (context && context->save_config.level >= level) {
@@ -164,7 +165,7 @@ void HyLogWrite(int level, const char *file, const char *func,
     }
 }
 
-void HyLogDestroy(void **handle)
+HY_WEAK void HyLogDestroy(void **handle)
 {
     if (context) {
         if (context->buf) {
@@ -175,7 +176,7 @@ void HyLogDestroy(void **handle)
     }
 }
 
-void *HyLogCreate(HyLogConfig_t *config)
+HY_WEAK void *HyLogCreate(HyLogConfig_t *config)
 {
     HY_ASSERT_VAL_RET_VAL(!config, NULL);
 
@@ -191,4 +192,3 @@ void *HyLogCreate(HyLogConfig_t *config)
     HyLogDestroy((void **)&context);
     return NULL;
 }
-
