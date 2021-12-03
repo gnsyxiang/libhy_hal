@@ -38,8 +38,8 @@ typedef unsigned short      hy_u16_t;
 typedef unsigned int        hy_u32_t;
 typedef unsigned long long  hy_u64_t;
 
+typedef unsigned char       hy_bool_t;
 typedef char                hy_char_t;
-typedef char                hy_bool_t;
 typedef double              hy_double_t;
 
 #ifndef NULL

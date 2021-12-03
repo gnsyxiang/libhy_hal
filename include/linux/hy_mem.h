@@ -27,10 +27,20 @@ extern "C" {
 #include <stdio.h>
 #include <stdlib.h>
 
-#define HY_MEM_ALIGN(len, align)    (((len) + (align) - 1) & ~((align) - 1))    ///< 字节对齐
-#define HY_MEM_ALIGN2(len)          HY_MEM_ALIGN(len, 2)                        ///< 2字节对齐
-#define HY_MEM_ALIGN4(len)          HY_MEM_ALIGN(len, 4)                        ///< 4字节对齐
-#define HY_MEM_ALIGN4_UP(len)       (HY_MEM_ALIGN(len, 4) + HY_MEM_ALIGN4(1))   ///< 4字节向上对齐(原来已经事4字节对齐，使用后再增加4个字节)
+#define HY_MEM_BYTE(x)                          (*((unsigned char *)(x)))                                   ///< 得到指定地址上的一个字节
+#define HY_MEM_WORD(x)                          (*((unsigned short *)(x)))                                  ///< 得到指定地址上的一个字
+#define HY_MEM_DOUBLE_WORD(x)                   (*((unsigned int *)(x)))                                    ///< 得到指定地址上的一个双字
+
+#define HY_MEM_OFFSETOF(type, member)           ((size_t) &((type *)0)->member)                             ///< 得到一个member在结构体(struct)中的偏移量
+#define HY_MEM_OFFSETOF_SIZE(type, member)      sizeof(((type *)0)->member)                                 ///< 得到一个结构体中member所占用的字节数
+
+#define HY_MEM_LSB_BYTE_2_WORD(array)           ((((unsigned short) (array)[0]) << 8) + (array)[1])         ///< 按照LSB格式把两个字节转化为一个Word
+#define HY_MEM_LSB_WORD_2_BYTE(array, word)     (array)[0] = ((word) / 256); (array)[1] = ((word) & 0xFF)   ///< 按照LSB格式把一个Word转化为两个字节
+
+#define HY_MEM_ALIGN(len, align)                (((len) + (align) - 1) & ~((align) - 1))                    ///< 字节对齐
+#define HY_MEM_ALIGN2(len)                      HY_MEM_ALIGN(len, 2)                                        ///< 2字节对齐
+#define HY_MEM_ALIGN4(len)                      HY_MEM_ALIGN(len, 4)                                        ///< 4字节对齐
+#define HY_MEM_ALIGN4_UP(len)                   (HY_MEM_ALIGN(len, 4) + HY_MEM_ALIGN4(1))                   ///< 4字节向上对齐(原来已经事4字节对齐，使用后再增加4个字节)
 
 #define HY_MEM_MALLOC_BREAK(type, size)         \
     ({                                          \
