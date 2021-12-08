@@ -55,6 +55,7 @@ _no_install_headers_com +=
 
 _install_headers_com    += \
                            hy_assert.h      \
+                           hy_barrier.h     \
                            hy_compile.h     \
                            hy_error.h       \
                            hy_hal_utils.h   \
