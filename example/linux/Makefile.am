@@ -55,11 +55,6 @@ _ldflags_com    +=
 
 _ldadd_com      += $(top_builddir)/src/lib@project_name@.la
 
-if COMPILE_LIBLOG4CPLUS
-_include_com    += $(LOG4CPLUS_INCS)
-_ldadd_com      += $(LOG4CPLUS_LIBS)
-endif
-
 bin_PROGRAMS                += hy_dir_test
 hy_dir_test_SOURCES         = $(_sources_com) hy_dir_test.c
 hy_dir_test_CPPFLAGS        = $(_cppflags_com)

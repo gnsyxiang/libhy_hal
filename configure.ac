@@ -42,7 +42,6 @@ SELECT_TARGET_OS
 SELECT_MCU
 
 CHECK_LIBHY_MCU
-CHECK_LIBLOG4CPLUS
 
 # Checks for libraries.
 AC_CHECK_LIB([pthread], [pthread_create])

@@ -28,9 +28,6 @@ res_DATA        =
 # ------------------
 # make install files
 # ------------------
-if COMPILE_LIBLOG4CPLUS
-res_DATA        += log4cplus.rc
-endif
 
 
 # ---------------
@@ -39,10 +36,6 @@ endif
 _dist_file_com  += \
                    Doxyfile             \
                    get_project_info.sh
-
-if COMPILE_LIBLOG4CPLUS
-_dist_file_com  += log4cplus.rc
-endif
 
 EXTRA_DIST      = $(_dist_file_com)
 

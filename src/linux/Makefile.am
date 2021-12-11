@@ -45,19 +45,14 @@ _include_com    += \
                    -I$(top_srcdir)/include
 
 _sources_com    += \
-                   hy_file.c        \
                    hy_dir.c         \
                    hy_dlopen.c      \
+                   hy_file.c        \
+                   hy_log.c         \
                    hy_mem.c         \
                    hy_signal.c      \
                    hy_thread.c      \
                    hy_uart.c
-
-if COMPILE_LIBLOG4CPLUS
-_sources_com    += hy_log4cplus.cpp
-else
-_sources_com    += hy_log.c
-endif
 
 _cppflags_com   += $(_no_error_com) $(_include_com) $(_define_com)
 
