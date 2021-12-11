@@ -34,7 +34,6 @@ typedef struct {
     HyThreadSaveConfig_t    save_config;
 
     pthread_t               id;
-    int32_t                 exit_flag;
 } _thread_context_t;
 
 static void *_thread_loop_cb(void *args)
@@ -50,7 +49,7 @@ static void *_thread_loop_cb(void *args)
         pthread_setname_np(context->id, save_config->name);
 #endif
 
-    while (!context->exit_flag && !ret) {
+    while (!ret) {
         ret = save_config->thread_loop_cb(save_config->args);
     }
 
@@ -64,7 +63,7 @@ void HyThreadDestroy(void **handle)
 
     _thread_context_t *context = *handle;
 
-    context->exit_flag = 1;
+    usleep(20 * 1000);
     pthread_cancel(context->id);
     pthread_join(context->id, NULL);
 
