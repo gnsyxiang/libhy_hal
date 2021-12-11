@@ -122,7 +122,7 @@ fi
 ${target_path}/configure                                    \
     CC=${cross_gcc_path}gcc                                 \
     CXX=${cross_gcc_path}g++                                \
-    CPPFLAGS="${_cppflags_com} "                            \
+    CPPFLAGS="${_cppflags_com}"                             \
     CFLAGS="${_cflags_com}"                                 \
     CXXFLAGS="${_cxxflags_com}"                             \
     LDFLAGS="${_ldflag_com}"                                \
@@ -138,5 +138,6 @@ ${target_path}/configure                                    \
 
 thread_jobs=`getconf _NPROCESSORS_ONLN 2>/dev/null || echo 1`
 
-make -j${thread_jobs}; make install
+make clean
+make -j${thread_jobs} && make install
 
