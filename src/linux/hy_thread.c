@@ -53,7 +53,7 @@ static void *_thread_loop_cb(void *args)
         ret = save_config->thread_loop_cb(save_config->args);
     }
 
-    LOGI("%s thread loop stop \n", save_config->name);
+    LOGI("%s thread loop stop, id: %llu \n", save_config->name, context->id);
     return NULL;
 }
 
@@ -67,7 +67,8 @@ void HyThreadDestroy(void **handle)
     pthread_cancel(context->id);
     pthread_join(context->id, NULL);
 
-    LOGI("%s thread destroy successful \n", context->save_config.name);
+    LOGI("%s thread destroy, handle: %p \n",
+            context->save_config.name, context);
 
     HY_MEM_FREE_PP(handle);
 }
@@ -81,11 +82,11 @@ void *HyThreadCreate(HyThreadConfig_t *config)
 
         pthread_create(&context->id, NULL, _thread_loop_cb, context);
 
-        LOGI("%s thread create successful \n", context->save_config.name);
+        LOGI("%s thread create, handle: %p \n",
+                context->save_config.name, context);
         return context;
     } while (0);
 
     HyThreadDestroy((void **)&context);
     return NULL;
 }
-
