@@ -37,6 +37,7 @@
 typedef struct {
     void *log_handle;
     void *signal_handle;
+
     void *thread_handle;
 
     hy_s32_t exit_flag;
@@ -117,8 +118,8 @@ static _main_context_t *_module_create(void)
     HyThreadConfig_t thread_config;
     thread_config.save_config.thread_loop_cb    = _print_loop_cb;
     thread_config.save_config.args              = context;
-    #define _THREAD_NAME "print"
-    HY_STRNCPY(thread_config.save_config.name, HY_THREAD_NAME_LEN_MAX, _THREAD_NAME, HY_STRLEN(_THREAD_NAME));
+    HY_STRNCPY(thread_config.save_config.name,
+            HY_THREAD_NAME_LEN_MAX, "print", HY_STRLEN("print"));
 
     // note: 增加或删除要同步到module_destroy_t中
     module_create_t module[] = {
@@ -150,4 +151,3 @@ int main(int argc, char *argv[])
 
     return 0;
 }
-

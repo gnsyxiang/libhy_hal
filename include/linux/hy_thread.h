@@ -72,9 +72,27 @@ void *HyThreadCreate(HyThreadConfig_t *config);
  */
 void HyThreadDestroy(void **handle);
 
+/**
+ * @brief 创建线程宏
+ *
+ * @param name 名字
+ * @param thread_loop_cb 回调函数
+ * @param args 上层传递参数
+ *
+ * @return 线程句柄
+ */
+#define HyThreadCreate_m(_name, _thread_loop_cb, _args)             \
+    ({                                                              \
+        HyThreadConfig_t config;                                    \
+        config.save_config.thread_loop_cb    = _thread_loop_cb;     \
+        config.save_config.args              = _args;               \
+        HY_STRNCPY(config.save_config.name,                         \
+                HY_THREAD_NAME_LEN_MAX, _name, HY_STRLEN(_name));   \
+        HyThreadCreate(&config);                                    \
+     })
+
 #ifdef __cplusplus
 }
 #endif
 
 #endif
-
