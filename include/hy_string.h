@@ -43,6 +43,7 @@ extern "C" {
 #define HY_STRLEN(str)                      strlen(str)
 #define HY_STRCMP(src, dst, len)            strcmp(src, dst)
 #define HY_STRNCMP(src, dst, len)           strncmp(src, dst, len)
+#define HY_STRCPY(dst, src)                 strcpy(dst, src)
 
 #define HY_STRNCPY(dst, dst_len, src, src_len)  \
     do {                                        \
