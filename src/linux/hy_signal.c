@@ -99,6 +99,8 @@ static void _error_handler(int signo)
     LOGE("\n\n <<<%s(%d)>>> crashed by signal %s \n",
             save_config->app_name, getpid(), signal_str[signo]);
 
+    return;
+
     _dump_backtrace();
 
     if (signo == SIGINT || signo == SIGUSR1 || signo == SIGUSR2) {
