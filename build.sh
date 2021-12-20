@@ -29,6 +29,7 @@ _cppflags_com="${_cppflags_com} -Wno-error=unused-function"
 _cppflags_com="${_cppflags_com} -pipe"
 _cppflags_com="${_cppflags_com} -ffunction-sections"
 _cppflags_com="${_cppflags_com} -fdata-sections"
+
 _ldflag_com="${_ldflag_com} -Wl,--gc-sections"
 _ldflag_com="${_ldflag_com} -Wl,--as-needed"
 
@@ -100,26 +101,25 @@ else
 fi
 
 # 3rd_lib path
-lib_3rd_path=${data_disk_path}/install/${vender}/${gcc_version}
-_cppflags_com="${_cppflags_com} -I${lib_3rd_path}/include"
-_ldflag_com="${_ldflag_com} -L${lib_3rd_path}/lib"
+prefix_path=${data_disk_path}/install/${vender}/${gcc_version}
+_cppflags_com="${_cppflags_com} -I${prefix_path}/include"
+_ldflag_com="${_ldflag_com} -L${prefix_path}/lib"
 
 if [ x$1 = x"mcu" ]; then
-    _cppflags_com="${_cppflags_com} -I${lib_3rd_path}/include/hy_mcu"
+    _cppflags_com="${_cppflags_com} -I${prefix_path}/include/hy_mcu"
 fi
 
-# target
-target_path=`pwd`
-prefix_path=${lib_3rd_path}
+make distclean
 
-cd ${target_path} && ./autogen.sh ${cross_gcc_path} && cd - >/dev/null 2>&1
+cd `pwd` && ./autogen.sh ${cross_gcc_path} && cd - >/dev/null 2>&1
 
 if [ $# = 2 ]; then
     mkdir -p $2/${vender}
     cd $2/${vender}
 fi
 
-${target_path}/configure                                    \
+export STRIP=${cross_gcc_path}strip
+`pwd`/configure                                             \
     CC=${cross_gcc_path}gcc                                 \
     CXX=${cross_gcc_path}g++                                \
     CPPFLAGS="${_cppflags_com}"                             \
@@ -127,7 +127,7 @@ ${target_path}/configure                                    \
     CXXFLAGS="${_cxxflags_com}"                             \
     LDFLAGS="${_ldflag_com}"                                \
     LIBS=""                                                 \
-    PKG_CONFIG_PATH="${lib_3rd_path}/lib/pkgconfig"         \
+    PKG_CONFIG_PATH="${prefix_path}/lib/pkgconfig"          \
     --prefix=${prefix_path}                                 \
     --build=                                                \
     --host=${host}                                          \
@@ -138,6 +138,4 @@ ${target_path}/configure                                    \
 
 thread_jobs=`getconf _NPROCESSORS_ONLN 2>/dev/null || echo 1`
 
-make clean
 make -j${thread_jobs} && make install
-
