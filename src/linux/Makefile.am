@@ -52,6 +52,7 @@ _sources_com    += \
                    hy_mem.c         \
                    hy_signal.c      \
                    hy_thread.c      \
+                   hy_time.c        \
                    hy_uart.c
 
 _cppflags_com   += $(_no_error_com) $(_include_com) $(_define_com)

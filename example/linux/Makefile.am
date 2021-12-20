@@ -103,6 +103,14 @@ hy_thread_test_CXXFLAGS     = $(_cxxflags_com)
 hy_thread_test_LDFLAGS      = $(_ldflags_com)
 hy_thread_test_LDADD        = $(_ldadd_com)
 
+bin_PROGRAMS                += hy_time_test
+hy_time_test_SOURCES        = $(_sources_com) hy_time_test.c
+hy_time_test_CPPFLAGS       = $(_cppflags_com)
+hy_time_test_CFLAGS         = $(_cflags_com)
+hy_time_test_CXXFLAGS       = $(_cxxflags_com)
+hy_time_test_LDFLAGS        = $(_ldflags_com)
+hy_time_test_LDADD          = $(_ldadd_com)
+
 bin_PROGRAMS                += hy_uart_test
 hy_uart_test_SOURCES        = $(_sources_com) hy_uart_test.c
 hy_uart_test_CPPFLAGS       = $(_cppflags_com)
