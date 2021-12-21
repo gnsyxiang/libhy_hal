@@ -64,19 +64,23 @@ static char *signal_str[] = {
     [29] = "SIGPROF",     [30] = "SIGXCPU",     [31] = "SIGXFSZ",
 };
 
-static void _dump_backtrace(void)
+static hy_s32_t _dump_backtrace(void)
 {
     int nptrs;
     char **strings = NULL;
     void *buffer[BACKTRACE_SIZE];
 
     nptrs = backtrace(buffer, BACKTRACE_SIZE);
+    if (nptrs <= 0) {
+        LOGE("backtrace get error, nptrs: %d \n", nptrs);
+        return -1;
+    }
 
     printf("Call Trace:\n");
     strings = backtrace_symbols(buffer, nptrs);
     if (strings == NULL) {
         perror("Not Found\n\n");
-        return ;
+        return -1;
     }
 
     for (int j = 0; j < nptrs; j++) {
@@ -84,35 +88,40 @@ static void _dump_backtrace(void)
     }
 
     HY_MEM_FREE_P(strings);
+
+    return 0;
 }
 
 static void _error_handler(int signo)
 {
     HySignalSaveConfig_t *save_config = &context->save_config;
 
+    LOGE("<<<%s(pid: %d)>>> crashed by signal %s \n",
+            save_config->app_name, getpid(), signal_str[signo]);
+
     if (save_config->error_cb) {
         save_config->error_cb(save_config->args);
     }
 
-    LOGE("\n\n <<<%s(%d)>>> crashed by signal %s \n",
-            save_config->app_name, getpid(), signal_str[signo]);
-
-    return;
-
-    _dump_backtrace();
+    if (0 != _dump_backtrace()) {
+        LOGE("GCC does not support backtrace \n");
+        return ;
+    }
 
     if (signo == SIGINT || signo == SIGUSR1 || signo == SIGUSR2) {
         exit(-1);
     } else {
         char cmd[256] = {0};
-        sprintf(cmd, "mkdir -p %s", save_config->coredump_path);
-        system(cmd);
-        sprintf(cmd, "cat /proc/%d/maps", getpid());
-        printf("Process maps:\n");
+        snprintf(cmd, sizeof(cmd), "mkdir -p %s", save_config->coredump_path);
         system(cmd);
 
-        snprintf(cmd, 256, "cat /proc/%d/maps > %s/%s.%d.maps",
-             getpid(), save_config->coredump_path, save_config->app_name, getpid());
+        printf("Process maps:\n");
+        HY_MEMSET(cmd, sizeof(cmd));
+        snprintf(cmd, sizeof(cmd), "cat /proc/%d/maps", getpid());
+        system(cmd);
+
+        snprintf(cmd, 256, "cat /proc/%d/maps > %s/%s.%d.maps", getpid(),
+             save_config->coredump_path, save_config->app_name, getpid());
         system(cmd);
     }
 }
