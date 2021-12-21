@@ -31,8 +31,6 @@
 #include "hy_type.h"
 #include "hy_mem.h"
 
-#define ALONE_DEBUG 1
-
 /*设置输出前景色*/
 #define PRINT_FONT_BLA      "\033[30m"      //黑色
 #define PRINT_FONT_RED      "\033[31m"      //红色
@@ -77,12 +75,12 @@ typedef struct {
 static _log_context_t *context = NULL;
 
 HY_WEAK void HyLogHex(const char *name, uint32_t line,
-        void *_buf, size_t len, int8_t flag)
+        const void *_buf, size_t len, hy_s32_t flag)
 {
     if (len <= 0) {
         return;
     }
-    uint8_t *buf = (uint8_t *)_buf;
+    const unsigned char *buf = (const unsigned char *)_buf;
 
     hy_u8_t cnt = 0;
     printf("[%s %d]len: %zu \r\n", name, line, len);
@@ -131,7 +129,7 @@ static inline void _output_reset_color(HyLogLevel_t level, hy_u32_t *ret)
             PRINT_ATTR_RESET);
 }
 
-HY_WEAK void HyLogWrite(int level, const char *file, const char *func,
+HY_WEAK void HyLogWrite(HyLogLevel_t level, const char *file, const char *func,
         uint32_t line, char *fmt, ...)
 {
     if (context && context->save_config.level >= level) {
@@ -142,7 +140,7 @@ HY_WEAK void HyLogWrite(int level, const char *file, const char *func,
 
         memset(context->buf, '\0', buf_len);
 
-        if (context->save_config.color_output) {
+        if (context->save_config.color_enable) {
             _output_set_color(level, &ret);
         }
 
@@ -157,7 +155,7 @@ HY_WEAK void HyLogWrite(int level, const char *file, const char *func,
         ret += vsnprintf(context->buf + ret, buf_len - ret, fmt, args);
         va_end(args);
 
-        if (context->save_config.color_output) {
+        if (context->save_config.color_enable) {
             _output_reset_color(level, &ret);
         }
 

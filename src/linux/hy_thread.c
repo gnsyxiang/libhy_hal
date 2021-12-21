@@ -30,8 +30,6 @@
 #include "hy_string.h"
 #include "hy_log.h"
 
-#define ALONE_DEBUG 1
-
 typedef struct {
     HyThreadSaveConfig_t    save_config;
 

@@ -30,8 +30,6 @@
 #include "hy_string.h"
 #include "hy_log.h"
 
-#define ALONE_DEBUG 1
-
 static hy_s32_t _filter_file(const char *path, const char *name,
         uint8_t type, void *args,
         HyDirReadCb_t read_cb, const char *filter)

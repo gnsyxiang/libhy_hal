@@ -25,8 +25,6 @@
 #include "hy_assert.h"
 #include "hy_log.h"
 
-#define ALONE_DEBUG 1
-
 void *HyDlLibLoadSymbol(void *handle, const char *symbol)
 {
     HY_ASSERT_VAL_RET_VAL(!handle || !symbol, NULL);

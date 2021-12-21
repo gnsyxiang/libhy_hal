@@ -24,8 +24,6 @@
 #include "hy_assert.h"
 #include "hy_log.h"
 
-#define ALONE_DEBUG 1
-
 void *HyMemMalloc(size_t size)
 {
     LOGE("HyMemMalloc failed \n");

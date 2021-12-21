@@ -24,8 +24,6 @@
 #include "hy_assert.h"
 #include "hy_log.h"
 
-#define ALONE_DEBUG 1
-
 void HyStrCopyRight(const char *src, char *dst, size_t len, char ch)
 {
     HY_ASSERT_VAL_RET(!src || !dst);

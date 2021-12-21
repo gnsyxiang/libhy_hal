@@ -27,8 +27,6 @@
 #include "hy_string.h"
 #include "hy_assert.h"
 
-#define ALONE_DEBUG 1
-
 time_t HyTimeGetUTC(void)
 {
     return time(NULL);

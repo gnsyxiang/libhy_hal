@@ -26,8 +26,6 @@
 
 #include "hy_log.h"
 
-#define ALONE_DEBUG 1
-
 ssize_t HyFileWrite(int fd, const void *buf, size_t len)
 {
     ssize_t ret;

@@ -35,8 +35,6 @@
 #include "hy_assert.h"
 #include "hy_log.h"
 
-#define ALONE_DEBUG 1
-
 #define BACKTRACE_SIZE   32
 
 #define _ADD_SIGNAL(sig, act)                               \

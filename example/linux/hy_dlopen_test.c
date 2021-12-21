@@ -32,8 +32,6 @@
 #include "hy_hal_utils.h"
 #include "hy_log.h"
 
-#define ALONE_DEBUG 1
-
 typedef void (*module_init_cb_t)(void);
 
 typedef struct {
@@ -81,7 +79,7 @@ static _main_context_t *_module_create(void)
     HyLogConfig_t log_config;
     log_config.save_config.buf_len      = 512;
     log_config.save_config.level        = HY_LOG_LEVEL_TRACE;
-    log_config.save_config.color_output = HY_TYPE_FLAG_ENABLE;
+    log_config.save_config.color_enable = HY_TYPE_FLAG_ENABLE;
 
     int8_t signal_error_num[HY_SIGNAL_NUM_MAX_32] = {
         SIGQUIT, SIGILL, SIGTRAP, SIGABRT, SIGFPE,

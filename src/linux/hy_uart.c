@@ -37,8 +37,6 @@
 #include "hy_error.h"
 #include "hy_log.h"
 
-#define ALONE_DEBUG 1
-
 typedef struct {
     HyUartSaveConfig_t  save_config;
     int32_t             fd;

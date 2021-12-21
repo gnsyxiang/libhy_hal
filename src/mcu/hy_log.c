@@ -142,7 +142,7 @@ void HyLogWrite(int32_t level, const char *file, const char *func,
 
         memset(context->buf, '\0', buf_len);
 
-        if (context->save_config.color_output) {
+        if (context->save_config.color_enable) {
             _output_set_color(level, &ret);
         }
 
@@ -157,7 +157,7 @@ void HyLogWrite(int32_t level, const char *file, const char *func,
         ret += vsnprintf(context->buf + ret, buf_len - ret, fmt, args);
         va_end(args);
 
-        if (context->save_config.color_output) {
+        if (context->save_config.color_enable) {
             _output_reset_color(level, &ret);
         }
 
