@@ -27,6 +27,12 @@ extern "C" {
 #include <stdio.h>
 #include <stdint.h>
 
+#if 1
+#   define HY_CHECK_FMT_WITH_PRINTF(a, b) __attribute__((format(printf, a, b)))
+#else
+#   define HY_CHECK_FMT_WITH_PRINTF(a, b)
+#endif
+
 /**
  * @brief 打印等级定义
  *
@@ -77,7 +83,7 @@ void HyLogDestroy(void **handle);
 
 #if 1
 void HyLogWrite(int32_t level, const char *file,  const char *func,
-        uint32_t line, char *fmt, ...);
+        uint32_t line, char *fmt, ...) HY_CHECK_FMT_WITH_PRINTF(5, 6);
 
 void HyLogHex(const char *name, uint32_t line,
        void *buf, size_t len, int8_t flag);

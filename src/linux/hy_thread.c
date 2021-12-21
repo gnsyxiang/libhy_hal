@@ -57,7 +57,7 @@ static void *_thread_loop_cb(void *args)
     }
 
     context->exit_flag = 1;
-    LOGI("%s thread loop stop, id: %llu \n", save_config->name, context->id);
+    LOGI("%s thread loop stop, id: %lu \n", save_config->name, context->id);
     return NULL;
 }
 

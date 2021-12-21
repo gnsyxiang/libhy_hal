@@ -51,6 +51,12 @@ extern "C" {
 
 #define HY_WEAK __attribute__((weak))
 
+#if 1
+#   define HY_CHECK_FMT_WITH_PRINTF(a, b) __attribute__((format(printf, a, b)))
+#else
+#   define HY_CHECK_FMT_WITH_PRINTF(a, b)
+#endif
+
 #ifdef __GNUC__
 #   define UNPACKED         __attribute__ ((packed))
 #   define PACKED_4         __attribute__((aligned (4)))
