@@ -46,7 +46,7 @@ extern "C" {
     ({                                          \
         void *ptr = malloc((size));             \
         if (!ptr) {                             \
-            LOGE("malloc faild \n");            \
+            LOGES("malloc faild \n");           \
             break;                              \
         } else {                                \
             memset(ptr, '\0', (size));          \
@@ -58,7 +58,7 @@ extern "C" {
     ({                                          \
         void *ptr = malloc((size));             \
         if (!ptr) {                             \
-            LOGE("malloc faild \n");            \
+            LOGES("malloc faild \n");           \
             return;                             \
         } else {                                \
             memset(ptr, '\0', (size));          \
@@ -70,7 +70,7 @@ extern "C" {
     ({                                          \
         void *ptr = malloc((size));             \
         if (!ptr) {                             \
-            LOGE("malloc faild \n");            \
+            LOGES("malloc faild \n");           \
             return ret;                         \
         } else {                                \
             memset(ptr, '\0', (size));          \
