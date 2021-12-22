@@ -26,6 +26,8 @@ extern "C" {
 
 #include <stdio.h>
 #include <stdint.h>
+#include <string.h>
+#include <errno.h>
 
 #if 1
 #define HY_CHECK_FMT_WITH_PRINTF(a, b) __attribute__((format(printf, a, b)))
@@ -91,18 +93,20 @@ void HyLogDestroy(void **handle);
  * @param fmt 格式
  * @param ... 参数
  */
-void HyLogWrite(HyLogLevel_t level, const char *file,  const char *func,
-        uint32_t line, char *fmt, ...) HY_CHECK_FMT_WITH_PRINTF(5, 6);
+void HyLogWrite(HyLogLevel_t level, const char *err_str,
+        const char *file,  const char *func,
+        uint32_t line, char *fmt, ...) HY_CHECK_FMT_WITH_PRINTF(6, 7);
 
-#define LOG(level, fmt, ...) \
-    HyLogWrite(level, __FILE__, __func__, __LINE__, fmt, ##__VA_ARGS__);
+#define LOG(level, err_str, fmt, ...) \
+    HyLogWrite(level, err_str, __FILE__, __func__, __LINE__, fmt, ##__VA_ARGS__)
 
-#define LOGF(fmt, ...) LOG(HY_LOG_LEVEL_FATAL, fmt, ##__VA_ARGS__)
-#define LOGE(fmt, ...) LOG(HY_LOG_LEVEL_ERROR, fmt, ##__VA_ARGS__)
-#define LOGW(fmt, ...) LOG(HY_LOG_LEVEL_WARN,  fmt, ##__VA_ARGS__)
-#define LOGI(fmt, ...) LOG(HY_LOG_LEVEL_INFO,  fmt, ##__VA_ARGS__)
-#define LOGD(fmt, ...) LOG(HY_LOG_LEVEL_DEBUG, fmt, ##__VA_ARGS__)
-#define LOGT(fmt, ...) LOG(HY_LOG_LEVEL_TRACE, fmt, ##__VA_ARGS__)
+#define LOGF(fmt, ...)  LOG(HY_LOG_LEVEL_FATAL, strerror(errno), fmt, ##__VA_ARGS__)
+#define LOGES(fmt, ...) LOG(HY_LOG_LEVEL_ERROR, strerror(errno), fmt, ##__VA_ARGS__)
+#define LOGE(fmt, ...)  LOG(HY_LOG_LEVEL_ERROR, NULL,            fmt, ##__VA_ARGS__)
+#define LOGW(fmt, ...)  LOG(HY_LOG_LEVEL_WARN,  NULL,            fmt, ##__VA_ARGS__)
+#define LOGI(fmt, ...)  LOG(HY_LOG_LEVEL_INFO,  NULL,            fmt, ##__VA_ARGS__)
+#define LOGD(fmt, ...)  LOG(HY_LOG_LEVEL_DEBUG, NULL,            fmt, ##__VA_ARGS__)
+#define LOGT(fmt, ...)  LOG(HY_LOG_LEVEL_TRACE, NULL,            fmt, ##__VA_ARGS__)
 
 /**
  * @brief 打印二进制信息
