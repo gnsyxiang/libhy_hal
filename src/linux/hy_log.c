@@ -158,8 +158,9 @@ HY_WEAK void HyLogWrite(HyLogLevel_t level, const char *err_str,
 
         if (err_str) {
             // -1 是为了去除'\n', 在最后加上'\n'
-            ret += snprintf(context->buf + ret - 1,
-                    buf_len - ret + 1, ", error: %s \n", err_str);
+            ret -= 1;
+            ret += snprintf(context->buf + ret,
+                    buf_len - ret, ", error: %s \n", err_str);
         }
 
         if (context->save_config.color_enable) {
