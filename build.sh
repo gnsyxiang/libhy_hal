@@ -32,6 +32,7 @@ _cppflags_com="${_cppflags_com} -fdata-sections"
 
 _ldflag_com="${_ldflag_com} -Wl,--gc-sections"
 _ldflag_com="${_ldflag_com} -Wl,--as-needed"
+_ldflag_com="${_ldflag_com} -Wl,-rpath=../lib"
 
 if [ x$1 = x"pc" ]; then
     vender=pc
