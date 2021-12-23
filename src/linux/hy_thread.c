@@ -19,8 +19,11 @@
  */
 #include <stdio.h>
 #include <pthread.h>
-#include <unistd.h>
 #include <errno.h>
+#include <sched.h>
+#include <unistd.h>
+#include <sys/syscall.h>   /* For SYS_xxx definitions */
+#include <sys/prctl.h>
 
 #include "hy_thread.h"
 
@@ -44,7 +47,8 @@ static void *_thread_loop_cb(void *args)
     int32_t ret = 0;
 
     usleep(1000);
-    LOGI("%s thread loop start \n", save_config->name);
+    LOGI("%s thread loop start, tid: 0x%lu, pid: %ld \n",
+            save_config->name, context->id, syscall(SYS_gettid));
 
 #ifdef _GNU_SOURCE
     pthread_setname_np(context->id, save_config->name);
@@ -55,7 +59,7 @@ static void *_thread_loop_cb(void *args)
     }
 
     context->exit_flag = 1;
-    LOGI("%s thread loop stop, id: %lu \n", save_config->name, context->id);
+    LOGD("%s thread loop stop \n", save_config->name);
     return NULL;
 }
 
@@ -78,7 +82,7 @@ void HyThreadDestroy(void **handle)
 
     pthread_join(context->id, NULL);
 
-    LOGI("%s thread destroy, handle: %p \n",
+    LOGD("%s thread destroy, handle: %p \n",
             context->save_config.name, context);
 
     HY_MEM_FREE_PP(handle);
@@ -86,7 +90,9 @@ void HyThreadDestroy(void **handle)
 
 void *HyThreadCreate(HyThreadConfig_t *config)
 {
+    LOGD("config: %p \n", config);
     HY_ASSERT_VAL_RET_VAL(!config, NULL);
+
     _thread_context_t *context = NULL;
 
     do {
@@ -100,7 +106,8 @@ void *HyThreadCreate(HyThreadConfig_t *config)
             break;
         }
 
-        LOGI("%s thread create, handle: %p \n", save_config->name, context);
+        LOGD("%s thread create, handle: %p, tid: 0x%lu \n",
+                save_config->name, context, context->id);
         return context;
     } while (0);
 

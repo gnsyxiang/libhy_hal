@@ -75,9 +75,9 @@ void HyThreadDestroy(void **handle);
 /**
  * @brief 创建线程宏
  *
- * @param name 名字
- * @param thread_loop_cb 回调函数
- * @param args 上层传递参数
+ * @param _name 名字
+ * @param _thread_loop_cb 回调函数
+ * @param _args 上层传递参数
  *
  * @return 线程句柄
  */
