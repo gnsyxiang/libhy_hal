@@ -137,6 +137,7 @@ static void _user_handler(int signo)
 
 void HySignalDestroy(void **handle)
 {
+    LOGT("handle: %p, *handle: %p \n", handle, *handle);
     HY_MEM_FREE_PP(&context);
 
     LOGI("signal destroy successful \n");
@@ -144,6 +145,7 @@ void HySignalDestroy(void **handle)
 
 void *HySignalCreate(HySignalConfig_t *config)
 {
+    LOGT("config: %p \n", config);
     HY_ASSERT_VAL_RET_VAL(!config, NULL);
 
     struct sigaction act;

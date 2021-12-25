@@ -67,9 +67,43 @@ void *HySignalCreate(HySignalConfig_t *config);
  */
 void HySignalDestroy(void **handle);
 
+/**
+ * @brief 创建信号处理模块宏
+ *
+ * @param _app_name app名字
+ * @param _core_path 生成coredump路径
+ * @param _error_cb 程序运行错误信号的回调函数
+ * @param _user_cb 用户关心信号的回调函数
+ * @param args 上层传递的参数
+ *
+ * @return 模块句柄，失败返回NULL
+ */
+#define HySignalCreate_m(_app_name, _core_path, _error_cb, _user_cb, args)  \
+    ({                                                                      \
+        int8_t signal_error[HY_SIGNAL_NUM_MAX_32] = {                       \
+        SIGQUIT, SIGILL, SIGTRAP, SIGABRT, SIGFPE,                          \
+        SIGSEGV, SIGBUS, SIGSYS, SIGXCPU, SIGXFSZ,                          \
+        };                                                                  \
+        \
+        int8_t signal_user[HY_SIGNAL_NUM_MAX_32] = {                        \
+        SIGINT, SIGTERM, SIGUSR1, SIGUSR2,                                  \
+        };                                                                  \
+        \
+        HySignalConfig_t config;                                            \
+        HY_MEMSET(&config, sizeof(config));                                 \
+        HY_MEMCPY(config.error_num, signal_error, sizeof(signal_error));    \
+        HY_MEMCPY(config.user_num, signal_user, sizeof(signal_user));       \
+        config.save_config.app_name          = _app_name;                   \
+        config.save_config.coredump_path     = _core_path;                  \
+        config.save_config.error_cb          = _error_cb;                   \
+        config.save_config.user_cb           = _user_cb;                    \
+        config.save_config.args              = _args;                       \
+        \
+        HySignalCreate(&config);                                            \
+     })
+
 #ifdef __cplusplus
 }
 #endif
 
 #endif
-
