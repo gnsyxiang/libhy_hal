@@ -61,3 +61,12 @@ EXTRA_DIST          = $(_dist_files_com)
 
 DISTCLEANFILES = @project_name@.pc
 
+if COMPILE_LIBHY_MCU
+install-exec-hook:
+	hy_mcu=`sed -n "/hy_mcu/p" $(top_builddir)/@project_name@.pc`; \
+	if [ $${#hy_mcu} -gt 0 ]; then \
+		echo "Already added hy_mcu lib"; \
+	else \
+		sed -i "s/^Requires:/Requires: hy_mcu/g" $(top_builddir)/@project_name@.pc; \
+	fi
+endif
