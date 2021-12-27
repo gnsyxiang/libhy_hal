@@ -17,7 +17,6 @@
  * 
  *     last modified: 08/11 2021 16:44
  */
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -71,13 +70,13 @@ typedef struct {
     HyLogSaveConfig_t save_config;
 
     char *buf;
-    size_t cur_len;
+    hy_u32_t cur_len;
 } _log_context_t;
 
 static _log_context_t *context = NULL;
 
 void HyLogHex(const char *name, uint32_t line,
-        void *_buf, size_t len, int8_t flag)
+        const void *_buf, uint32_t len, int32_t flag)
 {
     if (len <= 0) {
         return;
@@ -85,8 +84,8 @@ void HyLogHex(const char *name, uint32_t line,
     uint8_t *buf = (uint8_t *)_buf;
 
     hy_u8_t cnt = 0;
-    printf("[%s %ld]len: %zu \r\n", name, line, len);
-    for (size_t i = 0; i < len; i++) {
+    printf("[%s %ld]len: %ld \r\n", name, line, len);
+    for (hy_u32_t i = 0; i < len; i++) {
         if (flag == 1) {
             if (buf[i] == 0x0d || buf[i] == 0x0a
                     || buf[i] < 32 || buf[i] >= 127) {
@@ -131,14 +130,15 @@ static inline void _output_reset_color(HyLogLevel_t level, hy_u32_t *ret)
             PRINT_ATTR_RESET);
 }
 
-void HyLogWrite(int32_t level, const char *file, const char *func,
+void HyLogWrite(HyLogLevel_t level, const char *err_str, 
+        const char *file, const char *func,
         uint32_t line, char *fmt, ...)
 {
     if (context && context->save_config.level >= level) {
         #define _SHORT_FILE_LEN_MAX (32)
         char short_file[_SHORT_FILE_LEN_MAX] = {0};
         hy_u32_t ret = 0;
-        size_t buf_len = context->save_config.buf_len;
+        hy_u32_t buf_len = context->save_config.buf_len;
 
         memset(context->buf, '\0', buf_len);
 

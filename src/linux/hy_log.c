@@ -69,13 +69,13 @@ typedef struct {
     HyLogSaveConfig_t save_config;
 
     char *buf;
-    size_t cur_len;
+    uint32_t cur_len;
 } _log_context_t;
 
 static _log_context_t *context = NULL;
 
 HY_WEAK void HyLogHex(const char *name, uint32_t line,
-        const void *_buf, size_t len, hy_s32_t flag)
+        const void *_buf, uint32_t len, hy_s32_t flag)
 {
     if (len <= 0) {
         return;
@@ -83,8 +83,8 @@ HY_WEAK void HyLogHex(const char *name, uint32_t line,
     const unsigned char *buf = (const unsigned char *)_buf;
 
     hy_u8_t cnt = 0;
-    printf("[%s %d]len: %zu \r\n", name, line, len);
-    for (size_t i = 0; i < len; i++) {
+    printf("[%s %d]len: %d \r\n", name, line, len);
+    for (uint32_t i = 0; i < len; i++) {
         if (flag == 1) {
             if (buf[i] == 0x0d || buf[i] == 0x0a
                     || buf[i] < 32 || buf[i] >= 127) {
@@ -137,7 +137,7 @@ HY_WEAK void HyLogWrite(HyLogLevel_t level, const char *err_str,
         #define _SHORT_FILE_LEN_MAX (32)
         char short_file[_SHORT_FILE_LEN_MAX] = {0};
         hy_u32_t ret = 0;
-        size_t buf_len = context->save_config.buf_len;
+        uint32_t buf_len = context->save_config.buf_len;
 
         memset(context->buf, '\0', buf_len);
 

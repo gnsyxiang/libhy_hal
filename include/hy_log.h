@@ -56,7 +56,7 @@ typedef enum {
  */
 typedef struct {
     HyLogLevel_t        level;              ///< 打印等级，详见HyLogLevel_t
-    size_t              buf_len;            ///< 打印buf长度
+    uint32_t            buf_len;            ///< 打印buf长度
     int32_t             color_enable;       ///< 是否颜色输出
 } HyLogSaveConfig_t;
 
@@ -118,7 +118,7 @@ void HyLogWrite(HyLogLevel_t level, const char *err_str,
  * @param flag 是否需要打印对应的ascii
  */
 void HyLogHex(const char *name, uint32_t line,
-       const void *buf, size_t len, int32_t flag);
+       const void *buf, uint32_t len, int32_t flag);
 
 #define LOG_HEX_ASCII(buf, len) HyLogHex(__func__, __LINE__, buf, len, 1)
 #define LOG_HEX(buf, len)       HyLogHex(__func__, __LINE__, buf, len, 0)
