@@ -30,13 +30,24 @@ extern "C" {
 #define HY_THREAD_NAME_LEN_MAX (16)
 
 /**
+ * @brief 线程退出方式
+ */
+typedef enum {
+    HY_THREAD_DESTROY_GRACE,                                ///< 优雅退出，等待线程执行完
+    HY_THREAD_DESTROY_FORCE,                                ///< 强制退出，等待一定时间(1s)后强制退出
+
+    HY_THREAD_DESTROY_MAX,
+} HyThreadDestroyFlag_t;
+
+/**
  * @brief 线程回调函数
  *
  * @param 上层传递参数
  *
  * @return 返回0，线程继续运行，否则线程退出
  *
- * @note 创建线程里面有while循环，也可以在回调函数中增加while循环，但是要控制好退出
+ * @note 创建线程里面有while循环，
+ *       也可以在回调函数中增加while循环，但是要控制好退出
  */
 typedef int32_t (*HyThreadLoopCb_t)(void *args);
 
@@ -44,16 +55,17 @@ typedef int32_t (*HyThreadLoopCb_t)(void *args);
  * @brief 模块配置参数
  */
 typedef struct {
-    HyThreadLoopCb_t        thread_loop_cb;                     ///< 线程执行函数
-    char                    name[HY_THREAD_NAME_LEN_MAX];       ///< 线程名字
-    void                    *args;                              ///< 上层传递参数
+    char                    name[HY_THREAD_NAME_LEN_MAX];   ///< 线程名字
+    HyThreadLoopCb_t        thread_loop_cb;                 ///< 线程执行函数，详见HyThreadLoopCb_t
+    int32_t                 flag;                           ///< 线程退出方式，详见HyThreadDestroyFlag_t
+    void                    *args;                          ///< 上层传递参数
 } HyThreadSaveConfig_t;
 
 /**
  * @brief 模块配置参数
  */
 typedef struct {
-    HyThreadSaveConfig_t    save_config;                        ///< 参数，详见HyThreadSaveConfig_t
+    HyThreadSaveConfig_t    save_config;                    ///< 模块配置参数，详见HyThreadSaveConfig_t
 } HyThreadConfig_t;
 
 /**
@@ -76,16 +88,19 @@ void HyThreadDestroy(void **handle);
  * @brief 创建线程宏
  *
  * @param _name 名字
- * @param _thread_loop_cb 回调函数
+ * @param _thread_loop_cb 回调函数，详见HyThreadLoopCb_t
+ * @param _flag 线程退出方式，详见HyThreadDestroyFlag_t
  * @param _args 上层传递参数
  *
  * @return 线程句柄
  */
-#define HyThreadCreate_m(_name, _thread_loop_cb, _args)             \
+#define HyThreadCreate_m(_name, _thread_loop_cb, _flag, _args)      \
     ({                                                              \
         HyThreadConfig_t config;                                    \
-        config.save_config.thread_loop_cb    = _thread_loop_cb;     \
-        config.save_config.args              = _args;               \
+        memset(&config, '\0', sizeof(config));                      \
+        config.save_config.flag             = _flag;                \
+        config.save_config.thread_loop_cb   = _thread_loop_cb;      \
+        config.save_config.args             = _args;                \
         HY_STRNCPY(config.save_config.name,                         \
                 HY_THREAD_NAME_LEN_MAX, _name, HY_STRLEN(_name));   \
         HyThreadCreate(&config);                                    \
