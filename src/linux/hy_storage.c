@@ -19,61 +19,96 @@
  */
 #include <stdio.h>
 #include <sys/vfs.h>    /* or <sys/statfs.h> */
-#include <math.h>
+#include <unistd.h>
 
 #include "hy_string.h"
 #include "hy_assert.h"
+#include "hy_type.h"
 #include "hy_log.h"
 
 #include "hy_storage.h"
 
-int32_t HyStorageGetFree(const char *mount_path, uint32_t *free_size)
+int32_t HyStorageSdGetFree(const char *mount_path, uint32_t *free_size)
 {
     LOGT("mount_path: %s, free_size: %p \n", mount_path, free_size);
-    HY_ASSERT_VAL_RET_VAL(!mount_path || !free_size || HY_STRLEN(mount_path) <= 0, -1);
+    HY_ASSERT_VAL_RET_VAL(!mount_path || !free_size
+            || HY_STRLEN(mount_path) <= 0, -1);
 
-    int ret;
-    float temp = 0.0;
     struct statfs stat;
+    hy_u64_t free_size_tmp;
+
+    if (0 != access(mount_path, F_OK)){
+        LOGES("access failed, mount_path: %s \n", mount_path);
+        return -1;
+    }
 
     HY_MEMSET(&stat, sizeof(stat));
-    ret = statfs(mount_path, &stat);
-    if (0 != ret) {
+    if (0 != statfs(mount_path, &stat)) {
         LOGES("statfs failed \n");
         return -1;
     }
 
-    unsigned long long block_size = stat.f_bsize;
-    unsigned long long free_size_tmp = block_size * stat.f_bavail;
-
-    temp = (float)((free_size_tmp >> 20));
-    *free_size = roundf(temp);
+    free_size_tmp = stat.f_bsize * stat.f_bavail;
+    *free_size = (hy_u32_t)(free_size_tmp >> 20);
 
     return 0;
 }
 
-int32_t HyStorageGetFreeRatio(const char *mount_path, float *ratio)
+int32_t HyStorageSdGetFreeRatio(const char *mount_path, float *free_ratio)
 {
-    LOGT("mount_path: %s, ratio: %p \n", mount_path, ratio);
-    HY_ASSERT_VAL_RET_VAL(!mount_path || !ratio || HY_STRLEN(mount_path) <= 0, -1);
+    LOGT("mount_path: %s, free_ratio: %p \n", mount_path, free_ratio);
+    HY_ASSERT_VAL_RET_VAL(!mount_path || !free_ratio
+            || HY_STRLEN(mount_path) <= 0, -1);
 
     struct statfs stat;
-    int ret;
-
     long all_blocks;
-    float free_ratio;
+
+    if (0 != access(mount_path, F_OK)){
+        LOGES("access failed, mount_path: %s \n", mount_path);
+        return -1;
+    }
 
     HY_MEMSET(&stat, sizeof(stat));
-    ret = statfs(mount_path, &stat);
-    if (0 != ret) {
+    if (0 != statfs(mount_path, &stat)) {
         LOGES("statfs failed \n");
         return -1;
     }
 
     all_blocks = stat.f_blocks - stat.f_bfree + stat.f_bavail;
-    free_ratio = (float)stat.f_bavail / all_blocks;
+    *free_ratio = (float)stat.f_bavail / all_blocks;
 
-    *ratio = free_ratio;
+    return 0;
+}
+
+int32_t HyStorageSdGetInfo(const char *mount_path,
+        uint32_t *total_size, uint32_t *free_size, float *free_ratio)
+{
+    LOGT("mount_path: %s, total_size: %p, free_size: %p, free_ratio: %p \n",
+            mount_path, total_size, free_size, free_ratio);
+    HY_ASSERT_VAL_RET_VAL(!mount_path || !total_size || !free_size
+            || !free_ratio || HY_STRLEN(mount_path) <= 0, -1);
+
+    struct statfs stat;
+    hy_u64_t free_size_tmp;
+    hy_u32_t all_blocks;
+
+    if (0 != access(mount_path, F_OK)){
+        LOGES("access failed, mount_path: %s \n", mount_path);
+        return -1;
+    }
+
+    HY_MEMSET(&stat, sizeof(stat));
+    if (0 != statfs(mount_path, &stat)) {
+        LOGES("statfs failed \n");
+        return -1;
+    }
+
+    free_size_tmp = stat.f_bsize * stat.f_bavail;
+    all_blocks = stat.f_blocks - stat.f_bfree + stat.f_bavail;
+
+    *free_ratio = (float)stat.f_bavail / all_blocks;
+    *free_size = (hy_u32_t)(free_size_tmp >> 20);
+    *total_size = *free_size / *free_ratio;
 
     return 0;
 }

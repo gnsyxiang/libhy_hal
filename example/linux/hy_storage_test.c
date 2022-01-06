@@ -120,13 +120,18 @@ int main(int argc, char *argv[])
     LOGE("version: %s, data: %s, time: %s \n", "0.1.0", __DATE__, __TIME__);
 
     float free_ratio = 0;
-    HyStorageGetFreeRatio("/mnt/sd", &free_ratio);
+    HyStorageSdGetFreeRatio("/mnt/sd", &free_ratio);
 
     uint32_t free_size = 0;
-    HyStorageGetFree("/mnt/sd", &free_size);
+    HyStorageSdGetFree("/mnt/sd", &free_size);
 
     LOGI("free_size: %d, free_ratio: %f \n", free_size, free_ratio);
     LOGI("total: %f \n", free_size / free_ratio);
+
+    hy_u32_t total_size = 0;
+    HyStorageSdGetInfo("/mnt/sd", &total_size, &free_size, &free_ratio);
+    LOGI("total_size: %d, free_size: %d, free_ratio: %f \n",
+            total_size, free_size, free_ratio);
 
     while (!context->exit_flag) {
         sleep(1);

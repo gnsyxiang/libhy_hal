@@ -27,28 +27,40 @@ extern "C" {
 #include <stdint.h>
 
 /**
- * @brief 获取存储介质的空闲大小
+ * @brief 获取SD卡的空闲大小
  *
- * @param mount_path 存储介质的挂载路径
- * @param free_size 存储介质的空闲大小
+ * @param mount_path SD卡的挂载路径
+ * @param free_size SD卡的空闲大小，单位M
  *
  * @return 成功返回0，失败返回-1
  */
-int32_t HyStorageGetFree(const char *mount_path, uint32_t *free_size);
+int32_t HyStorageSdGetFree(const char *mount_path, uint32_t *free_size);
 
 /**
- * @brief 获取存储介质中空闲大小所占的比例
+ * @brief 获取SD卡中空闲大小所占的比例
  *
- * @param mount_path 存储介质的挂载路径
- * @param ratio 空闲大小占用的比例
+ * @param mount_path SD卡的挂载路径
+ * @param free_ratio SD卡空闲大小占用的比例
  *
  * @return 成功返回0，失败返回-1
  */
-int32_t HyStorageGetFreeRatio(const char *mount_path, float *ratio);
+int32_t HyStorageSdGetFreeRatio(const char *mount_path, float *free_ratio);
+
+/**
+ * @brief 获取SD卡容量相关信息
+ *
+ * @param mount_path SD卡的挂载路径
+ * @param total_size SD卡总大小哦，单位M
+ * @param free_size SD卡空闲大小，单位M
+ * @param free_ratio SD卡空闲大小占用的比例
+ *
+ * @return 成功返回0，失败返回-1
+ */
+int32_t HyStorageSdGetInfo(const char *mount_path,
+        uint32_t *total_size, uint32_t *free_size, float *free_ratio);
 
 #ifdef __cplusplus
 }
 #endif
 
 #endif
-
