@@ -54,6 +54,7 @@ _cxxflags_com   +=
 _ldflags_com    +=
 
 _ldadd_com      += $(top_builddir)/src/lib@project_name@.la
+_ldadd_com      += -lm
 
 bin_PROGRAMS                += hy_dir_test
 hy_dir_test_SOURCES         = $(_sources_com) hy_dir_test.c
@@ -86,6 +87,14 @@ hy_mem_test_CFLAGS          = $(_cflags_com)
 hy_mem_test_CXXFLAGS        = $(_cxxflags_com)
 hy_mem_test_LDFLAGS         = $(_ldflags_com)
 hy_mem_test_LDADD           = $(_ldadd_com)
+
+bin_PROGRAMS                += hy_storage_test
+hy_storage_test_SOURCES     = $(_sources_com) hy_storage_test.c
+hy_storage_test_CPPFLAGS    = $(_cppflags_com)
+hy_storage_test_CFLAGS      = $(_cflags_com)
+hy_storage_test_CXXFLAGS    = $(_cxxflags_com)
+hy_storage_test_LDFLAGS     = $(_ldflags_com)
+hy_storage_test_LDADD       = $(_ldadd_com)
 
 bin_PROGRAMS                += hy_template_test
 hy_template_test_SOURCES    = $(_sources_com) hy_template_test.c
