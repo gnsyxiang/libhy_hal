@@ -21,6 +21,7 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <inttypes.h>
+#include <sys/time.h>
 
 #include "hy_assert.h"
 #include "hy_compile.h"
@@ -183,11 +184,28 @@ static _log_buf_t *_thread_key_featch(void)
     return log_buf;
 }
 
+static void _get_cur_time(char *buf, hy_u32_t len)
+{
+    time_t t = 0;
+    struct tm tm;
+    struct timeval tv;
+
+    t = time(NULL);
+    localtime_r(&t, &tm);
+
+    gettimeofday(&tv, NULL);
+
+    snprintf(buf, len, "%04d-%02d-%02d_%02d:%02d:%02d.%03d",
+            tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday,
+            tm.tm_hour, tm.tm_min, tm.tm_sec, (hy_u32_t)tv.tv_usec / 1000);
+}
+
 HY_WEAK void HyLogWrite(HyLogLevel_t level, const char *err_str,
         const char *file, hy_u32_t line, pthread_t tid, long pid,
         char *fmt, ...)
 {
     _log_buf_t *log_buf = NULL;
+    char format_time[32] = {0};
     hy_char_t *color[HY_LOG_LEVEL_MAX][2] = {
         {"F", PRINT_FONT_RED},
         {"E", PRINT_FONT_RED},
@@ -212,8 +230,10 @@ HY_WEAK void HyLogWrite(HyLogLevel_t level, const char *err_str,
                 color[level][1], color[level][0]);
     }
 
+    _get_cur_time(format_time, 32);
+
     log_buf->len_cur += snprintf(_SNPRINTF_FMT,
-            "[%ld-0x%lx][%s:%"PRId32"] ", pid, tid, file, line); 
+            "[%s][%ld-0x%lx][%s:%"PRId32"] ", format_time, pid, tid, file, line); 
 
     va_list args;
     va_start(args, fmt);
