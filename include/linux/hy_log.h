@@ -28,6 +28,9 @@ extern "C" {
 #include <stdint.h>
 #include <string.h>
 #include <errno.h>
+#include <pthread.h>
+#include <sys/syscall.h>      /* Definition of SYS_* constants */
+#include <unistd.h>
 
 #if 1
 #define HY_CHECK_FMT_WITH_PRINTF(a, b) __attribute__((format(printf, a, b)))
@@ -100,11 +103,12 @@ void HyLogDestroy(void **handle);
  * @param ... 参数
  */
 void HyLogWrite(HyLogLevel_t level, const char *err_str,
-        const char *file,  const char *func,
-        uint32_t line, char *fmt, ...) HY_CHECK_FMT_WITH_PRINTF(6, 7);
+        const char *file, uint32_t line, pthread_t tid, long pid,
+        char *fmt, ...) HY_CHECK_FMT_WITH_PRINTF(7, 8);
 
 #define LOG(level, err_str, fmt, ...) \
-    HyLogWrite(level, err_str, HY_FILENAME, __func__, __LINE__, fmt, ##__VA_ARGS__)
+    HyLogWrite(level, err_str, HY_FILENAME, __LINE__, \
+            pthread_self(), syscall(SYS_gettid), fmt, ##__VA_ARGS__)
 
 #define LOGF(fmt, ...)  LOG(HY_LOG_LEVEL_FATAL, strerror(errno), fmt, ##__VA_ARGS__)
 #define LOGES(fmt, ...) LOG(HY_LOG_LEVEL_ERROR, strerror(errno), fmt, ##__VA_ARGS__)

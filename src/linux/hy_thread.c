@@ -47,7 +47,7 @@ static void *_thread_loop_cb(void *args)
     int32_t ret = 0;
 
     usleep(1000);
-    LOGI("%s thread loop start, tid: 0x%lu, pid: %ld \n",
+    LOGI("%s thread loop start, tid: 0x%lx, pid: %ld \n",
             save_config->name, context->id, syscall(SYS_gettid));
 
 #ifdef _GNU_SOURCE

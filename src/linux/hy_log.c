@@ -19,10 +19,8 @@
  */
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <stdarg.h>
 #include <inttypes.h>
-#include <pthread.h>
 
 #include "hy_assert.h"
 #include "hy_compile.h"
@@ -186,8 +184,8 @@ static _log_buf_t *_thread_key_featch(void)
 }
 
 HY_WEAK void HyLogWrite(HyLogLevel_t level, const char *err_str,
-        const char *file, const char *func,
-        hy_u32_t line, char *fmt, ...)
+        const char *file, hy_u32_t line, pthread_t tid, long pid,
+        char *fmt, ...)
 {
     _log_buf_t *log_buf = NULL;
     hy_char_t *color[HY_LOG_LEVEL_MAX][2] = {
@@ -215,7 +213,7 @@ HY_WEAK void HyLogWrite(HyLogLevel_t level, const char *err_str,
     }
 
     log_buf->len_cur += snprintf(_SNPRINTF_FMT,
-            "[%s:%"PRId32"][%s] ", file, line, func); 
+            "[%ld-0x%lx][%s:%"PRId32"] ", pid, tid, file, line); 
 
     va_list args;
     va_start(args, fmt);
