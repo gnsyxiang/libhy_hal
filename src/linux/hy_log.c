@@ -111,7 +111,7 @@ static inline void _output_set_color(HyLogLevel_t level, hy_u32_t *ret)
         {"E", PRINT_FONT_RED},
         {"W", PRINT_FONT_GRE},
         {"I", ""},
-        {"D", ""},
+        {"D", PRINT_FONT_YEL},
         {"T", ""},
     };
 
