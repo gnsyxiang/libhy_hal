@@ -17,8 +17,8 @@
  * 
  *     last modified: 29/10 2021 20:29
  */
-#ifndef __LIBHY_UTILS_INCLUDE_HY_LOG_H_
-#define __LIBHY_UTILS_INCLUDE_HY_LOG_H_
+#ifndef __LIBHY_HAL_INCLUDE_HY_LOG_H_
+#define __LIBHY_HAL_INCLUDE_HY_LOG_H_
 
 #ifdef __cplusplus
 extern "C" {
