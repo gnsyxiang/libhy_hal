@@ -60,6 +60,7 @@ _install_headers_com    += \
                            hy_error.h       \
                            hy_hal_utils.h   \
                            hy_module.h      \
+                           hy_printf.h      \
                            hy_type.h
 
 # ------------------
