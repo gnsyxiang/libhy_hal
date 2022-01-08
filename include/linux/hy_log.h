@@ -35,6 +35,9 @@ extern "C" {
 #define HY_CHECK_FMT_WITH_PRINTF(a, b)
 #endif
 
+#define HY_STRRCHR_FILE (strrchr(__FILE__, '/'))
+#define HY_FILENAME     (HY_STRRCHR_FILE ? (HY_STRRCHR_FILE + 1) : __FILE__)
+
 /**
  * @brief 打印等级定义
  *
@@ -98,7 +101,7 @@ void HyLogWrite(HyLogLevel_t level, const char *err_str,
         uint32_t line, char *fmt, ...) HY_CHECK_FMT_WITH_PRINTF(6, 7);
 
 #define LOG(level, err_str, fmt, ...) \
-    HyLogWrite(level, err_str, __FILE__, __func__, __LINE__, fmt, ##__VA_ARGS__)
+    HyLogWrite(level, err_str, HY_FILENAME, __func__, __LINE__, fmt, ##__VA_ARGS__)
 
 #define LOGF(fmt, ...)  LOG(HY_LOG_LEVEL_FATAL, strerror(errno), fmt, ##__VA_ARGS__)
 #define LOGES(fmt, ...) LOG(HY_LOG_LEVEL_ERROR, strerror(errno), fmt, ##__VA_ARGS__)
