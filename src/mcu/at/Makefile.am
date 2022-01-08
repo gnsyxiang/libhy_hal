@@ -30,6 +30,7 @@ noinst_LTLIBRARIES = libmcu_vender.la
 # defining variables
 # ------------------
 _no_error_com   =
+_define_com     =
 _include_com    =
 _sources_com    =
 _cppflags_com   =
@@ -43,6 +44,8 @@ _ldadd_com      =
 # ---------------------
 _no_error_com   +=
 
+_define_com     +=
+
 _include_com    += \
                    -I$(top_srcdir)/include/mcu  \
                    -I$(top_srcdir)/include
@@ -53,7 +56,10 @@ endif
 
 _sources_com    +=
 
-_cppflags_com   += $(_no_error_com) $(_include_com)
+_cppflags_com   += \
+                   $(_no_error_com)     \
+                   $(_include_com)      \
+                   $(_define_com)
 
 _cflags_com     +=
 
@@ -69,4 +75,3 @@ libmcu_vender_la_CFLAGS     = $(_cflags_com)
 libmcu_vender_la_CXXFLAGS   = $(_cxxflags_com)
 libmcu_vender_la_LDFLAGS    = $(_ldflags_com)
 libmcu_vender_la_LIBADD     = $(_ldadd_com)
-

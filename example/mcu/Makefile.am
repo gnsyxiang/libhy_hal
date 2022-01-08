@@ -32,6 +32,7 @@ SUBDIRS = $(_mcu_vender)
 # defining variables
 # ------------------
 _no_error_com   =
+_define_com     =
 _include_com    =
 _sources_com    =
 _cppflags_com   =
@@ -47,13 +48,18 @@ bin_PROGRAMS    =
 # ---------------------
 _no_error_com   +=
 
+_define_com     +=
+
 _include_com    += \
                    -I$(top_srcdir)/include/mcu  \
                    -I$(top_srcdir)/include
 
 _sources_com    +=
 
-_cppflags_com   += $(_no_error_com) $(_include_com)
+_cppflags_com   += \
+                   $(_no_error_com)     \
+                   $(_include_com)      \
+                   $(_define_com)
 
 _cflags_com     +=
 

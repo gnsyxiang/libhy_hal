@@ -46,6 +46,7 @@ lib_LTLIBRARIES = lib@project_name@.la
 # defining variables
 # ------------------
 _no_error_com   =
+_define_com     =
 _include_com    =
 _sources_com    =
 _cppflags_com   =
@@ -59,12 +60,16 @@ _ldadd_com      =
 # ---------------------
 _no_error_com   +=
 
+_define_com     +=
+
 _include_com    += -I$(top_srcdir)/include
 
-_sources_com    += \
-                   hy_string.c
+_sources_com    +=
 
-_cppflags_com   += $(_no_error_com) $(_include_com)
+_cppflags_com   += \
+                   $(_no_error_com)     \
+                   $(_include_com)      \
+                   $(_define_com)
 
 _cflags_com     +=
 
@@ -82,4 +87,3 @@ lib@project_name@_la_CFLAGS     = $(_cflags_com)
 lib@project_name@_la_CXXFLAGS   = $(_cxxflags_com)
 lib@project_name@_la_LDFLAGS    = $(_ldflags_com)
 lib@project_name@_la_LIBADD     = $(_ldadd_com)
-

@@ -24,6 +24,7 @@ noinst_LTLIBRARIES = libhy_hal_os.la
 # defining variables
 # ------------------
 _no_error_com   =
+_define_com     =
 _include_com    =
 _sources_com    =
 _cppflags_com   =
@@ -37,13 +38,18 @@ _ldadd_com      =
 # ---------------------
 _no_error_com   +=
 
+_define_com     +=
+
 _include_com    += \
                    -I$(top_srcdir)/include/window   \
                    -I$(top_srcdir)/include
 
 _sources_com    +=
 
-_cppflags_com   += $(_no_error_com) $(_include_com)
+_cppflags_com   += \
+                   $(_no_error_com)     \
+                   $(_include_com)      \
+                   $(_define_com)
 
 _cflags_com     +=
 
@@ -59,4 +65,3 @@ libhy_hal_os_la_CFLAGS     = $(_cflags_com)
 libhy_hal_os_la_CXXFLAGS   = $(_cxxflags_com)
 libhy_hal_os_la_LDFLAGS    = $(_ldflags_com)
 libhy_hal_os_la_LIBADD     = $(_ldadd_com)
-

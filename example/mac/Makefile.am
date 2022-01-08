@@ -22,6 +22,7 @@
 # defining variables
 # ------------------
 _no_error_com   =
+_define_com     =
 _include_com    =
 _sources_com    =
 _cppflags_com   =
@@ -36,13 +37,18 @@ bin_PROGRAMS    =
 # ---------------------
 _no_error_com   +=
 
+_define_com     +=
+
 _include_com    += \
                    -I$(top_srcdir)/include/mac  \
                    -I$(top_srcdir)/include
 
 _sources_com    +=
 
-_cppflags_com   += $(_no_error_com) $(_include_com)
+_cppflags_com   += \
+                   $(_no_error_com)     \
+                   $(_include_com)      \
+                   $(_define_com)
 
 _cflags_com     +=
 
@@ -51,4 +57,3 @@ _cxxflags_com   +=
 _ldflags_com    +=
 
 _ldadd_com      += $(top_builddir)/src/lib@project_name@.la
-

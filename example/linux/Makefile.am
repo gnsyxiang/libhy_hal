@@ -45,7 +45,10 @@ _include_com    += \
 
 _sources_com    +=
 
-_cppflags_com   += $(_no_error_com) $(_include_com) $(_define_com)
+_cppflags_com   += \
+                   $(_no_error_com) \
+                   $(_include_com)  \
+                   $(_define_com)
 
 _cflags_com     +=
 
@@ -126,4 +129,3 @@ hy_uart_test_CFLAGS         = $(_cflags_com)
 hy_uart_test_CXXFLAGS       = $(_cxxflags_com)
 hy_uart_test_LDFLAGS        = $(_ldflags_com)
 hy_uart_test_LDADD          = $(_ldadd_com)
-
