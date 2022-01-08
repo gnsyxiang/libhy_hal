@@ -56,6 +56,8 @@ static void *_thread_loop_cb(void *args)
 
     while (0 == ret) {
         ret = save_config->thread_loop_cb(save_config->args);
+
+        // pthread_testcancel();
     }
 
     context->exit_flag = 1;
@@ -70,19 +72,18 @@ void HyThreadDestroy(void **handle)
     _thread_context_t *context = *handle;
     hy_u32_t cnt = 0;
 
-    if (context->save_config.flag == HY_THREAD_DESTROY_GRACE) {
-        pthread_join(context->id, NULL);
-    } else {
-        usleep(10 * 1000);
+    if (context->save_config.flag == HY_THREAD_DESTROY_FORCE) {
         if (!context->exit_flag) {
-            while (++cnt <= 100) {
-                usleep(10 * 1000);
+            while (++cnt <= 10) {
+                usleep(200 * 1000);
             }
 
             LOGW("force cancellation \n");
             pthread_cancel(context->id);
         }
     }
+
+    pthread_join(context->id, NULL);
 
     LOGD("%s thread destroy, handle: %p \n",
             context->save_config.name, context);
