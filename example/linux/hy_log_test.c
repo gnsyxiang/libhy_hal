@@ -26,13 +26,18 @@
 #include "hy_mem.h"
 #include "hy_string.h"
 #include "hy_signal.h"
+#include "hy_thread.h"
 #include "hy_module.h"
 #include "hy_hal_utils.h"
 #include "hy_log.h"
 
+#define _TEST_THREAD (20)
+
 typedef struct {
     void *log_handle;
     void *signal_handle;
+
+    void *thread_handle[_TEST_THREAD];
 
     hy_s32_t exit_flag;
 } _main_context_t;
@@ -47,7 +52,7 @@ static void _signal_error_cb(void *args)
 
 static void _signal_user_cb(void *args)
 {
-    LOGI("------user cb\n");
+    LOGW("------user cb\n");
 
     _main_context_t *context = args;
     context->exit_flag = 1;
@@ -119,6 +124,15 @@ static void _test_log(void)
     LOGF("hello world \n");
 }
 
+static hy_s32_t _test_loop_cb(void *args)
+{
+    usleep(500 * 1000);
+
+    LOGI("---haha\n");
+
+    return -1;
+}
+
 int main(int argc, char *argv[])
 {
     _main_context_t *context = _module_create();
@@ -131,8 +145,23 @@ int main(int argc, char *argv[])
 
     _test_log();
 
+    for (hy_u32_t i = 0; i < _TEST_THREAD; ++i) {
+        char name[32] = {0};
+        snprintf(name, 32, "hy_log_test_%d", i);
+
+        context->thread_handle[i] = HyThreadCreate_m(name,
+                _test_loop_cb, HY_THREAD_DESTROY_GRACE, context);
+        if (!context->thread_handle[i]) {
+            LOGE("HyThreadCreate_m fail \n");
+        }
+    }
+
     while (!context->exit_flag) {
         sleep(1);
+    }
+
+    for (hy_u32_t i = 0; i < _TEST_THREAD; ++i) {
+        HyThreadDestroy(&context->thread_handle[i]);
     }
 
     _module_destroy(&context);

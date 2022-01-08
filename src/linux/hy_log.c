@@ -48,6 +48,7 @@ typedef struct {
     HyLogSaveConfig_t   save_config;
 
     hy_s32_t            init_flag;
+    pthread_mutex_t     printf_mutex;
 } _log_context_t;
 
 static pthread_key_t thread_key;
@@ -199,13 +200,13 @@ HY_WEAK void HyLogWrite(HyLogLevel_t level, const char *err_str,
     };
 
     if (!context || context->save_config.level < level) {
-        return;
+        return ;
     }
 
     log_buf = _thread_key_featch();
     if (!log_buf) {
         printf("_thread_key_featch fail \n");
-        goto _ERR_HY_LOG_WRITE_1;
+        return ;
     }
 
     if (context->save_config.color_enable) {
@@ -231,17 +232,16 @@ HY_WEAK void HyLogWrite(HyLogLevel_t level, const char *err_str,
         log_buf->len_cur += snprintf(_SNPRINTF_FMT, "%s", PRINT_ATTR_RESET);
     }
 
+    pthread_mutex_lock(&context->printf_mutex);
     printf("%s", log_buf->buf);
-
-    return ;
-
-_ERR_HY_LOG_WRITE_1:
-    printf("-----haha\n");
+    pthread_mutex_unlock(&context->printf_mutex);
 }
 
 HY_WEAK void HyLogDestroy(void **handle)
 {
     if (context) {
+        pthread_mutex_destroy(&context->printf_mutex);
+
         HY_MEM_FREE_PP(&context);
     }
 }
@@ -263,6 +263,11 @@ HY_WEAK void *HyLogCreate(HyLogConfig_t *config)
 
         if (0 != pthread_key_create(&thread_key, _log_buf_destroy)) {
             printf("pthread_key_create failed \n");
+            break;
+        }
+
+        if (0 != pthread_mutex_init(&context->printf_mutex, NULL)) {
+            printf("pthread_mutex_init fail \n");
             break;
         }
 
