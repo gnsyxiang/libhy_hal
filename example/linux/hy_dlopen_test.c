@@ -51,7 +51,7 @@ static void _signal_error_cb(void *args)
 
 static void _signal_user_cb(void *args)
 {
-    LOGI("------user cb\n");
+    LOGW("------user cb\n");
 
     _main_context_t *context = args;
     context->exit_flag = 1;
