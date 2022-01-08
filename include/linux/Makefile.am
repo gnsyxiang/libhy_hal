@@ -38,6 +38,7 @@ _install_headers_com    += \
                            hy_mem.h         \
                            hy_signal.h      \
                            hy_storage.h     \
+                           hy_string.h      \
                            hy_thread.h      \
                            hy_time.h        \
                            hy_uart.h

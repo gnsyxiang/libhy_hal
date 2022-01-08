@@ -61,7 +61,6 @@ _install_headers_com    += \
                            hy_hal_utils.h   \
                            hy_log.h         \
                            hy_module.h      \
-                           hy_string.h      \
                            hy_type.h
 
 # ------------------

@@ -52,6 +52,7 @@ _sources_com    += \
                    hy_mem.c         \
                    hy_signal.c      \
                    hy_storage.c     \
+                   hy_string.c      \
                    hy_thread.c      \
                    hy_time.c        \
                    hy_uart.c
