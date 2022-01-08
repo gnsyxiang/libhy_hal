@@ -73,7 +73,8 @@ static _main_context_t *_module_create(void)
     _main_context_t *context = HY_MEM_MALLOC_RET_VAL(_main_context_t *, sizeof(*context), NULL);
 
     HyLogConfig_t log_config;
-    log_config.save_config.buf_len      = 512;
+    log_config.save_config.buf_len_min  = 512;
+    log_config.save_config.buf_len_max  = 512;
     log_config.save_config.level        = HY_LOG_LEVEL_TRACE;
     log_config.save_config.color_enable = HY_TYPE_FLAG_ENABLE;
 

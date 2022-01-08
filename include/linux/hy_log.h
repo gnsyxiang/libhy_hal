@@ -58,11 +58,12 @@ typedef enum {
  * @brief 模块配置参数
  */
 typedef struct {
-    HyLogLevel_t        level;              ///< 打印等级，详见HyLogLevel_t
-    uint32_t            buf_len;            ///< 打印buf长度
-    int32_t             color_enable;       ///< 是否颜色输出
     uint32_t            buf_len_min;        ///< 单条日志的最短长度
     uint32_t            buf_len_max;        ///< 单条日志的最大长度，超过该长度会被截断
+
+    HyLogLevel_t        level:4;            ///< 打印等级，详见HyLogLevel_t
+    int32_t             color_enable:1;     ///< 是否颜色输出
+    int32_t             reserve:27;         ///< 预留
 } HyLogSaveConfig_t;
 
 /**
