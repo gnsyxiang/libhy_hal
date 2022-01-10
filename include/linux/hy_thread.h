@@ -107,16 +107,16 @@ void HyThreadGetInfo(void *handle,
  *
  * @return 线程句柄
  */
-#define HyThreadCreate_m(_name, _thread_loop_cb, _flag, _args)      \
-    ({                                                              \
-        HyThreadConfig_t config;                                    \
-        memset(&config, '\0', sizeof(config));                      \
-        config.save_config.flag             = _flag;                \
-        config.save_config.thread_loop_cb   = _thread_loop_cb;      \
-        config.save_config.args             = _args;                \
-        HY_STRNCPY(config.save_config.name,                         \
-                HY_THREAD_NAME_LEN_MAX, _name, HY_STRLEN(_name));   \
-        HyThreadCreate(&config);                                    \
+#define HyThreadCreate_m(_name, _thread_loop_cb, _args)                 \
+    ({                                                                  \
+        HyThreadConfig_t config;                                        \
+        memset(&config, '\0', sizeof(config));                          \
+        config.save_config.flag             = HY_THREAD_DESTROY_GRACE;  \
+        config.save_config.thread_loop_cb   = _thread_loop_cb;          \
+        config.save_config.args             = _args;                    \
+        HY_STRNCPY(config.save_config.name,                             \
+                HY_THREAD_NAME_LEN_MAX, _name, HY_STRLEN(_name));       \
+        HyThreadCreate(&config);                                        \
      })
 
 #ifdef __cplusplus

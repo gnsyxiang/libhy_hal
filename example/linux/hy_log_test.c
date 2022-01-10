@@ -149,7 +149,7 @@ int main(int argc, char *argv[])
         snprintf(name, 32, "hy_log_test_%d", i);
 
         context->thread_handle[i] = HyThreadCreate_m(name,
-                _test_loop_cb, HY_THREAD_DESTROY_GRACE, context);
+                _test_loop_cb, context);
         if (!context->thread_handle[i]) {
             LOGE("HyThreadCreate_m fail \n");
         }
