@@ -156,3 +156,57 @@ void *HyThreadCreate(HyThreadConfig_t *config)
     HyThreadDestroy((void **)&context);
     return NULL;
 }
+
+/*
+ * pthread_t pthread_self(void)     <进程级别>是pthread 库给每个线程定义的进程内唯一标识，是 pthread 库维护的，是进程级而非系统级
+ * syscall(SYS_gettid)              <系统级别>这个系统全局唯一的“ID”叫做线程PID（进程ID），或叫做TID（线程ID），也有叫做LWP（轻量级进程=线程）的。
+ */
+
+// 设置的名字可以在proc文件系统中查看: cat /proc/PID/task/tid/comm
+
+// 如果当前线程没有被设定成DETACHED的话，
+// 线程结束后，需要使用pthread_join来触发该一小段内存回收。
+// pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
+
+#if 0
+    hal_int32_t sched_priority[][2] = {
+        {HAL_THREAD_PRIORITY_NORMAL,    50},
+        {HAL_THREAD_PRIORITY_LOW,       30},
+        {HAL_THREAD_PRIORITY_HIGH,      70},
+        {HAL_THREAD_PRIORITY_REALTIME,  99},
+        {HAL_THREAD_PRIORITY_IDLE,      10},
+    };
+
+    struct sched_param param;
+    pthread_attr_setschedpolicy(&attr, SCHED_RR);
+    param.sched_priority = sched_priority[config->priority][1];
+    pthread_attr_setschedparam(&attr, &param);
+#endif
+
+#if 0
+出现如下提示，表示线程资源没有释放，可能的原因如下: 
+
+1, 创建的是非分离线程，线程结束后，需要使用pthread_join来触发该一小段内存回收。
+2, 创建的是分离线程，但是主线程优先执行完退出程序，导致被创建的线程没有执行完，导致资源的泄露
+
+==40360== HEAP SUMMARY:
+==40360==     in use at exit: 272 bytes in 1 blocks
+==40360==   total heap usage: 3 allocs, 2 frees, 1,344 bytes allocated
+==40360==
+==40360== 272 bytes in 1 blocks are possibly lost in loss record 1 of 1
+==40360==    at 0x4C31B25: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==40360==    by 0x40134A6: allocate_dtv (dl-tls.c:286)
+==40360==    by 0x40134A6: _dl_allocate_tls (dl-tls.c:530)
+==40360==    by 0x4E44227: allocate_stack (allocatestack.c:627)
+==40360==    by 0x4E44227: pthread_create@@GLIBC_2.2.5 (pthread_create.c:644)
+==40360==    by 0x108F1C: HalLinuxThreadInit (hal_linux_thread.c:111)
+==40360==    by 0x108CC1: HalThreadInit (hal_thread.c:85)
+==40360==    by 0x108AD4: main (main.c:50)
+==40360==
+==40360== LEAK SUMMARY:
+==40360==    definitely lost: 0 bytes in 0 blocks
+==40360==    indirectly lost: 0 bytes in 0 blocks
+==40360==      possibly lost: 272 bytes in 1 blocks
+==40360==    still reachable: 0 bytes in 0 blocks
+==40360==         suppressed: 0 bytes in 0 blocks
+#endif

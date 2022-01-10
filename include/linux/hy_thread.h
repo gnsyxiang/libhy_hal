@@ -123,8 +123,6 @@ void HyThreadGetInfo(void *handle,
     ({                                                                  \
         HyThreadConfig_t config;                                        \
         memset(&config, '\0', sizeof(config));                          \
-        config.save_config.destroy_flag     = HY_THREAD_DESTROY_GRACE;  \
-        config.save_config.detach_flag      = HY_THREAD_DETACH_NO;      \
         config.save_config.thread_loop_cb   = _thread_loop_cb;          \
         config.save_config.args             = _args;                    \
         HY_STRNCPY(config.save_config.name,                             \
