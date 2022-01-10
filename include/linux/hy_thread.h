@@ -41,6 +41,16 @@ typedef enum {
 } HyThreadDestroyFlag_t;
 
 /**
+ * @brief 线程是否分离
+ */
+typedef enum {
+    HY_THREAD_DETACH_NO,                                    ///< 非分离属性
+    HY_THREAD_DETACH_YES,                                   ///< 分离属性
+
+    HY_THREAD_DETACH_MAX,
+} HyThreadDetachFlag_t;
+
+/**
  * @brief 线程回调函数
  *
  * @param 上层传递参数
@@ -57,9 +67,11 @@ typedef int32_t (*HyThreadLoopCb_t)(void *args);
  */
 typedef struct {
     char                    name[HY_THREAD_NAME_LEN_MAX];   ///< 线程名字
-    HyThreadLoopCb_t        thread_loop_cb;                 ///< 线程执行函数，详见HyThreadLoopCb_t
-    int32_t                 flag;                           ///< 线程退出方式，详见HyThreadDestroyFlag_t
+    HyThreadLoopCb_t        thread_loop_cb;                 ///< 线程执行函数
     void                    *args;                          ///< 上层传递参数
+    HyThreadDestroyFlag_t   destroy_flag:2;                 ///< 线程退出方式
+    HyThreadDetachFlag_t    detach_flag:2;                  ///< 线程是否分离
+    int32_t                 reserved;                       ///< 预留
 } HyThreadSaveConfig_t;
 
 /**
@@ -111,7 +123,8 @@ void HyThreadGetInfo(void *handle,
     ({                                                                  \
         HyThreadConfig_t config;                                        \
         memset(&config, '\0', sizeof(config));                          \
-        config.save_config.flag             = HY_THREAD_DESTROY_GRACE;  \
+        config.save_config.destroy_flag     = HY_THREAD_DESTROY_GRACE;  \
+        config.save_config.detach_flag      = HY_THREAD_DETACH_NO;      \
         config.save_config.thread_loop_cb   = _thread_loop_cb;          \
         config.save_config.args             = _args;                    \
         HY_STRNCPY(config.save_config.name,                             \

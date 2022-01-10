@@ -140,6 +140,13 @@ static _main_context_t *_module_create(void)
     return context;
 }
 
+static hy_s32_t _thread_detach_loop_cb(void *args)
+{
+    LOGI("thread detach \n");
+
+    return -1;
+}
+
 int main(int argc, char *argv[])
 {
     _main_context_t *context = _module_create();
@@ -149,6 +156,19 @@ int main(int argc, char *argv[])
     }
 
     LOGE("version: %s, data: %s, time: %s \n", "0.1.0", __DATE__, __TIME__);
+
+    HyThreadConfig_t thread_config;
+    memset(&thread_config, '\0', sizeof(thread_config));
+    thread_config.save_config.destroy_flag      = HY_THREAD_DESTROY_GRACE;
+    thread_config.save_config.detach_flag       = HY_THREAD_DETACH_YES;
+    thread_config.save_config.reserved          = 0;
+    thread_config.save_config.thread_loop_cb    = _thread_detach_loop_cb;
+    thread_config.save_config.args              = context;
+    HY_STRNCPY(thread_config.save_config.name, HY_THREAD_NAME_LEN_MAX,
+            "hy_thd_test_detach", HY_STRLEN("hy_thd_test_detach"));
+    if (NULL == HyThreadCreate(&thread_config)) {
+        LOGE("HyThreadCreate_m fail \n");
+    }
 
     while (!context->exit_flag) {
         sleep(1);

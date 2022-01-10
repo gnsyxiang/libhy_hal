@@ -18,7 +18,6 @@
  *     last modified: 30/10 2021 08:29
  */
 #include <stdio.h>
-#include <errno.h>
 #include <sched.h>
 #include <unistd.h>
 #include <sys/syscall.h>   /* For SYS_xxx definitions */
@@ -78,17 +77,23 @@ static void *_thread_loop_cb(void *args)
 
     context->exit_flag = 1;
     LOGD("%s thread loop stop \n", save_config->name);
+
+    if (save_config->detach_flag) {
+        HyThreadDestroy((void **)&context);
+    }
+
     return NULL;
 }
 
 void HyThreadDestroy(void **handle)
 {
-    HY_ASSERT_VAL_RET(!handle || !*handle);
-
     _thread_context_t *context = *handle;
     hy_u32_t cnt = 0;
 
-    if (context->save_config.flag == HY_THREAD_DESTROY_FORCE) {
+    LOGT("handle: %p, *handle: %p \n", handle, *handle);
+    HY_ASSERT_VAL_RET(!handle || !*handle);
+
+    if (context->save_config.destroy_flag == HY_THREAD_DESTROY_FORCE) {
         if (!context->exit_flag) {
             while (++cnt <= 10) {
                 usleep(200 * 1000);
@@ -109,19 +114,37 @@ void HyThreadDestroy(void **handle)
 
 void *HyThreadCreate(HyThreadConfig_t *config)
 {
+    _thread_context_t *context = NULL;
+    pthread_attr_t attr;
+
     LOGD("config: %p \n", config);
     HY_ASSERT_VAL_RET_VAL(!config, NULL);
-
-    _thread_context_t *context = NULL;
 
     do {
         context = HY_MEM_MALLOC_BREAK(_thread_context_t *, sizeof(*context));
 
-        HyThreadSaveConfig_t *save_config = &context->save_config;
-        HY_MEMCPY(save_config, &config->save_config, sizeof(config->save_config));
+        HyThreadSaveConfig_t *save_config = &config->save_config;
+        HY_MEMCPY(&context->save_config, save_config, sizeof(*save_config));
 
-        if (0 != pthread_create(&context->id, NULL, _thread_loop_cb, context)) {
-            LOGE("failed, error: %s \n", strerror(errno));
+        if (0 != pthread_attr_init(&attr)) {
+            LOGES("pthread init fail \n");
+            break;
+        }
+
+        if (save_config->detach_flag
+                && 0 != pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED)) {
+            LOGES("set detach state fail \n");
+            break;
+        }
+
+        if (0 != pthread_create(&context->id, &attr, _thread_loop_cb, context)) {
+            LOGES("pthread create fail \n");
+            break;
+        }
+
+        if (save_config->detach_flag
+                && 0 != pthread_attr_destroy(&attr)) {
+            LOGES("destroy attr fail \n");
             break;
         }
 
