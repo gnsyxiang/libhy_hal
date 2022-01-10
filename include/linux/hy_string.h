@@ -49,7 +49,7 @@ extern "C" {
     do {                                        \
         size_t len = src_len;                   \
         if (len >= dst_len) {                   \
-            len -= 1;                           \
+            len -= dst_len - 1;                 \
         }                                       \
         memset(dst, '\0', dst_len);             \
         strncpy(dst, src, len);                 \
