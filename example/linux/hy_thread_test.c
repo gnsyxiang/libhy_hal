@@ -122,6 +122,7 @@ static _main_context_t *_module_create(void)
     signal_config.save_config.args          = context;
 
     HyThreadConfig_t thread_config;
+    HY_MEMSET(&thread_config, sizeof(thread_config));
     thread_config.save_config.thread_loop_cb    = _print_loop_cb;
     thread_config.save_config.args              = context;
     HY_STRNCPY(thread_config.save_config.name,
