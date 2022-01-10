@@ -18,14 +18,29 @@
  *     last modified: 20/12 2021 19:16
  */
 #include <stdio.h>
-
-#include "hy_time.h"
+#include <sys/time.h>
 
 #include "hy_log.h"
 #include "hy_type.h"
 #include "hy_mem.h"
 #include "hy_string.h"
 #include "hy_assert.h"
+
+#include "hy_time.h"
+
+uint64_t HyTimeGetUTCUs(void)
+{
+    struct timeval tv;
+
+    gettimeofday(&tv, NULL);
+
+    return (tv.tv_sec * 1000 * 1000 + tv.tv_usec);
+}
+
+uint64_t HyTimeGetUTCMs(void)
+{
+    return HyTimeGetUTCUs() / 1000;
+}
 
 time_t HyTimeGetUTC(void)
 {

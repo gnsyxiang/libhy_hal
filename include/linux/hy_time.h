@@ -26,6 +26,21 @@ extern "C" {
 
 #include <stdio.h>
 #include <time.h>
+#include <stdint.h>
+
+/**
+ * @brief 获取utc时间
+ *
+ * @return 微妙
+ */
+uint64_t HyTimeGetUTCUs(void);
+
+/**
+ * @brief 获取utc时间
+ *
+ * @return 毫秒
+ */
+uint64_t HyTimeGetUTCMs(void);
 
 /**
  * @brief 获取utc时间
