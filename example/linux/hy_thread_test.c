@@ -45,6 +45,13 @@ static int32_t _print_loop_cb(void *args)
 {
     _main_context_t *context = args;
 
+    char name[HY_THREAD_NAME_LEN_MAX] = {0};
+    pthread_t id;
+    long pid;
+
+    HyThreadGetInfo(context->thread_handle, name, sizeof(name), &id, &pid);
+    LOGE("name: %s, id: 0x%lx, pid: %ld \n", name, id, pid);
+
     while (!context->exit_flag) {
         LOGE("haha \n");
         sleep(1);

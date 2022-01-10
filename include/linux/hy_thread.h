@@ -26,6 +26,7 @@ extern "C" {
 
 #include <stdio.h>
 #include <stdint.h>
+#include <pthread.h>
 
 #define HY_THREAD_NAME_LEN_MAX (16)
 
@@ -83,6 +84,18 @@ void *HyThreadCreate(HyThreadConfig_t *config);
  * @param handle 线程句柄的地址
  */
 void HyThreadDestroy(void **handle);
+
+/**
+ * @brief 获取线程相关信息
+ *
+ * @param handle 线程句柄
+ * @param name 线程名字
+ * @param name_len 线程名字长度
+ * @param id 线程id
+ * @param pid 线程pid
+ */
+void HyThreadGetInfo(void *handle,
+        char *name, uint32_t name_len, pthread_t *id, long *pid);
 
 /**
  * @brief 创建线程宏

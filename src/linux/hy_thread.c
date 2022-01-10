@@ -18,20 +18,19 @@
  *     last modified: 30/10 2021 08:29
  */
 #include <stdio.h>
-#include <pthread.h>
 #include <errno.h>
 #include <sched.h>
 #include <unistd.h>
 #include <sys/syscall.h>   /* For SYS_xxx definitions */
 #include <sys/prctl.h>
 
-#include "hy_thread.h"
-
 #include "hy_assert.h"
 #include "hy_type.h"
 #include "hy_mem.h"
 #include "hy_string.h"
 #include "hy_log.h"
+
+#include "hy_thread.h"
 
 typedef struct {
     HyThreadSaveConfig_t    save_config;
@@ -40,6 +39,23 @@ typedef struct {
     hy_u32_t                exit_flag;
 } _thread_context_t;
 
+void HyThreadGetInfo(void *handle,
+        char *name, uint32_t name_len, pthread_t *id, long *pid)
+{
+    HY_ASSERT_VAL_RET(!handle || !name || !id || !pid || name_len == 0);
+
+    _thread_context_t *context = handle;
+
+    if (name_len >= HY_THREAD_NAME_LEN_MAX) {
+        name_len -= 1;
+    }
+
+    HY_MEMCPY(name, context->save_config.name, name_len);
+
+    *id = context->id;
+    *pid = syscall(SYS_gettid);
+}
+
 static void *_thread_loop_cb(void *args)
 {
     _thread_context_t *context = args;
@@ -47,7 +63,7 @@ static void *_thread_loop_cb(void *args)
     int32_t ret = 0;
 
     usleep(1000);
-    LOGI("%s thread loop start, tid: 0x%lx, pid: %ld \n",
+    LOGI("%s thread loop start, id: 0x%lx, pid: %ld \n",
             save_config->name, context->id, syscall(SYS_gettid));
 
 #ifdef _GNU_SOURCE
@@ -109,7 +125,7 @@ void *HyThreadCreate(HyThreadConfig_t *config)
             break;
         }
 
-        LOGD("%s thread create, handle: %p, tid: 0x%lu \n",
+        LOGD("%s thread create, handle: %p, id: 0x%lx \n",
                 save_config->name, context, context->id);
         return context;
     } while (0);
