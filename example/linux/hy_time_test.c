@@ -130,11 +130,11 @@ int main(int argc, char *argv[])
     time_t s = HyTimeFormatTime2UTC("2021-12-20_19-00-00");
     LOGD("s: %ld \n", s);
 
-    uint64_t us = HyTimeGetUTCUs();
-    LOGD("us: %ld \n", us);
+    unsigned long long us = HyTimeGetUTCUs();
+    LOGD("us: %lld \n", us);
 
-    uint64_t ms = HyTimeGetUTCMs();
-    LOGD("ms: %ld \n", ms);
+    unsigned long long ms = HyTimeGetUTCMs();
+    LOGD("ms: %lld \n", ms);
 
     while (!context->exit_flag) {
         sleep(1);

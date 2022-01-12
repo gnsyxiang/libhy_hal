@@ -28,16 +28,16 @@
 
 #include "hy_time.h"
 
-uint64_t HyTimeGetUTCUs(void)
+unsigned long long HyTimeGetUTCUs(void)
 {
     struct timeval tv;
 
     gettimeofday(&tv, NULL);
 
-    return (tv.tv_sec * 1000 * 1000 + tv.tv_usec);
+    return ((unsigned long long)tv.tv_sec * 1000 * 1000 + tv.tv_usec);
 }
 
-uint64_t HyTimeGetUTCMs(void)
+unsigned long long HyTimeGetUTCMs(void)
 {
     return HyTimeGetUTCUs() / 1000;
 }

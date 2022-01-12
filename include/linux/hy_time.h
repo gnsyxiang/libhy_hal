@@ -33,14 +33,14 @@ extern "C" {
  *
  * @return 微妙
  */
-uint64_t HyTimeGetUTCUs(void);
+unsigned long long HyTimeGetUTCUs(void);
 
 /**
  * @brief 获取utc时间
  *
  * @return 毫秒
  */
-uint64_t HyTimeGetUTCMs(void);
+unsigned long long HyTimeGetUTCMs(void);
 
 /**
  * @brief 获取utc时间
