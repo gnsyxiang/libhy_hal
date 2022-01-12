@@ -4,23 +4,17 @@
 
 help_info()
 {
-    echo "eg: ./build.sh pc/arm/mac/mcu/rtos/window [_build]"
+    echo "eg: ./build.sh pc/arm/mac/mcu/rtos/window release/debug [_build]"
     exit
 }
 
-if [ $# -gt 2 -o $# -lt 1 ]; then
+if [ $# -gt 3 -o $# -lt 2 ]; then
     help_info
 fi
 
 data_disk_path=/opt/data
 
-_cppflags_com=""
-_cflags_com=""
-_cxxflags_com=""
-_ldflag_com=""
-_param_com=""
-
-_cppflags_com="${_cppflags_com} -W -Wall -Werror"
+_cppflags_com="-W -Wall -Werror"
 _cppflags_com="${_cppflags_com} -Wno-unused-parameter"
 _cppflags_com="${_cppflags_com} -Wno-address"
 _cppflags_com="${_cppflags_com} -Wno-error=unused-but-set-variable"
@@ -30,13 +24,25 @@ _cppflags_com="${_cppflags_com} -pipe"
 _cppflags_com="${_cppflags_com} -ffunction-sections"
 _cppflags_com="${_cppflags_com} -fdata-sections"
 
-_ldflag_com="${_ldflag_com} -Wl,--gc-sections"
+_cflags_com=""
+
+_cxxflags_com=""
+
+_ldflag_com="-Wl,--gc-sections"
 _ldflag_com="${_ldflag_com} -Wl,--as-needed"
 _ldflag_com="${_ldflag_com} -Wl,-rpath=../lib"
+
+_param_com=""
 
 if [ x$1 = x"pc" ]; then
     vender=pc
     gcc_version=x86_64-linux-gnu
+
+    if [ x$2 = x"release" ]; then
+        _cppflags_com="${_cppflags_com} -Wno-error=format-truncation="
+        _cppflags_com="${_cppflags_com} -Wno-error=unused-result"
+        _cppflags_com="${_cppflags_com} -Wno-error=stringop-truncation"
+    fi
 
     _cppflags_com="${_cppflags_com} -fstack-protector-all"
     _ldflag_com="${_ldflag_com} -rdynamic"
@@ -110,13 +116,19 @@ if [ x$1 = x"mcu" ]; then
     _cppflags_com="${_cppflags_com} -I${prefix_path}/include/hy_mcu"
 fi
 
+if [ x$2 = x"release" ]; then
+    _cppflags_com="${_cppflags_com} -g -O2"
+else
+    _cppflags_com="${_cppflags_com} -g -O0"
+fi
+
 make distclean
 
 cd `pwd` && ./autogen.sh ${cross_gcc_path} && cd - >/dev/null 2>&1
 
-if [ $# = 2 ]; then
-    mkdir -p $2/${vender}
-    cd $2/${vender}
+if [ $# = 3 ]; then
+    mkdir -p $3/${vender}
+    cd $3/${vender}
 fi
 
 export STRIP=${cross_gcc_path}strip
@@ -139,4 +151,8 @@ export STRIP=${cross_gcc_path}strip
 
 thread_jobs=`getconf _NPROCESSORS_ONLN 2>/dev/null || echo 1`
 
-make -j${thread_jobs} && make install
+if [ x$2 = x"release" ]; then
+    make -j${thread_jobs} && make install-strip
+else
+    make -j${thread_jobs} && make install
+fi
