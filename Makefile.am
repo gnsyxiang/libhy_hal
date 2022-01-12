@@ -34,7 +34,6 @@ _install_files_com  =
 _dist_files_com     =
 
 ACLOCAL_AMFLAGS     = -I m4
-pkgconfigdir        = $(libdir)/pkgconfig
 
 # ---------------------
 # add necessary content
