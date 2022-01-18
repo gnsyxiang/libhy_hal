@@ -136,6 +136,11 @@ int main(int argc, char *argv[])
     unsigned long long ms = HyTimeGetUTCMs();
     LOGD("ms: %lld \n", ms);
 
+    time_t start;
+    time_t end;
+    HyTimeGetCurDayRegion(1642466044, &start, &end);
+    LOGD("region[%ld, %ld] \n", start, end);
+
     while (!context->exit_flag) {
         sleep(1);
     }

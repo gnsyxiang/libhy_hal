@@ -77,6 +77,14 @@ void HyTimeFormatLocalTime(char *buf, size_t len);
  */
 time_t HyTimeFormatTime2UTC(const char *data_time);
 
+/**
+ * @brief 获取当天的零点和24点的UTC值
+ *
+ * @param start 零点值
+ * @param end 24点值
+ */
+void HyTimeGetCurDayRegion(const time_t cur_utc, time_t *start, time_t *end);
+
 #ifdef __cplusplus
 }
 #endif

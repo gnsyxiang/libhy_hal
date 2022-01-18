@@ -82,3 +82,17 @@ time_t HyTimeFormatTime2UTC(const char *data_time)
 
     return mktime(&tm);
 }
+
+void HyTimeGetCurDayRegion(const time_t cur_utc, time_t *start, time_t *end)
+{
+    struct tm tm;
+    localtime_r(&cur_utc, &tm);
+    tm.tm_hour = 0;
+    tm.tm_min = 0;
+    tm.tm_sec = 0;
+
+    *start = mktime(&tm);
+
+    *end = 0;
+    *end += *start + 86400 - 1;
+}
