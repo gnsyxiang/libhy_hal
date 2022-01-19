@@ -97,7 +97,7 @@ int fputc(int ch, FILE *f)
 
 static hy_s32_t _uart_send_byte(void *handle, char byte)
 {
-    HY_ASSERT_VAL_RET_VAL(!handle, -1);
+    HY_ASSERT_RET_VAL(!handle, -1);
 
     _DEFINE_UART();
 
@@ -119,7 +119,7 @@ static hy_s32_t _uart_send_byte(void *handle, char byte)
 
 int32_t HyUartWrite(void *handle, void *buf, size_t len)
 {
-    HY_ASSERT_VAL_RET_VAL(!handle || !buf, -1);
+    HY_ASSERT_RET_VAL(!handle || !buf, -1);
 
     _uart_context_t *context = handle;
     _DEFINE_UART();
@@ -248,7 +248,7 @@ static void _init_uart_func(HyUartConfig_t *config)
 
 void HyUartDestroy(void **handle)
 {
-    HY_ASSERT_VAL_RET(!handle || !*handle);
+    HY_ASSERT_RET(!handle || !*handle);
 
     _uart_context_t *context = *handle;
 
@@ -260,7 +260,7 @@ void HyUartDestroy(void **handle)
 
 void *HyUartCreate(HyUartConfig_t *config)
 {
-    HY_ASSERT_VAL_RET_VAL(!config, NULL);
+    HY_ASSERT_RET_VAL(!config, NULL);
 
     _uart_context_t *context = NULL;
 

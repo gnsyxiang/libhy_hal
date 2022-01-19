@@ -74,7 +74,7 @@ static hy_s32_t _handle_sub_dir(const char *path, char *name, const char *filter
 static int32_t _dir_read(int32_t type, const char *path, const char *filter,
         HyDirReadCb_t read_cb, void *args)
 {
-    HY_ASSERT_VAL_RET_VAL(!path || !read_cb, -1);
+    HY_ASSERT_RET_VAL(!path || !read_cb, -1);
     LOGD("path: %s, filter: %s \n", path, filter);
 
     hy_s32_t ret;

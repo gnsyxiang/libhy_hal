@@ -128,7 +128,7 @@ void HySystemDestroy(void **handle)
 
 void *HySystemCreate(HySystemConfig_t *config)
 {
-    HY_ASSERT_VAL_RET_VAL(!config, NULL);
+    HY_ASSERT_RET_VAL(!config, NULL);
 
     do {
         context = HY_MEM_MALLOC_BREAK(_system_context_t *, sizeof(*context));

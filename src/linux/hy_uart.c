@@ -44,7 +44,7 @@ typedef struct {
 
 ssize_t HyUartWrite(void *handle, const void *buf, size_t len)
 {
-    HY_ASSERT_VAL_RET_VAL(!handle || !buf, -1);
+    HY_ASSERT_RET_VAL(!handle || !buf, -1);
     _uart_context_t *context = handle;
 
     return write(context->fd, buf, len);
@@ -52,7 +52,7 @@ ssize_t HyUartWrite(void *handle, const void *buf, size_t len)
 
 ssize_t HyUartRead(void *handle, void *buf, size_t len)
 {
-    HY_ASSERT_VAL_RET_VAL(!handle || !buf, -1);
+    HY_ASSERT_RET_VAL(!handle || !buf, -1);
     _uart_context_t *context = handle;
 
     return read(context->fd, buf, len);
@@ -176,7 +176,7 @@ static int32_t _uart_create(_uart_context_t *context, char *name)
 
 void HyUartDestroy(void **handle)
 {
-    HY_ASSERT_VAL_RET(!handle || !*handle);
+    HY_ASSERT_RET(!handle || !*handle);
 
     _uart_context_t *context = *handle;
 
@@ -189,7 +189,7 @@ void HyUartDestroy(void **handle)
 
 void *HyUartCreate(HyUartConfig_t *config)
 {
-    HY_ASSERT_VAL_RET_VAL(!config, NULL);
+    HY_ASSERT_RET_VAL(!config, NULL);
 
     _uart_context_t *context = NULL;
     do {

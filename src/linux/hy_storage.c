@@ -32,7 +32,7 @@
 int32_t HyStorageSdGetFree(const char *mount_path, uint32_t *free_size)
 {
     LOGT("mount_path: %s, free_size: %p \n", mount_path, free_size);
-    HY_ASSERT_VAL_RET_VAL(!mount_path || !free_size
+    HY_ASSERT_RET_VAL(!mount_path || !free_size
             || HY_STRLEN(mount_path) <= 0, -1);
 
     struct statfs stat;
@@ -58,7 +58,7 @@ int32_t HyStorageSdGetFree(const char *mount_path, uint32_t *free_size)
 int32_t HyStorageSdGetFreeRatio(const char *mount_path, float *free_ratio)
 {
     LOGT("mount_path: %s, free_ratio: %p \n", mount_path, free_ratio);
-    HY_ASSERT_VAL_RET_VAL(!mount_path || !free_ratio
+    HY_ASSERT_RET_VAL(!mount_path || !free_ratio
             || HY_STRLEN(mount_path) <= 0, -1);
 
     struct statfs stat;
@@ -86,7 +86,7 @@ int32_t HyStorageSdGetInfo(const char *mount_path,
 {
     LOGT("mount_path: %s, total_size: %p, free_size: %p, free_ratio: %p \n",
             mount_path, total_size, free_size, free_ratio);
-    HY_ASSERT_VAL_RET_VAL(!mount_path || !total_size || !free_size
+    HY_ASSERT_RET_VAL(!mount_path || !total_size || !free_size
             || !free_ratio || HY_STRLEN(mount_path) <= 0, -1);
 
     struct statfs stat;

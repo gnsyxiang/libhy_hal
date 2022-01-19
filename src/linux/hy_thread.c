@@ -41,7 +41,7 @@ typedef struct {
 void HyThreadGetInfo(void *handle,
         char *name, uint32_t name_len, pthread_t *id, long *pid)
 {
-    HY_ASSERT_VAL_RET(!handle || !name || !id || !pid || name_len == 0);
+    HY_ASSERT_RET(!handle || !name || !id || !pid || name_len == 0);
 
     _thread_context_t *context = handle;
 
@@ -91,7 +91,7 @@ void HyThreadDestroy(void **handle)
     hy_u32_t cnt = 0;
 
     LOGT("handle: %p, *handle: %p \n", handle, *handle);
-    HY_ASSERT_VAL_RET(!handle || !*handle);
+    HY_ASSERT_RET(!handle || !*handle);
 
     if (context->save_config.destroy_flag == HY_THREAD_DESTROY_FORCE) {
         if (!context->exit_flag) {
@@ -118,7 +118,7 @@ void *HyThreadCreate(HyThreadConfig_t *config)
     pthread_attr_t attr;
 
     LOGD("config: %p \n", config);
-    HY_ASSERT_VAL_RET_VAL(!config, NULL);
+    HY_ASSERT_RET_VAL(!config, NULL);
 
     do {
         context = HY_MEM_MALLOC_BREAK(_thread_context_t *, sizeof(*context));

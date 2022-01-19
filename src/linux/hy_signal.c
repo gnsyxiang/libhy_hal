@@ -146,7 +146,7 @@ void HySignalDestroy(void **handle)
 void *HySignalCreate(HySignalConfig_t *config)
 {
     LOGT("config: %p \n", config);
-    HY_ASSERT_VAL_RET_VAL(!config, NULL);
+    HY_ASSERT_RET_VAL(!config, NULL);
 
     struct sigaction act;
 

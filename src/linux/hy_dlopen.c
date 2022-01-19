@@ -27,7 +27,7 @@
 
 void *HyDlLibLoadSymbol(void *handle, const char *symbol)
 {
-    HY_ASSERT_VAL_RET_VAL(!handle || !symbol, NULL);
+    HY_ASSERT_RET_VAL(!handle || !symbol, NULL);
 
     void *symbol_handle = dlsym(handle, symbol);
     if (!symbol_handle) {
@@ -39,7 +39,7 @@ void *HyDlLibLoadSymbol(void *handle, const char *symbol)
 
 void HyDlLibClose(void **handle)
 {
-    HY_ASSERT_VAL_RET(!handle || !*handle);
+    HY_ASSERT_RET(!handle || !*handle);
 
     dlclose(*handle);
 
@@ -48,7 +48,7 @@ void HyDlLibClose(void **handle)
 
 void *HyDlLibOpen(const char *so_name)
 {
-    HY_ASSERT_VAL_RET_VAL(!so_name, NULL);
+    HY_ASSERT_RET_VAL(!so_name, NULL);
 
     void *handle = dlopen(so_name, RTLD_LAZY);
     if (!handle) {

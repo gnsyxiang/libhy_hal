@@ -27,7 +27,7 @@
 
 void HyStrCopyRight(const char *src, char *dst, size_t len, char ch)
 {
-    HY_ASSERT_VAL_RET(!src || !dst);
+    HY_ASSERT_RET(!src || !dst);
 
     HY_MEMSET(dst, len);
 
@@ -51,7 +51,7 @@ void HyStrCopyRight(const char *src, char *dst, size_t len, char ch)
 
 void HyStrCopyRight2(const char *src, char *dst, size_t len, char ch, char ch2)
 {
-    HY_ASSERT_VAL_RET(!src || !dst);
+    HY_ASSERT_RET(!src || !dst);
 
     HY_MEMSET(dst, len);
 

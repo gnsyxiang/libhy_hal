@@ -28,19 +28,19 @@ extern "C" {
 
 #define HY_ASSERT(zero) assert(zero);
 
-#define HY_ASSERT_VAL_BREAK(val)        \
+#define HY_ASSERT_BREAK(val)            \
     if (val) {                          \
         LOGE("the param is error \n");  \
         break;                          \
     }
 
-#define HY_ASSERT_VAL_RET(val)          \
+#define HY_ASSERT_RET(val)              \
     if (val) {                          \
         LOGE("the param is error \n");  \
         return ;                        \
     }
 
-#define HY_ASSERT_VAL_RET_VAL(val, ret) \
+#define HY_ASSERT_RET_VAL(val, ret)     \
     if (val) {                          \
         LOGE("the param is error \n");  \
         return ret;                     \

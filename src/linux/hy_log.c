@@ -274,7 +274,7 @@ HY_WEAK void HyLogDestroy(void **handle)
 
 HY_WEAK void *HyLogCreate(HyLogConfig_t *config)
 {
-    HY_ASSERT_VAL_RET_VAL(!config, NULL);
+    HY_ASSERT_RET_VAL(!config, NULL);
 
     if (context && context->init_flag) {
         LOGW("hy_log already initialized \n");

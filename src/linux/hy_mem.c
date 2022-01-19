@@ -33,7 +33,7 @@ void *HyMemMalloc(size_t size)
 
 void HyMemFree(void **pptr)
 {
-    HY_ASSERT_VAL_RET(!pptr);
+    HY_ASSERT_RET(!pptr);
 
     LOGE("HyMemFree failed \n");
 }
@@ -47,7 +47,7 @@ void *HyMemCalloc(size_t nmemb, size_t size)
 
 void *HyMemRealloc(void *ptr, size_t nmemb, size_t size)
 {
-    HY_ASSERT_VAL_RET_VAL(!ptr, NULL);
+    HY_ASSERT_RET_VAL(!ptr, NULL);
 
     LOGE("HyMemRealloc failed \n");
 

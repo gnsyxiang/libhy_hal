@@ -47,7 +47,7 @@
 
 HyGpioLevel_t HyGpioGetLevel(HyGpio_t *gpio)
 {
-    HY_ASSERT_VAL_RET_VAL(!gpio, HY_GPIO_LEVEL_MAX);
+    HY_ASSERT_RET_VAL(!gpio, HY_GPIO_LEVEL_MAX);
 
     _DEFINE_GROUP();
     _DEFINE_PIN();
@@ -57,7 +57,7 @@ HyGpioLevel_t HyGpioGetLevel(HyGpio_t *gpio)
 
 void HyGpioSetLevel(HyGpio_t *gpio, HyGpioLevel_t level)
 {
-    HY_ASSERT_VAL_RET(!gpio);
+    HY_ASSERT_RET(!gpio);
     LOGI("pin<%s, %s>, level: %s \n", HY_GPIO_GROUP_2_STR(gpio->group), HY_GPIO_PIN_2_STR(gpio->pin), HY_GPIO_LEVEL_2_STR(level));
 
     _DEFINE_GROUP();
@@ -72,7 +72,7 @@ void HyGpioSetLevel(HyGpio_t *gpio, HyGpioLevel_t level)
 
 void HyGpioSetLevelToggle(HyGpio_t *gpio)
 {
-    HY_ASSERT_VAL_RET(!gpio);
+    HY_ASSERT_RET(!gpio);
     LOGI("pin<%s, %s> toggle \n", HY_GPIO_GROUP_2_STR(gpio->group), HY_GPIO_PIN_2_STR(gpio->pin));
 
     _DEFINE_GROUP();
@@ -164,7 +164,7 @@ static void _init_gpio_com(HyGpio_t *gpio)
 
 void HyGpioSetInput(HyGpio_t *gpio)
 {
-    HY_ASSERT_VAL_RET(!gpio);
+    HY_ASSERT_RET(!gpio);
     LOGI("pin<%s, %s> \n", HY_GPIO_GROUP_2_STR(gpio->group), HY_GPIO_PIN_2_STR(gpio->pin));
 
     _init_gpio_com(gpio);
@@ -172,7 +172,7 @@ void HyGpioSetInput(HyGpio_t *gpio)
 
 void HyGpioSetOutput(HyGpio_t *gpio, HyGpioLevel_t level)
 {
-    HY_ASSERT_VAL_RET(!gpio);
+    HY_ASSERT_RET(!gpio);
 
     _init_gpio_com(gpio);
 
