@@ -24,6 +24,16 @@
 extern "C" {
 #endif
 
+#ifdef __compiler_offsetof
+#define HY_OFFSETOF(TYPE,MEMBER) __compiler_offsetof(TYPE,MEMBER)
+#else
+#define HY_OFFSETOF(TYPE, MEMBER) ((size_t) &((TYPE *)0)->MEMBER)
+#endif
+
+#define HY_CONTAINER_OF(ptr, type, member) ({                       \
+        const typeof( ((type *)0)->member ) *__mptr = (ptr);        \
+        (type *)( (char *)__mptr - HY_OFFSETOF(type,member) );})
+
 #define HyHalUtilsArrayCnt(array) (int32_t)(sizeof((array)) / sizeof((array)[0]))
 
 #ifdef __cplusplus
