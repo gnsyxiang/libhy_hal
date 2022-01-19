@@ -22,6 +22,7 @@
 #include "hy_string.h"
 
 #include "hy_assert.h"
+#include "hy_mem.h"
 #include "hy_log.h"
 
 void HyStrCopyRight(const char *src, char *dst, size_t len, char ch)

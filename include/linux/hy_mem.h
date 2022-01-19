@@ -42,14 +42,18 @@ extern "C" {
 #define HY_MEM_ALIGN4(len)                      HY_MEM_ALIGN(len, 4)                                        ///< 4字节对齐
 #define HY_MEM_ALIGN4_UP(len)                   (HY_MEM_ALIGN(len, 4) + HY_MEM_ALIGN4(1))                   ///< 4字节向上对齐(原来已经事4字节对齐，使用后再增加4个字节)
 
+#define HY_MEMCMP(dst, src, size)               memcmp(dst, src, size)
+#define HY_MEMSET(ptr, size)                    memset(ptr, '\0', size)
+#define HY_MEMCPY(dst, src, size)               memcpy(dst, src, size)
+
 #define HY_MEM_MALLOC_BREAK(type, size)         \
     ({                                          \
         void *ptr = malloc((size));             \
         if (!ptr) {                             \
-            LOGES("malloc faild \n");           \
+            LOGES("malloc failed \n");          \
             break;                              \
         } else {                                \
-            memset(ptr, '\0', (size));          \
+            HY_MEMSET(ptr, (size));             \
         }                                       \
         (type)ptr;                              \
      })
@@ -58,10 +62,10 @@ extern "C" {
     ({                                          \
         void *ptr = malloc((size));             \
         if (!ptr) {                             \
-            LOGES("malloc faild \n");           \
+            LOGES("malloc failed \n");          \
             return;                             \
         } else {                                \
-            memset(ptr, '\0', (size));          \
+            HY_MEMSET(ptr, (size));             \
         }                                       \
         (type)ptr;                              \
      })
@@ -70,10 +74,10 @@ extern "C" {
     ({                                          \
         void *ptr = malloc((size));             \
         if (!ptr) {                             \
-            LOGES("malloc faild \n");           \
+            LOGES("malloc failed \n");          \
             return ret;                         \
         } else {                                \
-            memset(ptr, '\0', (size));          \
+            HY_MEMSET(ptr, (size));             \
         }                                       \
         (type)ptr;                              \
      })

@@ -21,6 +21,7 @@
 #include <sys/vfs.h>    /* or <sys/statfs.h> */
 #include <unistd.h>
 
+#include "hy_mem.h"
 #include "hy_string.h"
 #include "hy_assert.h"
 #include "hy_type.h"
