@@ -36,25 +36,19 @@
 
 ssize_t HyFileRead(int fd, void *buf, size_t len)
 {
-    ssize_t ret;
+    ssize_t ret = 0;
 
-    while (1) {
-        ret = read(fd, buf, len);
-        if (ret < 0) {
-            if (EINTR == errno || EAGAIN == errno || EWOULDBLOCK == errno) {
-                ret = 0;
-                continue;
-            } else {
-                ret = -1;
-                break;
-            }
-        } else if (ret == 0) {
-            LOGE("fd: %d, server/client closes \n", fd);
-            ret = -1;
-            break;
+    ret = read(fd, buf, len);
+    if (ret < 0) {
+        if (EINTR == errno || EAGAIN == errno || EWOULDBLOCK == errno) {
+            ret = 0;
         } else {
-            break;
+            ret = -1;
+            LOGES("read failed \n");
         }
+    } else if (ret == 0) {
+        LOGE("fd: %d, server/client closes \n", fd);
+        ret = -1;
     }
 
     return ret;
@@ -137,6 +131,7 @@ ssize_t HyFileWriteN(int fd, const void *buf, size_t len)
             if (ret < 0 && errno == EINTR) {
                 ret = 0;
             } else {
+                LOGES("write failed \n");
                 return -1;
             }
         }
