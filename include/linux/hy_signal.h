@@ -89,17 +89,17 @@ void HySignalDestroy(void **handle);
         SIGINT, SIGTERM, SIGUSR1, SIGUSR2,                                  \
         };                                                                  \
         \
-        HySignalConfig_t config;                                            \
-        HY_MEMSET(&config, sizeof(config));                                 \
-        HY_MEMCPY(config.error_num, signal_error, sizeof(signal_error));    \
-        HY_MEMCPY(config.user_num, signal_user, sizeof(signal_user));       \
-        config.save_config.app_name          = _app_name;                   \
-        config.save_config.coredump_path     = _core_path;                  \
-        config.save_config.error_cb          = _error_cb;                   \
-        config.save_config.user_cb           = _user_cb;                    \
-        config.save_config.args              = _args;                       \
+        HySignalConfig_t __config;                                          \
+        HY_MEMSET(&__config, sizeof(__config));                             \
+        HY_MEMCPY(__config.error_num, signal_error, sizeof(signal_error));  \
+        HY_MEMCPY(__config.user_num, signal_user, sizeof(signal_user));     \
+        __config.save_config.app_name          = _app_name;                 \
+        __config.save_config.coredump_path     = _core_path;                \
+        __config.save_config.error_cb          = _error_cb;                 \
+        __config.save_config.user_cb           = _user_cb;                  \
+        __config.save_config.args              = _args;                     \
         \
-        HySignalCreate(&config);                                            \
+        HySignalCreate(&__config);                                          \
      })
 
 #ifdef __cplusplus

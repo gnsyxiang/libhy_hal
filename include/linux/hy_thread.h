@@ -141,13 +141,13 @@ void HyThreadGetInfo(void *handle, HyThreadInfo_e info, void *data);
  */
 #define HyThreadCreate_m(_name, _thread_loop_cb, _args)                 \
     ({                                                                  \
-        HyThreadConfig_s config;                                        \
-        HY_MEMSET(&config, sizeof(config));                             \
-        config.save_config.thread_loop_cb   = _thread_loop_cb;          \
-        config.save_config.args             = _args;                    \
-        HY_STRNCPY(config.save_config.name,                             \
+        HyThreadConfig_s __config;                                      \
+        HY_MEMSET(&__config, sizeof(__config));                         \
+        __config.save_config.thread_loop_cb   = _thread_loop_cb;        \
+        __config.save_config.args             = _args;                  \
+        HY_STRNCPY(__config.save_config.name,                           \
                 HY_THREAD_NAME_LEN_MAX, _name, HY_STRLEN(_name));       \
-        HyThreadCreate(&config);                                        \
+        HyThreadCreate(&__config);                                      \
      })
 
 #ifdef __cplusplus
