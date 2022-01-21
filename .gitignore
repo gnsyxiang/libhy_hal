@@ -87,6 +87,7 @@ example/mcu/hy_*_test.map
 
 example/main
 example/linux/hy_*_test
+example/linux/thread/hy_*_test
 example/mac/hy_*_test
 example/mcu/hy_*_test
 example/rtos/hy_*_test

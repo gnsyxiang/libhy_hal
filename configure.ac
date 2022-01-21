@@ -58,7 +58,7 @@ AC_CHECK_LIB([pthread], [pthread_create])
 AC_CHECK_LIB([dl], [dlopen])
 
 # Checks for header files.
-AC_CHECK_HEADERS([fcntl.h inttypes.h stdint.h stdlib.h string.h termios.h unistd.h])
+AC_CHECK_HEADERS([fcntl.h inttypes.h stdint.h stdlib.h string.h sys/time.h sys/vfs.h termios.h unistd.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_CHECK_HEADER_STDBOOL
@@ -67,19 +67,21 @@ AC_TYPE_INT32_T
 AC_TYPE_INT8_T
 AC_TYPE_SIZE_T
 AC_TYPE_SSIZE_T
+AC_TYPE_UINT16_T
 AC_TYPE_UINT32_T
 AC_TYPE_UINT8_T
 
 # Checks for library functions.
 AC_FUNC_MALLOC
-AC_CHECK_FUNCS([memset])
+AC_FUNC_MKTIME
+AC_CHECK_FUNCS([atexit gettimeofday localtime_r memset select])
 
-AC_CONFIG_FILES([
-                 Makefile
+AC_CONFIG_FILES([Makefile
                  $project_name.pc
                  doc/Makefile
                  example/Makefile
                  example/linux/Makefile
+                 example/linux/thread/Makefile
                  example/mac/Makefile
                  example/mcu/Makefile
                  example/mcu/at/Makefile
@@ -88,6 +90,7 @@ AC_CONFIG_FILES([
                  example/window/Makefile
                  include/Makefile
                  include/linux/Makefile
+                 include/linux/thread/Makefile
                  include/mac/Makefile
                  include/mcu/Makefile
                  include/mcu/at/Makefile
@@ -97,14 +100,14 @@ AC_CONFIG_FILES([
                  res/Makefile
                  src/Makefile
                  src/linux/Makefile
+                 src/linux/thread/Makefile
                  src/mac/Makefile
                  src/mcu/Makefile
                  src/mcu/at/Makefile
                  src/mcu/at/at32f4xx/Makefile
                  src/mcu/hc/Makefile
                  src/rtos/Makefile
-                 src/window/Makefile
-                 ])
+                 src/window/Makefile])
 
 AC_OUTPUT
 
