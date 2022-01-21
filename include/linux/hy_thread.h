@@ -38,7 +38,7 @@ typedef enum {
     HY_THREAD_DESTROY_FORCE,                                ///< 强制退出，等待一定时间(2s)后强制退出
 
     HY_THREAD_DESTROY_MAX,
-} HyThreadDestroyFlag_t;
+} HyThreadDestroyFlag_e;
 
 /**
  * @brief 线程是否分离
@@ -48,7 +48,7 @@ typedef enum {
     HY_THREAD_DETACH_YES,                                   ///< 分离属性
 
     HY_THREAD_DETACH_MAX,
-} HyThreadDetachFlag_t;
+} HyThreadDetachFlag_e;
 
 /**
  * @brief 获取线程相关信息
@@ -82,17 +82,17 @@ typedef struct {
     HyThreadLoopCb_t        thread_loop_cb;                 ///< 线程执行函数
     void                    *args;                          ///< 上层传递参数
 
-    HyThreadDestroyFlag_t   destroy_flag:2;                 ///< 线程退出方式
-    HyThreadDetachFlag_t    detach_flag:2;                  ///< 线程是否分离
+    HyThreadDestroyFlag_e   destroy_flag:2;                 ///< 线程退出方式
+    HyThreadDetachFlag_e    detach_flag:2;                  ///< 线程是否分离
     int32_t                 reserved;                       ///< 预留
-} HyThreadSaveConfig_t;
+} HyThreadSaveConfig_s;
 
 /**
  * @brief 模块配置参数
  */
 typedef struct {
-    HyThreadSaveConfig_t    save_config;                    ///< 模块配置参数
-} HyThreadConfig_t;
+    HyThreadSaveConfig_s    save_config;                    ///< 模块配置参数
+} HyThreadConfig_s;
 
 /**
  * @brief 创建线程
@@ -101,7 +101,7 @@ typedef struct {
  *
  * @return 线程句柄
  */
-void *HyThreadCreate(HyThreadConfig_t *config);
+void *HyThreadCreate(HyThreadConfig_s *config);
 
 /**
  * @brief 销毁线程
@@ -134,14 +134,14 @@ void HyThreadGetInfo(void *handle, HyThreadInfo_e info, void *data);
  *
  * @param _name 名字
  * @param _thread_loop_cb 回调函数，详见HyThreadLoopCb_t
- * @param _flag 线程退出方式，详见HyThreadDestroyFlag_t
+ * @param _flag 线程退出方式，详见HyThreadDestroyFlag_e
  * @param _args 上层传递参数
  *
  * @return 线程句柄
  */
 #define HyThreadCreate_m(_name, _thread_loop_cb, _args)                 \
     ({                                                                  \
-        HyThreadConfig_t config;                                        \
+        HyThreadConfig_s config;                                        \
         HY_MEMSET(&config, sizeof(config));                             \
         config.save_config.thread_loop_cb   = _thread_loop_cb;          \
         config.save_config.args             = _args;                    \

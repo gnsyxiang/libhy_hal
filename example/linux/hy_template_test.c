@@ -31,10 +31,10 @@
 #include "hy_log.h"
 
 typedef struct {
-    void *log_handle;
-    void *signal_handle;
+    void        *log_handle;
+    void        *signal_handle;
 
-    hy_s32_t exit_flag;
+    hy_s32_t    exit_flag;
 } _main_context_t;
 
 static void _signal_error_cb(void *args)

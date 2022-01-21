@@ -32,7 +32,7 @@
 #include "hy_thread.h"
 
 typedef struct {
-    HyThreadSaveConfig_t    save_config;
+    HyThreadSaveConfig_s    save_config;
 
     pthread_t               id;
     hy_u32_t                exit_flag;
@@ -64,7 +64,7 @@ void HyThreadGetInfo(void *handle, HyThreadInfo_e info, void *data)
 static void *_thread_loop_cb(void *args)
 {
     _thread_context_t *context = args;
-    HyThreadSaveConfig_t *save_config = &context->save_config;
+    HyThreadSaveConfig_s *save_config = &context->save_config;
     int32_t ret = 0;
 
     usleep(1000);
@@ -118,7 +118,7 @@ void HyThreadDestroy(void **handle)
     HY_MEM_FREE_PP(handle);
 }
 
-void *HyThreadCreate(HyThreadConfig_t *config)
+void *HyThreadCreate(HyThreadConfig_s *config)
 {
     LOGT("thread config: %p \n", config);
     HY_ASSERT_RET_VAL(!config, NULL);
@@ -129,7 +129,7 @@ void *HyThreadCreate(HyThreadConfig_t *config)
     do {
         context = HY_MEM_MALLOC_BREAK(_thread_context_t *, sizeof(*context));
 
-        HyThreadSaveConfig_t *save_config = &config->save_config;
+        HyThreadSaveConfig_s *save_config = &config->save_config;
         HY_MEMCPY(&context->save_config, save_config, sizeof(*save_config));
 
         if (0 != pthread_attr_init(&attr)) {

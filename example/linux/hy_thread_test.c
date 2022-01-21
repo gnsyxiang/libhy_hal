@@ -123,7 +123,7 @@ static _main_context_t *_module_create(void)
     signal_config.save_config.user_cb       = _signal_user_cb;
     signal_config.save_config.args          = context;
 
-    HyThreadConfig_t thread_config;
+    HyThreadConfig_s thread_config;
     HY_MEMSET(&thread_config, sizeof(thread_config));
     thread_config.save_config.thread_loop_cb    = _print_loop_cb;
     thread_config.save_config.args              = context;
@@ -159,7 +159,7 @@ int main(int argc, char *argv[])
 
     LOGE("version: %s, data: %s, time: %s \n", "0.1.0", __DATE__, __TIME__);
 
-    HyThreadConfig_t thread_config;
+    HyThreadConfig_s thread_config;
     memset(&thread_config, '\0', sizeof(thread_config));
     thread_config.save_config.destroy_flag      = HY_THREAD_DESTROY_GRACE;
     thread_config.save_config.detach_flag       = HY_THREAD_DETACH_YES;
