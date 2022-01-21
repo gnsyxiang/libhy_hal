@@ -52,7 +52,7 @@ typedef struct {
 } _log_buf_t;
 
 typedef struct {
-    HyLogSaveConfig_t   save_config;
+    HyLogSaveConfig_s   save_config;
 
     hy_s32_t            init_flag;
     pthread_mutex_t     printf_mutex;
@@ -162,7 +162,7 @@ static void _thread_key_destroy(void)
 static _log_buf_t *_thread_key_create(void)
 {
     _log_buf_t *log_buf = NULL;
-    HyLogSaveConfig_t *save_config = &context->save_config;
+    HyLogSaveConfig_s *save_config = &context->save_config;
 
     log_buf = _log_buf_create(save_config->buf_len_min, save_config->buf_len_max);
     if (!log_buf) {
@@ -208,7 +208,7 @@ static void _get_cur_time(char *buf, hy_u32_t len)
             tm.tm_hour, tm.tm_min, tm.tm_sec, (hy_u32_t)tv.tv_usec / 1000);
 }
 
-HY_WEAK void HyLogWrite(HyLogLevel_t level, const char *err_str,
+HY_WEAK void HyLogWrite(HyLogLevel_e level, const char *err_str,
         const char *file, hy_u32_t line, pthread_t tid, long pid,
         char *fmt, ...)
 {
@@ -272,7 +272,7 @@ HY_WEAK void HyLogDestroy(void **handle)
     }
 }
 
-HY_WEAK void *HyLogCreate(HyLogConfig_t *config)
+HY_WEAK void *HyLogCreate(HyLogConfig_s *config)
 {
     HY_ASSERT_RET_VAL(!config, NULL);
 
@@ -284,7 +284,7 @@ HY_WEAK void *HyLogCreate(HyLogConfig_t *config)
     do {
         context = HY_MEM_MALLOC_BREAK(_log_context_t *, sizeof(*context));
 
-        HyLogSaveConfig_t *save_config = &config->save_config;
+        HyLogSaveConfig_s *save_config = &config->save_config;
         HY_MEMCPY(&context->save_config, save_config, sizeof(*save_config));
 
         if (0 != pthread_key_create(&thread_key, _log_buf_destroy)) {
