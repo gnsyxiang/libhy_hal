@@ -33,12 +33,12 @@
 #include "hy_log.h"
 
 typedef struct {
-    void *log_handle;
-    void *signal_handle;
+    void        *log_handle;
+    void        *signal_handle;
 
-    void *thread_handle;
+    void        *thread_handle;
 
-    hy_s32_t exit_flag;
+    hy_s32_t    exit_flag;
 } _main_context_t;
 
 static int32_t _print_loop_cb(void *args)
@@ -49,11 +49,13 @@ static int32_t _print_loop_cb(void *args)
     pthread_t id;
     long pid;
 
-    HyThreadGetInfo(context->thread_handle, name, sizeof(name), &id, &pid);
-    LOGE("name: %s, id: 0x%lx, pid: %ld \n", name, id, pid);
+    HyThreadGetInfo(context->thread_handle, HY_THREAD_INFO_NAME, name);
+    HyThreadGetInfo(context->thread_handle, HY_THREAD_INFO_PID, &pid);
+    HyThreadGetInfo(context->thread_handle, HY_THREAD_INFO_ID, &id);
+    LOGI("name: %s, id: 0x%lx, pid: %ld \n", name, id, pid);
 
     while (!context->exit_flag) {
-        LOGE("haha \n");
+        LOGI("haha \n");
         sleep(1);
     }
 

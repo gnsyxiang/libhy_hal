@@ -38,21 +38,27 @@ typedef struct {
     hy_u32_t                exit_flag;
 } _thread_context_t;
 
-void HyThreadGetInfo(void *handle,
-        char *name, uint32_t name_len, pthread_t *id, long *pid)
+void HyThreadGetInfo(void *handle, HyThreadInfo_e info, void *data)
 {
-    HY_ASSERT_RET(!handle || !name || !id || !pid || name_len == 0);
+    LOGT("handle: %p, info: %d, data: %p \n", handle, info, data);
+    HY_ASSERT_RET(!handle || !data);
 
     _thread_context_t *context = handle;
 
-    if (name_len >= HY_THREAD_NAME_LEN_MAX) {
-        name_len -= 1;
+    switch (info) {
+        case HY_THREAD_INFO_NAME:
+            HY_MEMCPY(data, context->save_config.name, HY_THREAD_NAME_LEN_MAX);
+            break;
+        case HY_THREAD_INFO_PID:
+            *(long *)data = syscall(SYS_gettid);
+            break;
+        case HY_THREAD_INFO_ID:
+            *(pthread_t *)data = context->id;
+            break;
+        default:
+            LOGE("error info \n");
+            break;
     }
-
-    HY_MEMCPY(name, context->save_config.name, name_len);
-
-    *id = context->id;
-    *pid = syscall(SYS_gettid);
 }
 
 static void *_thread_loop_cb(void *args)
@@ -76,7 +82,7 @@ static void *_thread_loop_cb(void *args)
     }
 
     context->exit_flag = 1;
-    LOGD("%s thread loop stop \n", save_config->name);
+    LOGI("%s thread loop stop \n", save_config->name);
 
     if (save_config->detach_flag) {
         HyThreadDestroy((void **)&context);
@@ -87,15 +93,15 @@ static void *_thread_loop_cb(void *args)
 
 void HyThreadDestroy(void **handle)
 {
+    LOGT("&handle: %p, handle: %p \n", handle, *handle);
+    HY_ASSERT_RET(!handle || !*handle);
+
     _thread_context_t *context = *handle;
     hy_u32_t cnt = 0;
 
-    LOGT("handle: %p, *handle: %p \n", handle, *handle);
-    HY_ASSERT_RET(!handle || !*handle);
-
     if (context->save_config.destroy_flag == HY_THREAD_DESTROY_FORCE) {
         if (!context->exit_flag) {
-            while (++cnt <= 10) {
+            while (++cnt <= 9) {
                 usleep(200 * 1000);
             }
 
@@ -106,7 +112,7 @@ void HyThreadDestroy(void **handle)
 
     pthread_join(context->id, NULL);
 
-    LOGD("%s thread destroy, handle: %p \n",
+    LOGI("%s thread destroy, handle: %p \n",
             context->save_config.name, context);
 
     HY_MEM_FREE_PP(handle);
@@ -114,11 +120,11 @@ void HyThreadDestroy(void **handle)
 
 void *HyThreadCreate(HyThreadConfig_t *config)
 {
+    LOGT("thread config: %p \n", config);
+    HY_ASSERT_RET_VAL(!config, NULL);
+
     _thread_context_t *context = NULL;
     pthread_attr_t attr;
-
-    LOGD("config: %p \n", config);
-    HY_ASSERT_RET_VAL(!config, NULL);
 
     do {
         context = HY_MEM_MALLOC_BREAK(_thread_context_t *, sizeof(*context));
@@ -132,12 +138,14 @@ void *HyThreadCreate(HyThreadConfig_t *config)
         }
 
         if (save_config->detach_flag
-                && 0 != pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED)) {
+                && 0 != pthread_attr_setdetachstate(&attr,
+                    PTHREAD_CREATE_DETACHED)) {
             LOGES("set detach state fail \n");
             break;
         }
 
-        if (0 != pthread_create(&context->id, &attr, _thread_loop_cb, context)) {
+        if (0 != pthread_create(&context->id,
+                    &attr, _thread_loop_cb, context)) {
             LOGES("pthread create fail \n");
             break;
         }
@@ -148,11 +156,12 @@ void *HyThreadCreate(HyThreadConfig_t *config)
             break;
         }
 
-        LOGD("%s thread create, handle: %p, id: 0x%lx \n",
+        LOGI("%s thread create, context: %p, id: 0x%lx \n",
                 save_config->name, context, context->id);
         return context;
     } while (0);
 
+    LOGI("%s thread create failed \n", config->save_config.name);
     HyThreadDestroy((void **)&context);
     return NULL;
 }
