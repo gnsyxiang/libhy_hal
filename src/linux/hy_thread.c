@@ -38,6 +38,11 @@ typedef struct {
     hy_u32_t                exit_flag;
 } _thread_context_t;
 
+pthread_t HyThreadGetId(void)
+{
+    return pthread_self();
+}
+
 void HyThreadGetInfo(void *handle, HyThreadInfo_e info, void *data)
 {
     LOGT("handle: %p, info: %d, data: %p \n", handle, info, data);

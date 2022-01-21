@@ -130,6 +130,13 @@ void HyThreadDestroy(void **handle);
 void HyThreadGetInfo(void *handle, HyThreadInfo_e info, void *data);
 
 /**
+ * @brief 获取线程id
+ *
+ * @return 返回id(pthread线程库维护的)
+ */
+pthread_t HyThreadGetId(void);
+
+/**
  * @brief 创建线程宏
  *
  * @param _name 名字
