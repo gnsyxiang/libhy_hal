@@ -32,7 +32,8 @@ install_includedir      = $(includedir)/@project_name@
 _no_install_headers_com +=
 
 _install_headers_com    += \
-                           hy_thread.h
+                           hy_thread.h          \
+                           hy_thread_mutex.h
 
 # ------------------
 # make install files

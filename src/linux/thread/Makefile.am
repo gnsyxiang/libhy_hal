@@ -46,7 +46,8 @@ _include_com    += \
                    -I$(top_srcdir)/include
 
 _sources_com    += \
-                   hy_thread.c
+                   hy_thread.c          \
+                   hy_thread_mutex.c
 
 _cppflags_com   += \
                    $(_no_error_com)     \
