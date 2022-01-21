@@ -47,12 +47,12 @@ static int32_t _print_loop_cb(void *args)
 
     char name[HY_THREAD_NAME_LEN_MAX] = {0};
     pthread_t id;
-    long pid;
+    long tid;
 
     HyThreadGetInfo(context->thread_handle, HY_THREAD_INFO_NAME, name);
-    HyThreadGetInfo(context->thread_handle, HY_THREAD_INFO_PID, &pid);
+    HyThreadGetInfo(context->thread_handle, HY_THREAD_INFO_TID, &tid);
     HyThreadGetInfo(context->thread_handle, HY_THREAD_INFO_ID, &id);
-    LOGI("name: %s, id: 0x%lx, pid: %ld \n", name, id, pid);
+    LOGI("name: %s, id: 0x%lx, tid: %ld \n", name, id, tid);
 
     while (!context->exit_flag) {
         LOGI("haha \n");

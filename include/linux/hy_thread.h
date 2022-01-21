@@ -55,7 +55,7 @@ typedef enum {
  */
 typedef enum {
     HY_THREAD_INFO_NAME,                                    ///< 获取线程名字
-    HY_THREAD_INFO_PID,                                     ///< 获取线程pid
+    HY_THREAD_INFO_TID,                                     ///< 获取线程tid
     HY_THREAD_INFO_ID,                                      ///< 获取线程id
 
     HY_THREAD_INFO_MAX,
@@ -121,7 +121,7 @@ void HyThreadDestroy(void **handle);
  * 1, data是传出参数，需要上层开辟空间
  * 2，当data为HY_THREAD_INFO_NAME，data为数组类型，以便保存数据，
  *    数组长度必须等于或大于HY_THREAD_NAME_LEN_MAX
- * 3，当data为HY_THREAD_INFO_PID，data为long类型
+ * 3，当data为HY_THREAD_INFO_TID，data为long类型
  * 4，当data为HY_THREAD_INFO_ID，data为pthread_t
  *
  * 特别注意获取名字时

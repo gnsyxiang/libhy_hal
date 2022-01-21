@@ -49,7 +49,7 @@ void HyThreadGetInfo(void *handle, HyThreadInfo_e info, void *data)
         case HY_THREAD_INFO_NAME:
             HY_MEMCPY(data, context->save_config.name, HY_THREAD_NAME_LEN_MAX);
             break;
-        case HY_THREAD_INFO_PID:
+        case HY_THREAD_INFO_TID:
             *(long *)data = syscall(SYS_gettid);
             break;
         case HY_THREAD_INFO_ID:
@@ -68,7 +68,7 @@ static void *_thread_loop_cb(void *args)
     int32_t ret = 0;
 
     usleep(1000);
-    LOGI("%s thread loop start, id: 0x%lx, pid: %ld \n",
+    LOGI("%s thread loop start, id: 0x%lx, tid: %ld \n",
             save_config->name, context->id, syscall(SYS_gettid));
 
 #ifdef _GNU_SOURCE
