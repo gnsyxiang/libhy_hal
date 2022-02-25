@@ -44,7 +44,10 @@ ssize_t HyFileRead(int fd, void *buf, size_t len);
  * @param buf 存放数据的地址
  * @param len 读取的长度
  *
- * @return 返回读到指定的字节数，失败放回-1或0
+ * @return 
+ * 1，功返回len
+ * 2，返回-1，表示read函数出现了系统相关错误
+ * 3，返回字节数不等于len时，表示对端已经关闭
  */
 ssize_t HyFileReadN(int fd, void *buf, size_t len);
 

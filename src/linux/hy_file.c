@@ -47,7 +47,7 @@ ssize_t HyFileRead(int fd, void *buf, size_t len)
             LOGES("read failed \n");
         }
     } else if (ret == 0) {
-        LOGE("fd: %d, server/client closes \n", fd);
+        LOGE("fd close, fd: %d \n", fd);
         ret = -1;
     }
 
@@ -72,7 +72,7 @@ ssize_t HyFileReadN(int fd, void *buf, size_t len)
                 return -1;
             }
         } else if (ret == 0) {
-            LOGE("fd: %d, server/client closes \n", fd);
+            LOGE("fd close, fd: %d \n", fd);
             break;
         }
 
@@ -131,7 +131,7 @@ ssize_t HyFileWriteN(int fd, const void *buf, size_t len)
             if (ret < 0 && errno == EINTR) {
                 ret = 0;
             } else {
-                LOGES("write failed \n");
+                LOGES("fd close, fd: %d \n", fd);
                 return -1;
             }
         }
