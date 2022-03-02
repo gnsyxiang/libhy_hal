@@ -139,7 +139,7 @@ int main(int argc, char *argv[])
             break;
         }
 
-        LOG_HEX_ASCII(buf, ret);
+        HY_LOG_HEX_ASCII(buf, ret);
 
         sleep(1);
     }

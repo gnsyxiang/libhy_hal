@@ -150,8 +150,8 @@ void HyLogWrite(HyLogLevel_e level, const char *err_str,
 void HyLogHex(const char *name, uint32_t line,
        const void *buf, uint32_t len, int32_t flag);
 
-#define LOG_HEX_ASCII(buf, len) HyLogHex(__func__, __LINE__, buf, len, 1)
-#define LOG_HEX(buf, len)       HyLogHex(__func__, __LINE__, buf, len, 0)
+#define HY_LOG_HEX_ASCII(buf, len) HyLogHex(__func__, __LINE__, buf, len, 1)
+#define HY_LOG_HEX(buf, len)       HyLogHex(__func__, __LINE__, buf, len, 0)
 
 #ifdef __cplusplus
 }
