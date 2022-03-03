@@ -28,6 +28,7 @@
 #include <sys/time.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <fcntl.h>
 
 #include "hy_log.h"
 #include "hy_type.h"
@@ -142,3 +143,43 @@ ssize_t HyFileWriteN(int fd, const void *buf, size_t len)
 
     return len;
 }
+
+int32_t HyFileBlockStateSet(int32_t fd, HyFileBlockState_e state)
+{
+    hy_s32_t flag;
+
+    flag = fcntl(fd, F_GETFL, 0);
+    if (flag < 0) {
+        LOGES("fcntl failed \n");
+    }
+
+    if (HY_FILE_BLOCK_STATE_BLOCK == state) {
+        flag &= ~O_NONBLOCK;
+    } else {
+        flag |= O_NONBLOCK;
+    }
+
+    if (-1 == fcntl(fd, F_SETFL, flag)) {
+        LOGES("fcntl failed \n");
+        return -1;
+    } else {
+        return 0;
+    }
+}
+
+HyFileBlockState_e HyFileBlockStateGet(int32_t fd)
+{
+    hy_s32_t flag;
+
+    flag = fcntl(fd, F_GETFL, 0);
+    if (flag < 0) {
+        LOGES("fcntl failed \n");
+    }
+
+    if (flag & O_NONBLOCK) {
+        return HY_FILE_BLOCK_STATE_NOBLOCK;
+    } else {
+        return HY_FILE_BLOCK_STATE_BLOCK;
+    }
+}
+

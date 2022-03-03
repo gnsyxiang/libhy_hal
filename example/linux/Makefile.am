@@ -93,6 +93,14 @@ hy_mem_test_CXXFLAGS        = $(_cxxflags_com)
 hy_mem_test_LDFLAGS         = $(_ldflags_com)
 hy_mem_test_LDADD           = $(_ldadd_com)
 
+bin_PROGRAMS                += hy_pipe_test
+hy_pipe_test_SOURCES        = $(_sources_com) hy_pipe_test.c
+hy_pipe_test_CPPFLAGS       = $(_cppflags_com)
+hy_pipe_test_CFLAGS         = $(_cflags_com)
+hy_pipe_test_CXXFLAGS       = $(_cxxflags_com)
+hy_pipe_test_LDFLAGS        = $(_ldflags_com)
+hy_pipe_test_LDADD          = $(_ldadd_com)
+
 bin_PROGRAMS                += hy_storage_test
 hy_storage_test_SOURCES     = $(_sources_com) hy_storage_test.c
 hy_storage_test_CPPFLAGS    = $(_cppflags_com)

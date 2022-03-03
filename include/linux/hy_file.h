@@ -25,6 +25,15 @@ extern "C" {
 #endif
 
 #include <stdio.h>
+#include <stdint.h>
+
+/**
+ * @brief 阻塞非阻塞状态
+ */
+typedef enum {
+    HY_FILE_BLOCK_STATE_BLOCK,          ///< 阻塞
+    HY_FILE_BLOCK_STATE_NOBLOCK,        ///< 非阻塞
+} HyFileBlockState_e;
 
 /**
  * @brief 从文件中读取数据
@@ -73,6 +82,25 @@ ssize_t HyFileReadNTimeout(int fd, void *buf, size_t cnt, size_t ms);
  * @return 成功返回len，失败返回-1
  */
 ssize_t HyFileWriteN(int fd, const void *buf, size_t len);
+
+/**
+ * @brief 设置文件阻塞非阻塞
+ *
+ * @param fd 文件描述符
+ * @param state 状态
+ *
+ * @return 成功返回0， 失败返回-1
+ */
+int32_t HyFileBlockStateSet(int32_t fd, HyFileBlockState_e state);
+
+/**
+ * @brief 获取文件阻塞状态
+ *
+ * @param fd 文件描述符
+ *
+ * @return 返回阻塞状态
+ */
+HyFileBlockState_e HyFileBlockStateGet(int32_t fd);
 
 #ifdef __cplusplus
 }

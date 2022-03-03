@@ -24,6 +24,8 @@
 extern "C" {
 #endif
 
+#include <stdint.h>
+
 #ifndef BUF_LEN
 #define BUF_LEN (1024)
 #endif
