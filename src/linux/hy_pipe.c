@@ -34,6 +34,26 @@ typedef struct {
     hy_s32_t            pfd[2];
 } _pipe_context_t;
 
+int32_t HyPipeReadFdGet(void *pipe_h)
+{
+    LOGT("pipe_h: %p \n", pipe_h);
+    HY_ASSERT_RET_VAL(!pipe_h, -1);
+
+    _pipe_context_t *context = pipe_h;
+
+    return context->pfd[0];
+}
+
+int32_t HyPipeWriteFdGet(void *pipe_h)
+{
+    LOGT("pipe_h: %p \n", pipe_h);
+    HY_ASSERT_RET_VAL(!pipe_h, -1);
+
+    _pipe_context_t *context = pipe_h;
+
+    return context->pfd[1];
+}
+
 int32_t HyPipeRead(void *pipe_h, void *buf, int32_t len)
 {
     LOGT("pipe_h: %p, buf: %p, len: %d \n", pipe_h, buf, len);

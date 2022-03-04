@@ -90,6 +90,24 @@ int32_t HyPipeRead(void *pipe_h, void *buf, int32_t len);
 int32_t HyPipeWrite(void *pipe_h, const void *buf, int32_t len);
 
 /**
+ * @brief 获取读端fd
+ *
+ * @param pipe_h 句柄
+ *
+ * @return 成功返回fd，失败返回-1
+ */
+int32_t HyPipeReadFdGet(void *pipe_h);
+
+/**
+ * @brief 获取写端fd
+ *
+ * @param pipe_h 句柄
+ *
+ * @return 成功返回fd，失败返回-1
+ */
+int32_t HyPipeWriteFdGet(void *pipe_h);
+
+/**
  * @brief 创建pipe宏
  *
  * @param _read_block_state 读端阻塞状态
