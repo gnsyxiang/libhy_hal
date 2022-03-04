@@ -52,6 +52,7 @@ _sources_com    += \
                    hy_file.c        \
                    hy_log.c         \
                    hy_mem.c         \
+                   hy_pipe.c        \
                    hy_signal.c      \
                    hy_storage.c     \
                    hy_string.c      \

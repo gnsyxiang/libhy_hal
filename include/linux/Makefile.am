@@ -39,6 +39,7 @@ _install_headers_com    += \
                            hy_dlopen.h      \
                            hy_log.h         \
                            hy_mem.h         \
+                           hy_pipe.h        \
                            hy_signal.h      \
                            hy_storage.h     \
                            hy_string.h      \
