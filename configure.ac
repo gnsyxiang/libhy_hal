@@ -53,6 +53,11 @@ if test -n "$PKG_CONFIG"; then
     fi
 fi
 
+AC_ARG_ENABLE([debug_info],
+              [AS_HELP_STRING([--enable-debug_info], [enable support for output debug info])],
+              [], [enable_debug_info=no])
+AM_CONDITIONAL(COMPILE_DEBUG_INFO, [test "$enable_debug_info" = "yes"])
+
 # Checks for libraries.
 AC_CHECK_LIB([pthread], [pthread_create])
 AC_CHECK_LIB([dl], [dlopen])

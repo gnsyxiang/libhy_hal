@@ -41,6 +41,7 @@ if [ x$1 = x"pc" ]; then
 
     if [ x$2 = x"release" ]; then
         _cppflags_com="${_cppflags_com} -Wno-error=format-truncation="
+        _cppflags_com="${_cppflags_com} -Wno-error=stringop-overflow="
         _cppflags_com="${_cppflags_com} -Wno-error=unused-result"
         _cppflags_com="${_cppflags_com} -Wno-error=stringop-truncation"
     fi
@@ -118,9 +119,10 @@ if [ x$1 = x"mcu" ]; then
 fi
 
 if [ x$2 = x"release" ]; then
-    _cppflags_com="${_cppflags_com} -g -O2"
+    _cppflags_com="${_cppflags_com} -g -O2 -DNDEBUG"
 else
     _cppflags_com="${_cppflags_com} -g -O0"
+    _param_com="${_param_com} --enable-debug_info"
 fi
 
 make distclean
