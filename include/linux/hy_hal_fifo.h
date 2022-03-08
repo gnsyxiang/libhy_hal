@@ -28,10 +28,14 @@ extern "C" {
 
 /**
  * @brief fifo模式
+ *
+ * @note 阻塞模式下，open时就阻塞
  */
 typedef enum {
-    HY_HAL_FIFO_FLAG_READ,      ///< 读
-    HY_HAL_FIFO_FLAG_WRITE,     ///< 写
+    HY_HAL_FIFO_FLAG_READ,              ///< 读
+    HY_HAL_FIFO_FLAG_WRITE,             ///< 写
+    HY_HAL_FIFO_FLAG_NOBLOCK_READ,      ///< 非阻塞读
+    HY_HAL_FIFO_FLAG_NOBLOCK_WRITE,     ///< 非阻塞写
 } HyHalFifoFlag_e;
 
 /**
@@ -49,6 +53,8 @@ typedef struct {
  * @param fifo_c 配置参数
  *
  * @return 成功返回句柄，失败返回NULL
+ *
+ * @note 阻塞模式下，该函数不会返回
  */
 void *HyHalFifoCreate(HyHalFifoConfig_s *fifo_c);
 

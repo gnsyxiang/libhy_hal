@@ -105,7 +105,7 @@ static _main_context_t *_module_create(void)
     HyHalFifoConfig_s fifo_c;
     HY_MEMSET(&fifo_c, sizeof(fifo_c));
     fifo_c.name = "fifo_test";
-    fifo_c.flag = HY_HAL_FIFO_FLAG_WRITE;
+    fifo_c.flag = HY_HAL_FIFO_FLAG_NOBLOCK_WRITE;
 
     // note: 增加或删除要同步到module_destroy_t中
     module_create_t module[] = {

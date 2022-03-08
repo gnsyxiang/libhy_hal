@@ -95,10 +95,22 @@ void *HyHalFifoCreate(HyHalFifoConfig_s *fifo_c)
             }
         }
 
-        if (HY_HAL_FIFO_FLAG_READ == fifo_c->flag) {
-            flags = O_RDONLY;
-        } else {
-            flags = O_WRONLY;
+        switch (fifo_c->flag) {
+            case HY_HAL_FIFO_FLAG_READ:
+                flags = O_RDONLY;
+                break;
+            case HY_HAL_FIFO_FLAG_WRITE:
+                flags = O_WRONLY;
+                break;
+            case HY_HAL_FIFO_FLAG_NOBLOCK_READ:
+                flags = O_RDONLY | O_NONBLOCK;
+                break;
+            case HY_HAL_FIFO_FLAG_NOBLOCK_WRITE:
+                flags = O_WRONLY | O_NONBLOCK;
+                break;
+            default:
+                LOGE("flag error \n");
+                break;
         }
 
         context->fd = open(fifo_path, flags);
