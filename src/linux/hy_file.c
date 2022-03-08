@@ -48,7 +48,7 @@ ssize_t HyFileRead(int fd, void *buf, size_t len)
             LOGES("read failed \n");
         }
     } else if (ret == 0) {
-        LOGE("fd close, fd: %d \n", fd);
+        LOGES("fd close, fd: %d \n", fd);
         ret = -1;
     }
 
@@ -70,10 +70,11 @@ ssize_t HyFileReadN(int fd, void *buf, size_t len)
             if (EINTR == errno || EAGAIN == errno || EWOULDBLOCK == errno) {
                 ret = 0;
             } else {
+                LOGES("read failed \n");
                 return -1;
             }
         } else if (ret == 0) {
-            LOGE("fd close, fd: %d \n", fd);
+            LOGES("fd close, fd: %d \n", fd);
             break;
         }
 
@@ -99,16 +100,16 @@ ssize_t HyFileReadNTimeout(int fd, void *buf, size_t cnt, size_t ms)
     size_t ret = select(fd+1, &rfds, NULL, NULL, &time);
     switch (ret) {
         case -1:
-            LOGE("select error");
+            LOGES("select error");
             cnt = -1;
             break;
         case 0:
-            LOGE("select timeout");
+            LOGES("select timeout");
             cnt = -1;
             break;
         default:
             if ((len = HyFileReadN(fd, buf, cnt)) == -1) {
-                LOGE("read error");
+                LOGES("read error");
                 cnt = -1;
             }
             break;

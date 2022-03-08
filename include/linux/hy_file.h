@@ -36,48 +36,54 @@ typedef enum {
 } HyFileBlockState_e;
 
 /**
- * @brief 从文件中读取数据
+ * @brief 读取数据
  *
  * @param fd 文件fd
- * @param buf 存放数据的地址
- * @param len 读取的长度
+ * @param buf 数据的地址
+ * @param len 数据的长度
  *
- * @return 返回读到的字节数，失败放回-1，被中断返回0
+ * @return
+ *   1，成功返回读到的字节数
+ *   2，被中断返回0
+ *   3，失败返回-1
  */
 ssize_t HyFileRead(int fd, void *buf, size_t len);
 
 /**
- * @brief 从文件中读取数据
+ * @brief 读取数据
  *
  * @param fd 文件fd
- * @param buf 存放数据的地址
- * @param len 读取的长度
+ * @param buf 数据的地址
+ * @param len 数据的长度
  *
  * @return 
- * 1，功返回len
- * 2，返回-1，表示read函数出现了系统相关错误
- * 3，返回字节数不等于len时，表示对端已经关闭
+ *   1，功返回len
+ *   2，返回-1，表示read函数出现了系统相关错误
+ *   3，返回字节数不等于len时，表示对端已经关闭
  */
 ssize_t HyFileReadN(int fd, void *buf, size_t len);
 
 /**
- * @brief 从文件中读取数据
+ * @brief 读取数据
  *
  * @param fd 文件fd
- * @param buf 存放数据的地址
- * @param cnt 读取数据的长度
+ * @param buf 数据的地址
+ * @param cnt 数据的长度
  * @param ms 超时时间
  *
- * @return 返回读到指定的字节数，失败放回-1或0
+ * @return
+ *   1，返回读到指定的字节数
+ *   2，失败放回-1
+ *   3，超时返回0
  */
 ssize_t HyFileReadNTimeout(int fd, void *buf, size_t cnt, size_t ms);
 
 /**
- * @brief 向文件写入数据
+ * @brief 写入数据
  *
  * @param fd 文件fd
- * @param buf 存放数据的地址
- * @param len 写入的数据长度
+ * @param buf 数据的地址
+ * @param len 数据的长度
  *
  * @return 成功返回len，失败返回-1
  */
