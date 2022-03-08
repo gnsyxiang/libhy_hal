@@ -35,6 +35,7 @@ _no_install_headers_com +=
 
 _install_headers_com    += \
                            hy_file.h        \
+                           hy_hal_fifo.h    \
                            hy_dir.h         \
                            hy_dlopen.h      \
                            hy_log.h         \

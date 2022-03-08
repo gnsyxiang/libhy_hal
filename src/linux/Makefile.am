@@ -50,6 +50,7 @@ _sources_com    += \
                    hy_dir.c         \
                    hy_dlopen.c      \
                    hy_file.c        \
+                   hy_hal_fifo.c    \
                    hy_log.c         \
                    hy_mem.c         \
                    hy_pipe.c        \

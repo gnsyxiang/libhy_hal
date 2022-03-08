@@ -77,6 +77,22 @@ hy_dlopen_test_CXXFLAGS     = $(_cxxflags_com)
 hy_dlopen_test_LDFLAGS      = $(_ldflags_com)
 hy_dlopen_test_LDADD        = $(_ldadd_com)
 
+bin_PROGRAMS                    += hy_hal_fifo_read_test
+hy_hal_fifo_read_test_SOURCES   = $(_sources_com) hy_hal_fifo_read_test.c
+hy_hal_fifo_read_test_CPPFLAGS  = $(_cppflags_com)
+hy_hal_fifo_read_test_CFLAGS    = $(_cflags_com)
+hy_hal_fifo_read_test_CXXFLAGS  = $(_cxxflags_com)
+hy_hal_fifo_read_test_LDFLAGS   = $(_ldflags_com)
+hy_hal_fifo_read_test_LDADD     = $(_ldadd_com)
+
+bin_PROGRAMS                    += hy_hal_fifo_write_test
+hy_hal_fifo_write_test_SOURCES  = $(_sources_com) hy_hal_fifo_write_test.c
+hy_hal_fifo_write_test_CPPFLAGS = $(_cppflags_com)
+hy_hal_fifo_write_test_CFLAGS   = $(_cflags_com)
+hy_hal_fifo_write_test_CXXFLAGS = $(_cxxflags_com)
+hy_hal_fifo_write_test_LDFLAGS  = $(_ldflags_com)
+hy_hal_fifo_write_test_LDADD    = $(_ldadd_com)
+
 bin_PROGRAMS                += hy_log_test
 hy_log_test_SOURCES         = $(_sources_com) hy_log_test.c
 hy_log_test_CPPFLAGS        = $(_cppflags_com)
