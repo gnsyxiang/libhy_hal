@@ -111,7 +111,7 @@ int32_t HyPipeWriteFdGet(void *pipe_h);
     ({                                                          \
         HyPipeConfig_s pipe_c;                                  \
         HY_MEMSET(&pipe_c, sizeof(pipe_c));                     \
-        pipe_c.save_c.read_block_state = _read_block_state;     \
+        pipe_c.read_block_state = _read_block_state;            \
         HyPipeCreate(&pipe_c);                                  \
      })
 
