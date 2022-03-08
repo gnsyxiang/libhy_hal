@@ -29,8 +29,6 @@
 #include "hy_pipe.h"
 
 typedef struct {
-    HyPipeSaveConfig_s  save_c;
-
     hy_s32_t            pfd[2];
 } _pipe_context_t;
 
@@ -62,7 +60,7 @@ int32_t HyPipeRead(void *pipe_h, void *buf, int32_t len)
 
     _pipe_context_t *context = pipe_h;
 
-    return read(context->pfd[0], buf, len);
+    return HyFileRead(context->pfd[0], buf, len);
 
 }
 
@@ -74,7 +72,7 @@ int32_t HyPipeWrite(void *pipe_h, const void *buf, int32_t len)
 
     _pipe_context_t *context = pipe_h;
 
-    return write(context->pfd[1], buf, len);
+    return HyFileWriteN(context->pfd[1], buf, len);
 }
 
 void HyPipeDestroy(void **pipe_h)
@@ -99,14 +97,12 @@ void *HyPipeCreate(HyPipeConfig_s *pipe_c)
     do {
         context = HY_MEM_MALLOC_BREAK(_pipe_context_t *, sizeof(*context));
 
-        HY_MEMCPY(&context->save_c, &pipe_c->save_c, sizeof(context->save_c));
-
         if (0 != pipe(context->pfd)) {
             LOGE("pipe failed \n");
             break;
         }
 
-        if (HY_PIPE_BLOCK_STATE_NOBLOCK == pipe_c->save_c.read_block_state) {
+        if (HY_PIPE_BLOCK_STATE_NOBLOCK == pipe_c->read_block_state) {
             state = HY_FILE_BLOCK_STATE_NOBLOCK;
         }
         if (0 != HyFileBlockStateSet(context->pfd[0], state)) {

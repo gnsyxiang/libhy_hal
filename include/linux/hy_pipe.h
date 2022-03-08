@@ -39,13 +39,6 @@ typedef enum {
  */
 typedef struct {
     HyPipeBlockState_e  read_block_state;   ///< 读端阻塞状态
-} HyPipeSaveConfig_s;
-
-/**
- * @brief 配置参数
- */
-typedef struct {
-    HyPipeSaveConfig_s save_c;              ///< 配置参数
 } HyPipeConfig_s;
 
 /**
@@ -72,9 +65,9 @@ void HyPipeDestroy(void **pipe_h);
  * @param len 数据的长度
  *
  * @return
- *      (>  0)返回读取到的字节数
- *      (=  0)读到文件末尾
- *      (= -1)读取出错
+ *   成功返回读到的字节数，
+ *   失败返回-1，
+ *   被中断返回0
  */
 int32_t HyPipeRead(void *pipe_h, void *buf, int32_t len);
 
@@ -85,7 +78,7 @@ int32_t HyPipeRead(void *pipe_h, void *buf, int32_t len);
  * @param buf 数据的地址
  * @param len 数据的长度
  *
- * @return 成功返回写入的字节数，失败返回-1
+ * @return 成功返回len，失败返回-1
  */
 int32_t HyPipeWrite(void *pipe_h, const void *buf, int32_t len);
 

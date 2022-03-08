@@ -139,7 +139,7 @@ static _main_context_t *_module_create(void)
 
     HyPipeConfig_s pipe_c;
     HY_MEMSET(&pipe_c, sizeof(pipe_c));
-    pipe_c.save_c.read_block_state = HY_PIPE_BLOCK_STATE_NOBLOCK;
+    pipe_c.read_block_state = HY_PIPE_BLOCK_STATE_NOBLOCK;
 
     HyThreadConfig_s pipe_read_thread_c;
     HY_MEMSET(&pipe_read_thread_c, sizeof(pipe_read_thread_c));
