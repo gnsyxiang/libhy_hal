@@ -18,11 +18,11 @@
 #     last modified: 29/10 2021 20:59
 # ===============================================================
 
-if COMPILE_SELECT_MCU_AT
+if COMPILE_SELECT_MCU_VENDER_AT
 _mcu_vender = at
 endif
 
-if COMPILE_SELECT_MCU_HC
+if COMPILE_SELECT_MCU_VENDER_HC
 _mcu_vender = hc
 endif
 

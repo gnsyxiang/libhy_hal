@@ -27,7 +27,6 @@ CHECK_DOXYGEN
 # CHECK_JAVA
 
 # Checks for programs.
-GCC_PREFIX_INFO
 AC_PROG_CXX
 AC_PROG_AWK
 AC_PROG_CC
@@ -36,10 +35,9 @@ AC_PROG_INSTALL
 AC_PROG_LN_S
 AC_PROG_MAKE_SET
 # AC_PROG_RANLIB
-AC_PROG_MKDIR_P
 
-SELECT_TARGET_OS
-SELECT_MCU
+SELECT_PLATFORM
+SELECT_MCU_CHIP
 
 CHECK_LIBHY_MCU
 
@@ -66,7 +64,6 @@ AC_CHECK_LIB([dl], [dlopen])
 AC_CHECK_HEADERS([fcntl.h inttypes.h stdint.h stdlib.h string.h sys/time.h sys/vfs.h termios.h unistd.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
-AC_CHECK_HEADER_STDBOOL
 AC_C_INLINE
 AC_TYPE_INT32_T
 AC_TYPE_INT8_T
@@ -79,41 +76,36 @@ AC_TYPE_UINT8_T
 # Checks for library functions.
 AC_FUNC_MALLOC
 AC_FUNC_MKTIME
-AC_CHECK_FUNCS([atexit gettimeofday localtime_r memset select])
+AC_CHECK_FUNCS([atexit gettimeofday localtime_r memset mkfifo select])
 
 AC_CONFIG_FILES([Makefile
                  $project_name.pc
+                 build-script/Makefile
+                 build-script/arterytek/Makefile
+                 build-script/arterytek/at32f4xx/Makefile
+                 build-script/eeasytech/Makefile
+                 build-script/pc/Makefile
                  doc/Makefile
                  example/Makefile
                  example/linux/Makefile
                  example/linux/thread/Makefile
-                 example/mac/Makefile
                  example/mcu/Makefile
                  example/mcu/at/Makefile
                  example/mcu/hc/Makefile
-                 example/rtos/Makefile
-                 example/window/Makefile
                  include/Makefile
                  include/linux/Makefile
                  include/linux/thread/Makefile
-                 include/mac/Makefile
                  include/mcu/Makefile
                  include/mcu/at/Makefile
                  include/mcu/hc/Makefile
-                 include/rtos/Makefile
-                 include/window/Makefile
                  res/Makefile
                  src/Makefile
                  src/linux/Makefile
                  src/linux/thread/Makefile
-                 src/mac/Makefile
                  src/mcu/Makefile
                  src/mcu/at/Makefile
                  src/mcu/at/at32f4xx/Makefile
-                 src/mcu/hc/Makefile
-                 src/rtos/Makefile
-                 src/window/Makefile])
-
+                 src/mcu/hc/Makefile])
 AC_OUTPUT
 
 AC_MSG_RESULT([

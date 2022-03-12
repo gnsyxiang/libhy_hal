@@ -78,7 +78,7 @@ void *HyHalFifoCreate(HyHalFifoConfig_s *fifo_c)
 
     _hal_fifo_context_s *context = NULL;
     char fifo_path[_HAL_FIFO_PATH_LEN_MAX] = {0};
-    hy_s32_t flags;
+    hy_s32_t flags = 0;
 
     do {
         context = HY_MEM_MALLOC_BREAK(_hal_fifo_context_s *, sizeof(*context));

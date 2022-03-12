@@ -5,7 +5,7 @@
 # @file    Makefile.am
 # @brief   
 # @author  gnsyxiang <gnsyxiang@163.com>
-# @date    29/10 2021 20:58
+# @date    12/03 2022 17:13
 # @version v0.0.1
 # 
 # @since    note
@@ -13,28 +13,25 @@
 # 
 #     change log:
 #     NO.     Author              Date            Modified
-#     00      zhenquan.qiu        29/10 2021      create the file
+#     00      zhenquan.qiu        12/03 2022      create the file
 # 
-#     last modified: 29/10 2021 20:58
+#     last modified: 12/03 2022 17:13
 # ===============================================================
 
 # ------------------
 # defining variables
 # ------------------
-_no_install_headers_com =
-_install_headers_com    =
-
-install_includedir      = $(includedir)/@project_name@
-
-# ---------------------
-# add necessary content
-# ---------------------
-_no_install_headers_com +=
-
-_install_headers_com    +=
+_dist_file_com  =
 
 # ------------------
 # make install files
 # ------------------
-noinst_HEADERS          = $(_no_install_headers_com)
-install_include_HEADERS = $(_install_headers_com)
+
+
+# ---------------
+# make dist files
+# ---------------
+_dist_file_com  += config.sh
+
+EXTRA_DIST      = $(_dist_file_com)
+

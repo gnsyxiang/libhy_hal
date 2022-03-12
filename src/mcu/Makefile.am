@@ -18,11 +18,11 @@
 #     last modified: 29/10 2021 21:00
 # ===============================================================
 
-if COMPILE_SELECT_MCU_AT
+if COMPILE_SELECT_MCU_VENDER_AT
 _mcu_vender = at
 endif
 
-if COMPILE_SELECT_MCU_HC
+if COMPILE_SELECT_MCU_VENDER_HC
 _mcu_vender = hc
 endif
 
@@ -59,8 +59,7 @@ _include_com    += $(HY_MCU_INCS)
 endif
 
 _sources_com    += \
-                   hy_log.c \
-                   hy_mem.c
+                   hy_demo.c
 
 _cppflags_com   += \
                    $(_no_error_com)     \

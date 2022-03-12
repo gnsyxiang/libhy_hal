@@ -18,27 +18,15 @@
 #     last modified: 05/03 2021 10:35
 # ===============================================================
 
-if COMPILE_SELECT_TARGET_OS_LINUX
-select_target_os = linux
+if COMPILE_SELECT_PLATFORM_LINUX
+select_platform = linux
 endif
 
-if COMPILE_SELECT_TARGET_OS_MAC
-select_target_os = mac
+if COMPILE_SELECT_PLATFORM_MCU
+select_platform = mcu
 endif
 
-if COMPILE_SELECT_TARGET_OS_WINDOW
-select_target_os = window
-endif
-
-if COMPILE_SELECT_TARGET_OS_RTOS
-select_target_os = rtos
-endif
-
-if COMPILE_SELECT_TARGET_OS_MCU
-select_target_os = mcu
-endif
-
-SUBDIRS = $(select_target_os)
+SUBDIRS = $(select_platform)
 
 lib_LTLIBRARIES = lib@project_name@.la
 
@@ -79,7 +67,7 @@ _ldflags_com    += \
                    -export-symbols-regex 'Hy*'                  \
                    -version-info @current@:@revision@:@age@
 
-_ldadd_com      += $(top_builddir)/src/$(select_target_os)/libhy_hal_os.la
+_ldadd_com      += $(top_builddir)/src/$(select_platform)/libhy_hal_os.la
 
 lib@project_name@_la_SOURCES    = $(_sources_com)
 lib@project_name@_la_CPPFLAGS   = $(_cppflags_com)
@@ -87,3 +75,4 @@ lib@project_name@_la_CFLAGS     = $(_cflags_com)
 lib@project_name@_la_CXXFLAGS   = $(_cxxflags_com)
 lib@project_name@_la_LDFLAGS    = $(_ldflags_com)
 lib@project_name@_la_LIBADD     = $(_ldadd_com)
+

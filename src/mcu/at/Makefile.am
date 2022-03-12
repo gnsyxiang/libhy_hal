@@ -18,11 +18,11 @@
 #     last modified: 08/11 2021 16:01
 # ===============================================================
 
-if COMPILE_SELECT_MCU_AT32F4XX
-_mcu_type = at32f4xx
+if COMPILE_SELECT_MCU_CHIP_AT32F4XX
+_mcu_chip = at32f4xx
 endif
 
-SUBDIRS = $(_mcu_type)
+SUBDIRS = $(_mcu_chip)
 
 noinst_LTLIBRARIES = libmcu_vender.la
 
@@ -67,7 +67,7 @@ _cxxflags_com   +=
 
 _ldflags_com    +=
 
-_ldadd_com      += $(top_builddir)/src/mcu/at/$(_mcu_type)/libmcu.la
+_ldadd_com      += $(top_builddir)/src/mcu/at/$(_mcu_chip)/libmcu.la
 
 libmcu_vender_la_SOURCES    = $(_sources_com)
 libmcu_vender_la_CPPFLAGS   = $(_cppflags_com)

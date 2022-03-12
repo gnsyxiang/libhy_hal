@@ -18,11 +18,11 @@
 #     last modified: 29/10 2021 20:55
 # ===============================================================
 
-if COMPILE_SELECT_MCU_AT
+if COMPILE_SELECT_MCU_VENDER_AT
 _mcu_vender = at
 endif
 
-if COMPILE_SELECT_MCU_HC
+if COMPILE_SELECT_MCU_VENDER_HC
 _mcu_vender = hc
 endif
 
@@ -74,32 +74,32 @@ _include_com    += $(HY_MCU_INCS)
 _ldadd_com      += $(HY_MCU_LIBS)
 endif
 
-if COMPILE_SELECT_MCU_AT
-if COMPILE_SELECT_MCU_AT32F4XX
+if COMPILE_SELECT_MCU_VENDER_AT
+if COMPILE_SELECT_MCU_CHIP_AT32F4XX
 _ldflags_com    += -T$(top_srcdir)/src/mcu/at/at32f4xx/AT32F407xG_FLASH.ld
 endif
 endif
 
-_elf_file                   += hy_gpio_test
-bin_PROGRAMS                += hy_gpio_test
-hy_gpio_test_SOURCES        = $(_sources_com) hy_gpio_test.c
-hy_gpio_test_CPPFLAGS       = $(_cppflags_com)
-hy_gpio_test_CFLAGS         = $(_cflags_com)
-hy_gpio_test_CXXFLAGS       = $(_cxxflags_com)
-hy_gpio_test_LDFLAGS        = $(_ldflags_com) -Wl,--gc-sections,-Map=hy_gpio_test.map,-cref,-u,Reset_Handler
-hy_gpio_test_LDADD          = $(_ldadd_com)
-
-_elf_file                   += hy_template_test
-bin_PROGRAMS                += hy_template_test
-hy_template_test_SOURCES    = $(_sources_com) hy_template_test.c
-hy_template_test_CPPFLAGS   = $(_cppflags_com)
-hy_template_test_CFLAGS     = $(_cflags_com)
-hy_template_test_CXXFLAGS   = $(_cxxflags_com)
-hy_template_test_LDFLAGS    = $(_ldflags_com) -Wl,--gc-sections,-Map=hy_template_test.map,-cref,-u,Reset_Handler
-hy_template_test_LDADD      = $(_ldadd_com)
-
-install-exec-hook:
-	for file in $(_elf_file); do \
-		@gcc_prefix@objcopy -O binary $$file $$file.bin; \
-	done
-	$(INSTALL_PROGRAM_ENV) $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(INSTALL_PROGRAM) *.bin "$(DESTDIR)$(bindir)$$dir"
+# _elf_file                   += hy_gpio_test
+# bin_PROGRAMS                += hy_gpio_test
+# hy_gpio_test_SOURCES        = $(_sources_com) hy_gpio_test.c
+# hy_gpio_test_CPPFLAGS       = $(_cppflags_com)
+# hy_gpio_test_CFLAGS         = $(_cflags_com)
+# hy_gpio_test_CXXFLAGS       = $(_cxxflags_com)
+# hy_gpio_test_LDFLAGS        = $(_ldflags_com) -Wl,--gc-sections,-Map=hy_gpio_test.map,-cref,-u,Reset_Handler
+# hy_gpio_test_LDADD          = $(_ldadd_com)
+# 
+# _elf_file                   += hy_template_test
+# bin_PROGRAMS                += hy_template_test
+# hy_template_test_SOURCES    = $(_sources_com) hy_template_test.c
+# hy_template_test_CPPFLAGS   = $(_cppflags_com)
+# hy_template_test_CFLAGS     = $(_cflags_com)
+# hy_template_test_CXXFLAGS   = $(_cxxflags_com)
+# hy_template_test_LDFLAGS    = $(_ldflags_com) -Wl,--gc-sections,-Map=hy_template_test.map,-cref,-u,Reset_Handler
+# hy_template_test_LDADD      = $(_ldadd_com)
+# 
+# install-exec-hook:
+# 	for file in $(_elf_file); do \
+# 		@gcc_prefix@objcopy -O binary $$file $$file.bin; \
+# 	done
+# 	$(INSTALL_PROGRAM_ENV) $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(INSTALL_PROGRAM) *.bin "$(DESTDIR)$(bindir)$$dir"
