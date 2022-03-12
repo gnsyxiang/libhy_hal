@@ -26,13 +26,10 @@ extern "C" {
 
 #include <assert.h>
 
+// 防御性编程
+
 #define HY_ASSERT(zero) assert(zero);
 
-#ifdef NDEBUG
-#define HY_ASSERT_BREAK(val)
-#define HY_ASSERT_RET(val)
-#define HY_ASSERT_RET_VAL(val, ret)
-#else
 #define HY_ASSERT_BREAK(val)            \
     if (val) {                          \
         LOGE("the param is error \n");  \
@@ -42,7 +39,7 @@ extern "C" {
 #define HY_ASSERT_RET(val)              \
     if (val) {                          \
         LOGE("the param is error \n");  \
-        return ;                        \
+        return;                         \
     }
 
 #define HY_ASSERT_RET_VAL(val, ret)     \
@@ -50,7 +47,6 @@ extern "C" {
         LOGE("the param is error \n");  \
         return ret;                     \
     }
-#endif
 
 #ifdef __cplusplus
 }
