@@ -28,14 +28,14 @@ extern "C" {
 #include <stdint.h>
 #include <pthread.h>
 
-#define HY_THREAD_NAME_LEN_MAX (16)
+#define HY_THREAD_NAME_LEN_MAX  (16)
 
 /**
  * @brief 线程退出方式
  */
 typedef enum {
-    HY_THREAD_DESTROY_GRACE,                                ///< 优雅退出，等待线程执行完
-    HY_THREAD_DESTROY_FORCE,                                ///< 强制退出，等待一定时间(2s)后强制退出
+    HY_THREAD_DESTROY_GRACE,    ///< 优雅退出，等待线程执行完
+    HY_THREAD_DESTROY_FORCE,    ///< 强制退出，等待一定时间(2s)后强制退出
 
     HY_THREAD_DESTROY_MAX,
 } HyThreadDestroyFlag_e;
@@ -44,22 +44,11 @@ typedef enum {
  * @brief 线程是否分离
  */
 typedef enum {
-    HY_THREAD_DETACH_NO,                                    ///< 非分离属性
-    HY_THREAD_DETACH_YES,                                   ///< 分离属性
+    HY_THREAD_DETACH_NO,        ///< 非分离属性
+    HY_THREAD_DETACH_YES,       ///< 分离属性
 
     HY_THREAD_DETACH_MAX,
 } HyThreadDetachFlag_e;
-
-/**
- * @brief 获取线程相关信息
- */
-typedef enum {
-    HY_THREAD_INFO_NAME,                                    ///< 获取线程名字
-    HY_THREAD_INFO_TID,                                     ///< 获取线程tid
-    HY_THREAD_INFO_ID,                                      ///< 获取线程id
-
-    HY_THREAD_INFO_MAX,
-} HyThreadInfo_e;
 
 /**
  * @brief 线程回调函数
@@ -91,7 +80,7 @@ typedef struct {
  * @brief 模块配置参数
  */
 typedef struct {
-    HyThreadSaveConfig_s    save_config;                    ///< 模块配置参数
+    HyThreadSaveConfig_s    save_c;                         ///< 模块配置参数
 } HyThreadConfig_s;
 
 /**
@@ -101,7 +90,7 @@ typedef struct {
  *
  * @return 线程句柄
  */
-void *HyThreadCreate(HyThreadConfig_s *config);
+void *HyThreadCreate(HyThreadConfig_s *thread_c);
 
 /**
  * @brief 销毁线程
@@ -111,50 +100,37 @@ void *HyThreadCreate(HyThreadConfig_s *config);
 void HyThreadDestroy(void **handle);
 
 /**
- * @brief 获取线程相关信息
+ * @brief 获取线程名字
  *
- * @param handle 线程句柄
- * @param info 获取线程相关信息
- * @param data 保存信息的地址
- *
- * @note
- * 1, data是传出参数，需要上层开辟空间
- * 2，当data为HY_THREAD_INFO_NAME，data为数组类型，以便保存数据，
- *    数组长度必须等于或大于HY_THREAD_NAME_LEN_MAX
- * 3，当data为HY_THREAD_INFO_TID，data为long类型
- * 4，当data为HY_THREAD_INFO_ID，data为pthread_t
- *
- * 特别注意获取名字时
- *     数组的长度一定要大于或等于HY_THREAD_NAME_LEN_MAX，否则造成内存问题
+ * @return 返回线程名字
  */
-void HyThreadGetInfo(void *handle, HyThreadInfo_e info, void *data);
+const char *HyThreadGetName(void *handle);
 
 /**
  * @brief 获取线程id
  *
- * @return 返回id(pthread线程库维护的)
+ * @return 返回id(pthread线程库维护的, 进程级别)
  */
-pthread_t HyThreadGetId(void);
+pthread_t HyThreadGetId(void *handle);
 
 /**
  * @brief 创建线程宏
  *
  * @param _name 名字
  * @param _thread_loop_cb 回调函数，详见HyThreadLoopCb_t
- * @param _flag 线程退出方式，详见HyThreadDestroyFlag_e
  * @param _args 上层传递参数
  *
  * @return 线程句柄
  */
 #define HyThreadCreate_m(_name, _thread_loop_cb, _args)                 \
     ({                                                                  \
-        HyThreadConfig_s __config;                                      \
-        HY_MEMSET(&__config, sizeof(__config));                         \
-        __config.save_config.thread_loop_cb   = _thread_loop_cb;        \
-        __config.save_config.args             = _args;                  \
-        HY_STRNCPY(__config.save_config.name,                           \
+        HyThreadConfig_s _thread_c;                                     \
+        HY_MEMSET(&_thread_c, sizeof(_thread_c));                       \
+        _thread_c.save_c.thread_loop_cb     = _thread_loop_cb;          \
+        _thread_c.save_c.args               = _args;                    \
+        HY_STRNCPY(_thread_c.save_c.name,                               \
                 HY_THREAD_NAME_LEN_MAX, _name, HY_STRLEN(_name));       \
-        HyThreadCreate(&__config);                                      \
+        HyThreadCreate(&_thread_c);                                     \
      })
 
 #ifdef __cplusplus
@@ -162,3 +138,4 @@ pthread_t HyThreadGetId(void);
 #endif
 
 #endif
+

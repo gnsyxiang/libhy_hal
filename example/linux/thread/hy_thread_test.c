@@ -36,7 +36,7 @@ typedef struct {
     void        *log_handle;
     void        *signal_handle;
 
-    void        *thread_handle;
+    void        *thread_h;
 
     hy_s32_t    exit_flag;
 } _main_context_t;
@@ -45,14 +45,9 @@ static int32_t _print_loop_cb(void *args)
 {
     _main_context_t *context = args;
 
-    char name[HY_THREAD_NAME_LEN_MAX] = {0};
-    pthread_t id;
-    long tid;
-
-    HyThreadGetInfo(context->thread_handle, HY_THREAD_INFO_NAME, name);
-    HyThreadGetInfo(context->thread_handle, HY_THREAD_INFO_TID, &tid);
-    HyThreadGetInfo(context->thread_handle, HY_THREAD_INFO_ID, &id);
-    LOGI("name: %s, id: 0x%lx, tid: %ld \n", name, id, tid);
+    LOGI("name: %s, id: 0x%lx \n",
+            HyThreadGetName(context->thread_h),
+            HyThreadGetId(context->thread_h));
 
     while (!context->exit_flag) {
         LOGI("haha \n");
@@ -84,7 +79,7 @@ static void _module_destroy(_main_context_t **context_pp)
 
     // note: 增加或删除要同步到module_create_t中
     module_destroy_t module[] = {
-        {"thread",  &context->thread_handle,    HyThreadDestroy},
+        {"thread",  &context->thread_h,    HyThreadDestroy},
         {"signal",  &context->signal_handle,    HySignalDestroy},
         {"log",     &context->log_handle,       HyLogDestroy},
     };
@@ -125,16 +120,16 @@ static _main_context_t *_module_create(void)
 
     HyThreadConfig_s thread_config;
     HY_MEMSET(&thread_config, sizeof(thread_config));
-    thread_config.save_config.thread_loop_cb    = _print_loop_cb;
-    thread_config.save_config.args              = context;
-    HY_STRNCPY(thread_config.save_config.name,
+    thread_config.save_c.thread_loop_cb    = _print_loop_cb;
+    thread_config.save_c.args              = context;
+    HY_STRNCPY(thread_config.save_c.name,
             HY_THREAD_NAME_LEN_MAX, "print", HY_STRLEN("print"));
 
     // note: 增加或删除要同步到module_destroy_t中
     module_create_t module[] = {
         {"log",     &context->log_handle,       &log_config,        (create_t)HyLogCreate,      HyLogDestroy},
         {"signal",  &context->signal_handle,    &signal_config,     (create_t)HySignalCreate,   HySignalDestroy},
-        {"thread",  &context->thread_handle,    &thread_config,     (create_t)HyThreadCreate,   HyThreadDestroy},
+        {"thread",  &context->thread_h,    &thread_config,     (create_t)HyThreadCreate,   HyThreadDestroy},
     };
 
     RUN_CREATE(module);
@@ -161,12 +156,12 @@ int main(int argc, char *argv[])
 
     HyThreadConfig_s thread_config;
     memset(&thread_config, '\0', sizeof(thread_config));
-    thread_config.save_config.destroy_flag      = HY_THREAD_DESTROY_GRACE;
-    thread_config.save_config.detach_flag       = HY_THREAD_DETACH_YES;
-    thread_config.save_config.reserved          = 0;
-    thread_config.save_config.thread_loop_cb    = _thread_detach_loop_cb;
-    thread_config.save_config.args              = context;
-    HY_STRNCPY(thread_config.save_config.name, HY_THREAD_NAME_LEN_MAX,
+    thread_config.save_c.destroy_flag      = HY_THREAD_DESTROY_GRACE;
+    thread_config.save_c.detach_flag       = HY_THREAD_DETACH_YES;
+    thread_config.save_c.reserved          = 0;
+    thread_config.save_c.thread_loop_cb    = _thread_detach_loop_cb;
+    thread_config.save_c.args              = context;
+    HY_STRNCPY(thread_config.save_c.name, HY_THREAD_NAME_LEN_MAX,
             "hy_thd_test_detach", HY_STRLEN("hy_thd_test_detach"));
     if (NULL == HyThreadCreate(&thread_config)) {
         LOGE("HyThreadCreate_m fail \n");

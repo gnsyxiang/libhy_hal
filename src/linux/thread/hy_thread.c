@@ -32,64 +32,52 @@
 #include "hy_thread.h"
 
 typedef struct {
-    HyThreadSaveConfig_s    save_config;
+    HyThreadSaveConfig_s    save_c;
 
     pthread_t               id;
     hy_u32_t                exit_flag;
 } _thread_context_t;
 
-pthread_t HyThreadGetId(void)
+const char *HyThreadGetName(void *handle)
 {
-    return pthread_self();
-}
-
-void HyThreadGetInfo(void *handle, HyThreadInfo_e info, void *data)
-{
-    LOGT("handle: %p, info: %d, data: %p \n", handle, info, data);
-    HY_ASSERT_RET(!handle || !data);
+    HY_ASSERT_RET_VAL(!handle, NULL);
 
     _thread_context_t *context = handle;
 
-    switch (info) {
-        case HY_THREAD_INFO_NAME:
-            HY_MEMCPY(data, context->save_config.name, HY_THREAD_NAME_LEN_MAX);
-            break;
-        case HY_THREAD_INFO_TID:
-            *(long *)data = syscall(SYS_gettid);
-            break;
-        case HY_THREAD_INFO_ID:
-            *(pthread_t *)data = context->id;
-            break;
-        default:
-            LOGE("error info \n");
-            break;
-    }
+    return context->save_c.name;
 }
 
-static void *_thread_loop_cb(void *args)
+pthread_t HyThreadGetId(void *handle)
+{
+    HY_ASSERT_RET_VAL(!handle, -1);
+
+    _thread_context_t *context = handle;
+
+    return context->id;
+}
+
+static void *_thread_cb(void *args)
 {
     _thread_context_t *context = args;
-    HyThreadSaveConfig_s *save_config = &context->save_config;
+    HyThreadSaveConfig_s *save_c = &context->save_c;
     int32_t ret = 0;
 
-    usleep(1000);
-    LOGI("%s thread loop start, id: 0x%lx, tid: %ld \n",
-            save_config->name, context->id, syscall(SYS_gettid));
+    LOGI("<%s> thread loop start, id: 0x%lx \n", save_c->name, context->id);
 
 #ifdef _GNU_SOURCE
-    pthread_setname_np(context->id, save_config->name);
+    pthread_setname_np(context->id, save_c->name);
 #endif
 
     while (0 == ret) {
-        ret = save_config->thread_loop_cb(save_config->args);
+        ret = save_c->thread_loop_cb(save_c->args);
 
         // pthread_testcancel();
     }
 
     context->exit_flag = 1;
-    LOGI("%s thread loop stop \n", save_config->name);
+    LOGI("%s thread loop stop \n", save_c->name);
 
-    if (save_config->detach_flag) {
+    if (save_c->detach_flag) {
         HyThreadDestroy((void **)&context);
     }
 
@@ -104,7 +92,7 @@ void HyThreadDestroy(void **handle)
     _thread_context_t *context = *handle;
     hy_u32_t cnt = 0;
 
-    if (context->save_config.destroy_flag == HY_THREAD_DESTROY_FORCE) {
+    if (context->save_c.destroy_flag == HY_THREAD_DESTROY_FORCE) {
         if (!context->exit_flag) {
             while (++cnt <= 9) {
                 usleep(200 * 1000);
@@ -118,15 +106,15 @@ void HyThreadDestroy(void **handle)
     pthread_join(context->id, NULL);
 
     LOGI("%s thread destroy, handle: %p \n",
-            context->save_config.name, context);
+            context->save_c.name, context);
 
     HY_MEM_FREE_PP(handle);
 }
 
-void *HyThreadCreate(HyThreadConfig_s *config)
+void *HyThreadCreate(HyThreadConfig_s *thread_c)
 {
-    LOGT("thread config: %p \n", config);
-    HY_ASSERT_RET_VAL(!config, NULL);
+    LOGT("thread_c: %p \n", thread_c);
+    HY_ASSERT_RET_VAL(!thread_c, NULL);
 
     _thread_context_t *context = NULL;
     pthread_attr_t attr;
@@ -134,39 +122,39 @@ void *HyThreadCreate(HyThreadConfig_s *config)
     do {
         context = HY_MEM_MALLOC_BREAK(_thread_context_t *, sizeof(*context));
 
-        HyThreadSaveConfig_s *save_config = &config->save_config;
-        HY_MEMCPY(&context->save_config, save_config, sizeof(*save_config));
+        HY_MEMCPY(&context->save_c,
+                &thread_c->save_c, sizeof(context->save_c));
 
-        if (0 != pthread_attr_init(&attr)) {
-            LOGES("pthread init fail \n");
-            break;
+        if (context->save_c.detach_flag) {
+            if (0 != pthread_attr_init(&attr)) {
+                LOGES("pthread init fail \n");
+                break;
+            }
+
+            if (0 != pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED)) {
+                LOGES("set detach state fail \n");
+                break;
+            }
         }
 
-        if (save_config->detach_flag
-                && 0 != pthread_attr_setdetachstate(&attr,
-                    PTHREAD_CREATE_DETACHED)) {
-            LOGES("set detach state fail \n");
-            break;
-        }
-
-        if (0 != pthread_create(&context->id,
-                    &attr, _thread_loop_cb, context)) {
+        if (0 != pthread_create(&context->id, &attr, _thread_cb, context)) {
             LOGES("pthread create fail \n");
             break;
         }
 
-        if (save_config->detach_flag
-                && 0 != pthread_attr_destroy(&attr)) {
-            LOGES("destroy attr fail \n");
-            break;
+        if (context->save_c.detach_flag) {
+            if (0 != pthread_attr_destroy(&attr)) {
+                LOGES("destroy attr fail \n");
+                break;
+            }
         }
 
         LOGI("%s thread create, context: %p, id: 0x%lx \n",
-                save_config->name, context, context->id);
+                context->save_c.name, context, context->id);
         return context;
     } while (0);
 
-    LOGI("%s thread create failed \n", config->save_config.name);
+    LOGE("%s thread create failed \n", thread_c->save_c.name);
     HyThreadDestroy((void **)&context);
     return NULL;
 }

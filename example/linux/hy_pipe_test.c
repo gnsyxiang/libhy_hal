@@ -143,18 +143,16 @@ static _main_context_t *_module_create(void)
 
     HyThreadConfig_s pipe_read_thread_c;
     HY_MEMSET(&pipe_read_thread_c, sizeof(pipe_read_thread_c));
-    pipe_read_thread_c.save_config.thread_loop_cb    = _pipe_read_cb;
-    pipe_read_thread_c.save_config.args              = context;
-    HY_STRNCPY(pipe_read_thread_c.save_config.name,
-            sizeof(pipe_read_thread_c.save_config.name),
+    pipe_read_thread_c.save_c.thread_loop_cb    = _pipe_read_cb;
+    pipe_read_thread_c.save_c.args              = context;
+    HY_STRNCPY(pipe_read_thread_c.save_c.name, HY_THREAD_NAME_LEN_MAX,
             "hy_pipe_read", HY_STRLEN("hy_pipe_read"));
 
     HyThreadConfig_s pipe_write_thread_c;
     HY_MEMSET(&pipe_write_thread_c, sizeof(pipe_write_thread_c));
-    pipe_write_thread_c.save_config.thread_loop_cb    = _pipe_write_cb;
-    pipe_write_thread_c.save_config.args              = context;
-    HY_STRNCPY(pipe_write_thread_c.save_config.name,
-            sizeof(pipe_write_thread_c.save_config.name),
+    pipe_write_thread_c.save_c.thread_loop_cb   = _pipe_write_cb;
+    pipe_write_thread_c.save_c.args             = context;
+    HY_STRNCPY(pipe_write_thread_c.save_c.name, HY_THREAD_NAME_LEN_MAX,
             "hy_pipe_write", HY_STRLEN("hy_pipe_write"));
 
     // note: 增加或删除要同步到module_destroy_t中
