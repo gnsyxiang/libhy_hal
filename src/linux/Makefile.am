@@ -52,11 +52,9 @@ _sources_com    += \
                    hy_file.c        \
                    hy_hal_fifo.c    \
                    hy_log.c         \
-                   hy_mem.c         \
                    hy_pipe.c        \
                    hy_signal.c      \
                    hy_storage.c     \
-                   hy_string.c      \
                    hy_time.c        \
                    hy_uart.c
 
