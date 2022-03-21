@@ -118,6 +118,21 @@ ssize_t HyFileReadNTimeout(int fd, void *buf, size_t cnt, size_t ms)
     return cnt;
 }
 
+ssize_t HyFileWrite(int fd, const void *buf, size_t len)
+{
+    ssize_t ret;
+
+    ret = write(fd, buf, len);
+    if (ret < 0 && errno == EINTR) {
+        return 0;
+    } else if (ret == -1) {
+        LOGES("fd close, fd: %d \n", fd);
+        return -1;
+    } else {
+        return ret;
+    }
+}
+
 ssize_t HyFileWriteN(int fd, const void *buf, size_t len)
 {
     ssize_t ret;
@@ -145,26 +160,34 @@ ssize_t HyFileWriteN(int fd, const void *buf, size_t len)
     return len;
 }
 
+static hy_s32_t _set_fcntl(hy_s32_t fd, hy_s32_t arg)
+{
+    hy_s32_t flags;
+
+    if ((flags = fcntl(fd, F_GETFL, 0)) == -1) {
+        flags = 0;
+    }
+
+    return fcntl(fd, F_SETFL, flags | arg);
+}
+
+static hy_s32_t _reset_fcntl(hy_s32_t fd, hy_s32_t arg)
+{
+    hy_s32_t flags;
+
+    if ((flags = fcntl(fd, F_GETFL, 0)) == -1) {
+        flags = 0;
+    }
+
+    return fcntl(fd, F_SETFL, flags & arg);
+}
+
 int32_t HyFileBlockStateSet(int32_t fd, HyFileBlockState_e state)
 {
-    hy_s32_t flag;
-
-    flag = fcntl(fd, F_GETFL, 0);
-    if (flag < 0) {
-        LOGES("fcntl failed \n");
-    }
-
     if (HY_FILE_BLOCK_STATE_BLOCK == state) {
-        flag &= ~O_NONBLOCK;
+        return _reset_fcntl(fd, ~O_NONBLOCK);
     } else {
-        flag |= O_NONBLOCK;
-    }
-
-    if (-1 == fcntl(fd, F_SETFL, flag)) {
-        LOGES("fcntl failed \n");
-        return -1;
-    } else {
-        return 0;
+        return _set_fcntl(fd, O_NONBLOCK);
     }
 }
 
@@ -182,5 +205,36 @@ HyFileBlockState_e HyFileBlockStateGet(int32_t fd)
     } else {
         return HY_FILE_BLOCK_STATE_BLOCK;
     }
+}
+
+/*
+ * 作用: 当fork子进程后，仍然可以使用fd。
+ *       但执行exec后系统就会自动关闭进程中的fd
+ */
+hy_s32_t file_close_on_exec(hy_s32_t fd)
+{
+    return _set_fcntl(fd, FD_CLOEXEC);
+}
+
+long HyFileGetLen(const char *file)
+{
+    FILE *fp = NULL;
+    long len = 0;
+
+    fp = fopen(file, "r");
+    if (!fp) {
+        LOGES("fopen %s faild", file);
+        return -1;
+    }
+
+    fseek(fp, 0, SEEK_END);
+    len = ftell(fp);
+    if (len == -1) {
+        LOGES("ftell failed \n");
+    }
+
+    fclose(fp);
+
+    return len;
 }
 

@@ -85,6 +85,17 @@ ssize_t HyFileReadNTimeout(int fd, void *buf, size_t cnt, size_t ms);
  * @param buf 数据的地址
  * @param len 数据的长度
  *
+ * @return 成功返回写入的字节数，失败返回-1，写中断返回0
+ */
+ssize_t HyFileWrite(int fd, const void *buf, size_t len);
+
+/**
+ * @brief 写入数据
+ *
+ * @param fd 文件fd
+ * @param buf 数据的地址
+ * @param len 数据的长度
+ *
  * @return 成功返回len，失败返回-1
  */
 ssize_t HyFileWriteN(int fd, const void *buf, size_t len);
@@ -107,6 +118,15 @@ int32_t HyFileBlockStateSet(int32_t fd, HyFileBlockState_e state);
  * @return 返回阻塞状态
  */
 HyFileBlockState_e HyFileBlockStateGet(int32_t fd);
+
+/**
+ * @brief 获取文件的长度
+ *
+ * @param file 文件
+ *
+ * @return 成功返回实际长度，失败返回-1
+ */
+long HyFileGetLen(const char *file);
 
 #ifdef __cplusplus
 }
