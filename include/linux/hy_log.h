@@ -79,11 +79,11 @@ typedef struct {
 /**
  * @brief 创建log模块
  *
- * @param config 配置参数
+ * @param log_c配置参数
  *
  * @return 成功返回句柄，失败返回NULL
  */
-void *HyLogCreate(HyLogConfig_s *config);
+void *HyLogCreate(HyLogConfig_s *log_c);
 
 /**
  * @brief 销毁log模块

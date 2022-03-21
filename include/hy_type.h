@@ -24,16 +24,17 @@
 extern "C" {
 #endif
 
+#include <stdio.h>
 #include <stdint.h>
 
 #ifndef BUF_LEN
 #define BUF_LEN (1024)
 #endif
 
-typedef char                hy_s8_t;
-typedef short               hy_s16_t;
-typedef int                 hy_s32_t;
-typedef long long           hy_s64_t;
+typedef signed char         hy_s8_t;
+typedef signed short        hy_s16_t;
+typedef signed int          hy_s32_t;
+typedef signed long long    hy_s64_t;
 
 typedef unsigned char       hy_u8_t;
 typedef unsigned short      hy_u16_t;
