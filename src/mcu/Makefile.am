@@ -58,8 +58,7 @@ if COMPILE_LIBHY_MCU
 _include_com    += $(HY_MCU_INCS)
 endif
 
-_sources_com    += \
-                   hy_demo.c
+_sources_com    += hy_log.c
 
 _cppflags_com   += \
                    $(_no_error_com)     \
