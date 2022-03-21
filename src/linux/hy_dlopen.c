@@ -58,3 +58,29 @@ void *HyDlLibOpen(const char *so_name)
     return handle;
 }
 
+/* 
+1, 获取LD_DEBUG帮助信息
+
+$ LD_DEBUG=help ls
+Valid options for the LD_DEBUG environment variable are:
+
+  libs        display library search paths
+  reloc       display relocation processing
+  files       display progress for input file
+  symbols     display symbol table processing
+  bindings    display information about symbol binding
+  versions    display version dependencies
+  scopes      display scope information
+  all         all previous options combined
+  statistics  display relocation statistics
+  unused      determined unused DSOs
+  help        display this help message and exit
+
+To direct the debugging output into a file instead of standard output
+a filename can be specified using the LD_DEBUG_OUTPUT environment variable.
+
+2，显示库搜索相关信息
+
+    LD_DEBUG=libs ./hello-world
+
+*/
