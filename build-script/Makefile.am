@@ -18,17 +18,5 @@
 #     last modified: 21/03 2022 19:12
 # ===============================================================
 
-if COMPILE_SELECT_VENDER_PC
-select_vender = pc
-endif
-
-if COMPILE_SELECT_VENDER_EEASYTECH
-select_vender = eeasytech
-endif
-
-if COMPILE_SELECT_VENDER_ARTERYTEK
-select_vender = arterytek
-endif
-
-SUBDIRS = $(select_vender)
+SUBDIRS = $(vender)
 

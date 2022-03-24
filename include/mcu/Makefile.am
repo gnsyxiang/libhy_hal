@@ -19,14 +19,14 @@
 # ===============================================================
 
 if COMPILE_SELECT_VENDER_ARTERYTEK
-_select_mcu_vender = arterytek
+_select_vender = arterytek
 endif
 
 if COMPILE_SELECT_VENDER_HDHC
-_select_mcu_vender = hdhc
+_select_vender = hdhc
 endif
 
-SUBDIRS = $(_select_mcu_vender)
+SUBDIRS = $(_select_vender)
 
 # ------------------
 # defining variables

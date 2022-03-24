@@ -18,9 +18,5 @@
 #     last modified: 21/03 2022 19:13
 # ===============================================================
 
-if COMPILE_SELECT_CHIP_PC
-select_chip = pc-chip
-endif
-
-SUBDIRS = $(select_chip)
+SUBDIRS = $(chip)
 

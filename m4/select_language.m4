@@ -45,6 +45,8 @@ AC_DEFUN([SELECT_LANGUAGE],
             ;;
         esac
 
+        AC_SUBST(language)
+
         AM_CONDITIONAL([COMPILE_SELECT_LANGUAGE_CN],        [test "x$with_language" = "xcn"])
         AM_CONDITIONAL([COMPILE_SELECT_LANGUAGE_EN],        [test "x$with_language" = "xen"])
     ])

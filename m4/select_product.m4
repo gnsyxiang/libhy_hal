@@ -59,6 +59,8 @@ AC_DEFUN([SELECT_PRODUCT],
             ;;
         esac
 
+        AC_SUBST(product)
+
         AM_CONDITIONAL([COMPILE_SELECT_PRODUCT_PC],             [test "x$with_product" = "xpc"])
         AM_CONDITIONAL([COMPILE_SELECT_PRODUCT_HY_8608],        [test "x$with_product" = "xHY-8608"])
         AM_CONDITIONAL([COMPILE_SELECT_PRODUCT_HY_8608E],       [test "x$with_product" = "xHY-8608E"])
