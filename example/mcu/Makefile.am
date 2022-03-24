@@ -18,15 +18,15 @@
 #     last modified: 29/10 2021 20:55
 # ===============================================================
 
-if COMPILE_SELECT_MCU_VENDER_AT
-_mcu_vender = at
+if COMPILE_SELECT_VENDER_ARTERYTEK
+_select_mcu_vender = arterytek
 endif
 
-if COMPILE_SELECT_MCU_VENDER_HC
-_mcu_vender = hc
+if COMPILE_SELECT_VENDER_HDHC
+_select_mcu_vender = hdhc
 endif
 
-SUBDIRS = $(_mcu_vender)
+SUBDIRS = $(_select_mcu_vender)
 
 # ------------------
 # defining variables
@@ -74,9 +74,9 @@ _include_com    += $(HY_MCU_INCS)
 _ldadd_com      += $(HY_MCU_LIBS)
 endif
 
-if COMPILE_SELECT_MCU_VENDER_AT
-if COMPILE_SELECT_MCU_CHIP_AT32F4XX
-_ldflags_com    += -T$(top_srcdir)/src/mcu/at/at32f4xx/AT32F407xG_FLASH.ld
+if COMPILE_SELECT_VENDER_ARTERYTEK
+if COMPILE_SELECT_CHIP_AT32F4XX
+_ldflags_com    += -T$(top_srcdir)/src/mcu/arterytek/at32f4xx/AT32F407xG_FLASH.ld
 endif
 endif
 

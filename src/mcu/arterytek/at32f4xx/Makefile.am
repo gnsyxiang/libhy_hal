@@ -77,3 +77,4 @@ libmcu_la_LIBADD     = $(_ldadd_com)
 # ---------------
 _dist_files_com     += AT32F407xG_FLASH.ld
 EXTRA_DIST          = $(_dist_files_com)
+

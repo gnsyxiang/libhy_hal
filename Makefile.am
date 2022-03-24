@@ -70,3 +70,4 @@ install-exec-hook:
 		sed -i "s/^Requires:/Requires: hy_mcu/g" $(top_builddir)/@project_name@.pc; \
 	fi
 endif
+

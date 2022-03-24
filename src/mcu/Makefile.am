@@ -18,15 +18,15 @@
 #     last modified: 29/10 2021 21:00
 # ===============================================================
 
-if COMPILE_SELECT_MCU_VENDER_AT
-_mcu_vender = at
+if COMPILE_SELECT_VENDER_ARTERYTEK
+_select_mcu_vender = arterytek
 endif
 
-if COMPILE_SELECT_MCU_VENDER_HC
-_mcu_vender = hc
+if COMPILE_SELECT_VENDER_HDHC
+_select_mcu_vender = hdhc
 endif
 
-SUBDIRS = $(_mcu_vender)
+SUBDIRS = $(_select_mcu_vender)
 
 noinst_LTLIBRARIES = libhy_hal_os.la
 
@@ -71,7 +71,7 @@ _cxxflags_com   +=
 
 _ldflags_com    +=
 
-_ldadd_com      += $(top_builddir)/src/mcu/$(_mcu_vender)/libmcu_vender.la
+_ldadd_com      += $(top_builddir)/src/mcu/$(_select_mcu_vender)/libmcu_vender.la
 
 libhy_hal_os_la_SOURCES    = $(_sources_com)
 libhy_hal_os_la_CPPFLAGS   = $(_cppflags_com)
@@ -79,3 +79,4 @@ libhy_hal_os_la_CFLAGS     = $(_cflags_com)
 libhy_hal_os_la_CXXFLAGS   = $(_cxxflags_com)
 libhy_hal_os_la_LDFLAGS    = $(_ldflags_com)
 libhy_hal_os_la_LIBADD     = $(_ldadd_com)
+

@@ -2,6 +2,10 @@
 
 chip=at32f4xx
 
+product=HY-MCU-6606
+
+language=cn en
+
 host=arm-none-eabi
 cross_gcc_path=/opt/toolchains/MCU/gcc-arm-none-eabi-5_4-2016q3/bin/arm-none-eabi-
 
@@ -13,5 +17,5 @@ cxxflag=
 ldflag=-specs=nano.specs -specs=nosys.specs -mcpu=cortex-m4 -mthumb -mfpu=fpv4-sp-d16 -mfloat-abi=hard
 lib=
 
-install_path=/opt/data/nfs/install/MCU/at/at32f4xx
+install_path=/opt/data/nfs/install/MCU/arterytek/at32f4xx
 

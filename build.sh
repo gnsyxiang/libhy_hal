@@ -24,11 +24,7 @@ select_vender()
 
     _flag="false"
     for i in `find ./build-script/ -maxdepth 1 -type d`; do
-        _i="${i##*/}"
-        if [[ ${#_i} = 0 ]]; then
-            continue
-        fi
-        if [[ $_i = ${usr_select_vender} ]]; then
+        if [[ ${i##*/} = ${usr_select_vender} ]]; then
             _flag="true"
             break
         fi
@@ -38,17 +34,7 @@ select_vender()
         exit
     fi
 
-    platform_type=""
-    case ${usr_select_vender} in
-        pc | eeasytech)
-            configure_param="${configure_param} --with-platform=linux"
-            platform_type="linux"
-            ;;
-        arterytek)
-            configure_param="${configure_param} --with-platform=mcu"
-            platform_type="mcu"
-            ;;
-    esac
+    configure_param="${configure_param} --with-vender=${usr_select_vender}"
 }
 
 select_chip()
@@ -77,7 +63,63 @@ select_chip()
         exit
     fi
 
-    configure_param="${configure_param} --with-mcu_chip=${usr_select_chip}"
+    configure_param="${configure_param} --with-chip=${usr_select_chip}"
+}
+
+select_product()
+{
+    echo "support product: "
+    _product_file=./build-script/${usr_select_vender}/${usr_select_chip}/config.sh
+
+    _product=`sed '/^product=/!d;s/.*=//' $_product_file`
+
+    format_str_array_output "${_product}"
+
+    echo -n "please select product: "
+    read usr_select_product
+
+    _flag="false"
+    _product_array=(`echo ${_product}`)
+    for i in ${_product_array[@]}; do
+        if [[ $i = ${usr_select_product} ]]; then
+            _flag="true"
+            break
+        fi
+    done
+    if [[ ${_flag} != "true" ]]; then
+        echo "error select product !!!"
+        exit
+    fi
+
+    configure_param="${configure_param} --with-product=${usr_select_product}"
+}
+
+select_language()
+{
+    echo "support language: "
+    _product_file=./build-script/${usr_select_vender}/${usr_select_chip}/config.sh
+
+    _language=`sed '/^language=/!d;s/.*=//' $_product_file`
+
+    format_str_array_output "${_language}"
+
+    echo -n "please select language: "
+    read usr_select_language
+
+    _flag="false"
+    _language_array=(`echo ${_language}`)
+    for i in ${_language_array[@]}; do
+        if [[ $i = ${usr_select_language} ]]; then
+            _flag="true"
+            break
+        fi
+    done
+    if [[ ${_flag} != "true" ]]; then
+        echo "error select language !!!"
+        exit
+    fi
+
+    configure_param="${configure_param} --with-language=${usr_select_language}"
 }
 
 select_build_version()
@@ -136,14 +178,13 @@ get_config()
     gcc_version=`sed '/^gcc_version=/!d;s/.*=//' $_config_file`
     cross_gcc_path=`sed '/^cross_gcc_path=/!d;s/.*=//' $_config_file`
 
-    _cppflag=`sed '/^cppflag=/!d;s/^cppflag=//' $_config_file`
-    _cflag=`sed '/^cflag=/!d;s/^cflag=//' $_config_file`
-    _cxxflag=`sed '/^cxxflag=/!d;s/^cxxflag=//' $_config_file`
-    _ldflag=`sed '/^ldflag=/!d;s/^ldflag=//' $_config_file`
-    _lib=`sed '/^lib=/!d;s/^lib=//' $_config_file`
+    _cppflag=`sed '/^cppflag=/!d;s/cppflag=//' $_config_file`
+    _cflag=`sed '/^cflag=/!d;s/cflag=//' $_config_file`
+    _cxxflag=`sed '/^cxxflag=/!d;s/cxxflag=//' $_config_file`
+    _ldflag=`sed '/^ldflag=/!d;s/ldflag=//' $_config_file`
+    _lib=`sed '/^lib=/!d;s/lib=//' $_config_file`
 
-    _install_path=`sed '/^install_path=/!d;s/.*=//' $_config_file`
-    install_path=${_install_path}
+    install_path=`sed '/^install_path=/!d;s/.*=//' $_config_file`
 
     cppflag="${cppflag} ${_cppflag}"
     cflag="${cflag} ${_cflag}"
@@ -155,9 +196,9 @@ get_config()
 }
 
 select_vender
-if [[ ${platform_type} = "mcu" ]]; then
-    select_chip
-fi
+select_chip
+# select_product
+# select_language
 select_build_version
 get_com_config
 get_config

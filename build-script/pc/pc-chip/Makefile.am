@@ -5,7 +5,7 @@
 # @file    Makefile.am
 # @brief   
 # @author  gnsyxiang <gnsyxiang@163.com>
-# @date    21/03 2022 19:13
+# @date    21/03 2022 19:14
 # @version v0.0.1
 # 
 # @since    note
@@ -15,12 +15,23 @@
 #     NO.     Author              Date            Modified
 #     00      zhenquan.qiu        21/03 2022      create the file
 # 
-#     last modified: 21/03 2022 19:13
+#     last modified: 21/03 2022 19:14
 # ===============================================================
 
-if COMPILE_SELECT_CHIP_PC
-select_chip = pc-chip
-endif
+# ------------------
+# defining variables
+# ------------------
+_dist_file_com  =
 
-SUBDIRS = $(select_chip)
+# ------------------
+# make install files
+# ------------------
+
+
+# ---------------
+# make dist files
+# ---------------
+_dist_file_com  += config.sh
+
+EXTRA_DIST      = $(_dist_file_com)
 

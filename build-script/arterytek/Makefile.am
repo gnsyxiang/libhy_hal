@@ -18,4 +18,9 @@
 #     last modified: 12/03 2022 17:12
 # ===============================================================
 
-SUBDIRS = at32f4xx
+if COMPILE_SELECT_CHIP_AT32F4XX
+select_chip = at32f4xx
+endif
+
+SUBDIRS = $(select_chip)
+

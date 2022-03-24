@@ -18,15 +18,19 @@
 #     last modified: 05/03 2021 10:35
 # ===============================================================
 
-if COMPILE_SELECT_PLATFORM_LINUX
-select_platform = linux
+if COMPILE_SELECT_VENDER_PC
+_select_vender = linux
 endif
 
-if COMPILE_SELECT_PLATFORM_MCU
-select_platform = mcu
+if COMPILE_SELECT_VENDER_EEASYTECH
+_select_vender = linux
 endif
 
-SUBDIRS = $(select_platform)
+if COMPILE_SELECT_VENDER_ARTERYTEK
+_select_vender = mcu
+endif
+
+SUBDIRS = $(_select_vender)
 
 lib_LTLIBRARIES = lib@project_name@.la
 
@@ -71,7 +75,7 @@ _ldflags_com    += \
                    -export-symbols-regex 'Hy*'                  \
                    -version-info @current@:@revision@:@age@
 
-_ldadd_com      += $(top_builddir)/src/$(select_platform)/libhy_hal_os.la
+_ldadd_com      += $(top_builddir)/src/$(_select_vender)/libhy_hal_os.la
 
 lib@project_name@_la_SOURCES    = $(_sources_com)
 lib@project_name@_la_CPPFLAGS   = $(_cppflags_com)

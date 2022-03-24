@@ -18,15 +18,15 @@
 #     last modified: 29/10 2021 20:59
 # ===============================================================
 
-if COMPILE_SELECT_MCU_VENDER_AT
-_mcu_vender = at
+if COMPILE_SELECT_VENDER_ARTERYTEK
+_select_mcu_vender = arterytek
 endif
 
-if COMPILE_SELECT_MCU_VENDER_HC
-_mcu_vender = hc
+if COMPILE_SELECT_VENDER_HDHC
+_select_mcu_vender = hdhc
 endif
 
-SUBDIRS = $(_mcu_vender)
+SUBDIRS = $(_select_mcu_vender)
 
 # ------------------
 # defining variables

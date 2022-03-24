@@ -36,8 +36,10 @@ AC_PROG_LN_S
 AC_PROG_MAKE_SET
 # AC_PROG_RANLIB
 
-SELECT_PLATFORM
-SELECT_MCU_CHIP
+SELECT_VENDER
+SELECT_CHIP
+SELECT_PRODUCT
+SELECT_LANGUAGE
 
 CHECK_LIBHY_MCU
 
@@ -84,28 +86,30 @@ AC_CONFIG_FILES([Makefile
                  build-script/arterytek/Makefile
                  build-script/arterytek/at32f4xx/Makefile
                  build-script/eeasytech/Makefile
+                 build-script/eeasytech/SV823/Makefile
                  build-script/pc/Makefile
+                 build-script/pc/pc-chip/Makefile
                  doc/Makefile
                  example/Makefile
                  example/linux/Makefile
                  example/linux/thread/Makefile
                  example/mcu/Makefile
-                 example/mcu/at/Makefile
-                 example/mcu/hc/Makefile
+                 example/mcu/arterytek/Makefile
+                 example/mcu/hdhc/Makefile
                  include/Makefile
                  include/linux/Makefile
                  include/linux/thread/Makefile
                  include/mcu/Makefile
-                 include/mcu/at/Makefile
-                 include/mcu/hc/Makefile
+                 include/mcu/arterytek/Makefile
+                 include/mcu/hdhc/Makefile
                  res/Makefile
                  src/Makefile
                  src/linux/Makefile
                  src/linux/thread/Makefile
                  src/mcu/Makefile
-                 src/mcu/at/Makefile
-                 src/mcu/at/at32f4xx/Makefile
-                 src/mcu/hc/Makefile])
+                 src/mcu/arterytek/Makefile
+                 src/mcu/arterytek/at32f4xx/Makefile
+                 src/mcu/hdhc/Makefile])
 AC_OUTPUT
 
 AC_MSG_RESULT([
