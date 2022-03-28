@@ -18,19 +18,7 @@
 #     last modified: 05/03 2021 10:35
 # ===============================================================
 
-if COMPILE_SELECT_VENDER_PC
-_select_vender = linux
-endif
-
-if COMPILE_SELECT_VENDER_EEASYTECH
-_select_vender = linux
-endif
-
-if COMPILE_SELECT_VENDER_ARTERYTEK
-_select_vender = mcu
-endif
-
-SUBDIRS = $(_select_vender)
+SUBDIRS = $(run_os)
 
 # ------------------
 # defining variables

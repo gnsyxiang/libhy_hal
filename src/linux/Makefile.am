@@ -43,7 +43,7 @@ _no_error_com   +=
 _define_com     += -D_GNU_SOURCE
 
 _include_com    += \
-                   -I$(top_srcdir)/include/linux    \
+                   -I$(top_srcdir)/include/$(run_os) \
                    -I$(top_srcdir)/include
 
 _sources_com    += \
@@ -69,7 +69,7 @@ _cxxflags_com   +=
 
 _ldflags_com    +=
 
-_ldadd_com      += $(top_builddir)/src/linux/thread/libhy_hal_os_thread.la
+_ldadd_com      += $(top_builddir)/src/$(run_os)/thread/libhy_hal_os_thread.la
 
 libhy_hal_os_la_SOURCES    = $(_sources_com)
 libhy_hal_os_la_CPPFLAGS   = $(_cppflags_com)
@@ -77,3 +77,4 @@ libhy_hal_os_la_CFLAGS     = $(_cflags_com)
 libhy_hal_os_la_CXXFLAGS   = $(_cxxflags_com)
 libhy_hal_os_la_LDFLAGS    = $(_ldflags_com)
 libhy_hal_os_la_LIBADD     = $(_ldadd_com)
+

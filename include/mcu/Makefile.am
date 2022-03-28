@@ -18,15 +18,7 @@
 #     last modified: 29/10 2021 20:59
 # ===============================================================
 
-if COMPILE_SELECT_VENDER_ARTERYTEK
-_select_vender = arterytek
-endif
-
-if COMPILE_SELECT_VENDER_HDHC
-_select_vender = hdhc
-endif
-
-SUBDIRS = $(_select_vender)
+SUBDIRS = $(vender)
 
 # ------------------
 # defining variables
@@ -48,3 +40,4 @@ _install_headers_com    += hy_log.h
 # ------------------
 noinst_HEADERS          = $(_no_install_headers_com)
 install_include_HEADERS = $(_install_headers_com)
+

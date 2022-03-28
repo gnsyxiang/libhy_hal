@@ -18,19 +18,7 @@
 #     last modified: 05/03 2021 10:35
 # ===============================================================
 
-if COMPILE_SELECT_VENDER_PC
-_select_vender = linux
-endif
-
-if COMPILE_SELECT_VENDER_EEASYTECH
-_select_vender = linux
-endif
-
-if COMPILE_SELECT_VENDER_ARTERYTEK
-_select_vender = mcu
-endif
-
-SUBDIRS = $(_select_vender)
+SUBDIRS = $(run_os)
 
 lib_LTLIBRARIES = lib@project_name@.la
 
@@ -55,8 +43,8 @@ _no_error_com   +=
 _define_com     +=
 
 _include_com    += \
-                   -I$(top_srcdir)/include      \
-                   -I$(top_srcdir)/include/mcu
+                   -I$(top_srcdir)/include/$(run_os)    \
+                   -I$(top_srcdir)/include
 
 _sources_com    += \
                    hy_mem.c     \
@@ -75,7 +63,7 @@ _ldflags_com    += \
                    -export-symbols-regex 'Hy*'                  \
                    -version-info @current@:@revision@:@age@
 
-_ldadd_com      += $(top_builddir)/src/$(_select_vender)/libhy_hal_os.la
+_ldadd_com      += $(top_builddir)/src/$(run_os)/libhy_hal_os.la
 
 lib@project_name@_la_SOURCES    = $(_sources_com)
 lib@project_name@_la_CPPFLAGS   = $(_cppflags_com)

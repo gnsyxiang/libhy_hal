@@ -35,3 +35,28 @@ _dist_file_com  += config.sh
 
 EXTRA_DIST      = $(_dist_file_com)
 
+dist-hook:
+	@echo "modify configure.ac"; \
+		\
+		sed -i 's/product=.*/product=$(product)/g' $(top_distdir)/build-script/$(vender)/$(chip)/config.sh; \
+		\
+		sed -i '/ build-script\//d' $(top_distdir)/configure.ac; \
+		sed -i '/project_name.pc/a build-script/$(vender)/$(chip)/Makefile' $(top_distdir)/configure.ac; \
+		sed -i '/project_name.pc/a build-script/$(vender)/Makefile' $(top_distdir)/configure.ac; \
+		sed -i '/project_name.pc/a build-script/Makefile' $(top_distdir)/configure.ac; \
+		\
+		sed -i '/ example\//d' $(top_distdir)/configure.ac; \
+		sed -i '/ doc\/Makefile/a example/Makefile' $(top_distdir)/configure.ac; \
+		sed -i '/ doc\/Makefile/a example/$(run_os)/Makefile' $(top_distdir)/configure.ac; \
+		sed -i '/ doc\/Makefile/a example/$(run_os)/thread/Makefile' $(top_distdir)/configure.ac; \
+		\
+		sed -i '/ include\//d' $(top_distdir)/configure.ac; \
+		sed -i '/ res\/Makefile/i include/Makefile' $(top_distdir)/configure.ac; \
+		sed -i '/ res\/Makefile/i include/$(run_os)/Makefile' $(top_distdir)/configure.ac; \
+		sed -i '/ res\/Makefile/i include/$(run_os)/thread/Makefile' $(top_distdir)/configure.ac; \
+		\
+		sed -i '/ src\//d' $(top_distdir)/configure.ac; \
+		sed -i '/ res\/Makefile/a src/Makefile' $(top_distdir)/configure.ac; \
+		sed -i '/ res\/Makefile/a src/$(run_os)/Makefile' $(top_distdir)/configure.ac; \
+		sed -i '/ res\/Makefile/a src/$(run_os)/thread/Makefile' $(top_distdir)/configure.ac
+

@@ -18,11 +18,7 @@
 #     last modified: 08/11 2021 16:01
 # ===============================================================
 
-if COMPILE_SELECT_CHIP_AT32F4XX
-_select_chip = at32f4xx
-endif
-
-SUBDIRS = $(_select_chip)
+SUBDIRS = $(chip)
 
 noinst_LTLIBRARIES = libmcu_vender.la
 
@@ -47,7 +43,7 @@ _no_error_com   +=
 _define_com     +=
 
 _include_com    += \
-                   -I$(top_srcdir)/include/mcu  \
+                   -I$(top_srcdir)/include/$(run_os) \
                    -I$(top_srcdir)/include
 
 if COMPILE_LIBHY_MCU
@@ -67,7 +63,7 @@ _cxxflags_com   +=
 
 _ldflags_com    +=
 
-_ldadd_com      += $(top_builddir)/src/mcu/arterytek/$(_select_chip)/libmcu.la
+_ldadd_com      += $(top_builddir)/src/$(run_os)/$(vender)/$(chip)/libmcu.la
 
 libmcu_vender_la_SOURCES    = $(_sources_com)
 libmcu_vender_la_CPPFLAGS   = $(_cppflags_com)

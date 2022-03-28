@@ -109,7 +109,8 @@ AC_CONFIG_FILES([Makefile
                  src/mcu/Makefile
                  src/mcu/arterytek/Makefile
                  src/mcu/arterytek/at32f4xx/Makefile
-                 src/mcu/hdhc/Makefile])
+                 src/mcu/hdhc/Makefile
+                 ]) # for make dist
 AC_OUTPUT
 
 AC_MSG_RESULT([

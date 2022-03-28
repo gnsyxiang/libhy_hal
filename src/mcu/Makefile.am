@@ -18,15 +18,7 @@
 #     last modified: 29/10 2021 21:00
 # ===============================================================
 
-if COMPILE_SELECT_VENDER_ARTERYTEK
-_select_vender = arterytek
-endif
-
-if COMPILE_SELECT_VENDER_HDHC
-_select_vender = hdhc
-endif
-
-SUBDIRS = $(_select_vender)
+SUBDIRS = $(vender)
 
 noinst_LTLIBRARIES = libhy_hal_os.la
 
@@ -51,7 +43,7 @@ _no_error_com   +=
 _define_com     +=
 
 _include_com    += \
-                   -I$(top_srcdir)/include/mcu  \
+                   -I$(top_srcdir)/include/$(run_os) \
                    -I$(top_srcdir)/include
 
 if COMPILE_LIBHY_MCU
@@ -71,7 +63,7 @@ _cxxflags_com   +=
 
 _ldflags_com    +=
 
-_ldadd_com      += $(top_builddir)/src/mcu/$(_select_vender)/libmcu_vender.la
+_ldadd_com      += $(top_builddir)/src/$(run_os)/$(vender)/libmcu_vender.la
 
 libhy_hal_os_la_SOURCES    = $(_sources_com)
 libhy_hal_os_la_CPPFLAGS   = $(_cppflags_com)

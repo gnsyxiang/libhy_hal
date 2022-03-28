@@ -25,6 +25,7 @@ dnl ===============================================================
 AC_DEFUN([SELECT_VENDER],
     [
         vender=""
+        run_os=""
 
         AC_ARG_WITH([vender],
             [AS_HELP_STRING([--with-vender=@<:@pc|eeasytech|arterytek|hdhc@:>@], [select vender about @<:@pc|eeasytech|arterytek|hdhc@:>@ @<:@default=pc@:>@])],
@@ -35,18 +36,22 @@ AC_DEFUN([SELECT_VENDER],
             pc)
                 AC_DEFINE(HAVE_SELECT_VENDER_PC,  1, [select pc vender])
                 vender="pc"
+                run_os="linux"
             ;;
             eeasytech)
                 AC_DEFINE(HAVE_SELECT_VENDER_EEASYTECH,  1, [select eeasytech vender])
                 vender="eeasytech"
+                run_os="linux"
             ;;
             arterytek)
                 AC_DEFINE(HAVE_SELECT_VENDER_ARTERYTEK,  1, [select arterytek vender])
                 vender="arterytek"
+                run_os="mcu"
             ;;
             hdhc)
                 AC_DEFINE(HAVE_SELECT_VENDER_HDHC,  1, [select hdhc vender])
                 vender="hdhc"
+                run_os="mcu"
             ;;
             *)
                 AC_MSG_ERROR([bad value ${with_vender} for --with-vender=@<:@pc|eeasytech|arterytek|hdhc@:>@])
@@ -54,6 +59,7 @@ AC_DEFUN([SELECT_VENDER],
         esac
 
         AC_SUBST(vender)
+        AC_SUBST(run_os)
 
         AM_CONDITIONAL([COMPILE_SELECT_VENDER_PC],          [test "x$with_vender" = "xpc"])
         AM_CONDITIONAL([COMPILE_SELECT_VENDER_EEASYTECH],   [test "x$with_vender" = "xeeasytech"])
