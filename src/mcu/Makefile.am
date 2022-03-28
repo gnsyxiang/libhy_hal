@@ -26,6 +26,8 @@ if COMPILE_SELECT_VENDER_HDHC
 _select_vender = hdhc
 endif
 
+SUBDIRS = $(_select_vender)
+
 noinst_LTLIBRARIES = libhy_hal_os.la
 
 # ------------------
