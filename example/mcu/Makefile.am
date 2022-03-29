@@ -25,7 +25,7 @@ SUBDIRS = $(vender)
 # ------------------
 _no_error_com   =
 _define_com     =
-_include_com    =
+_include_com    = $(include_com)
 _sources_com    =
 _cppflags_com   =
 _cflags_com     =
@@ -59,12 +59,9 @@ _cxxflags_com   +=
 
 _ldflags_com    +=
 
-_ldadd_com      += $(top_builddir)/src/lib@project_name@.la
-
-if COMPILE_LIBHY_MCU
-_include_com    += $(HY_MCU_INCS)
-_ldadd_com      += $(HY_MCU_LIBS)
-endif
+_ldadd_com      += \
+                   $(top_builddir)/src/lib@project_name@.la \
+                   $(ldadd_com)
 
 if COMPILE_SELECT_VENDER_ARTERYTEK
 if COMPILE_SELECT_CHIP_AT32F4XX
@@ -95,3 +92,4 @@ endif
 # 		@gcc_prefix@objcopy -O binary $$file $$file.bin; \
 # 	done
 # 	$(INSTALL_PROGRAM_ENV) $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(INSTALL_PROGRAM) *.bin "$(DESTDIR)$(bindir)$$dir"
+

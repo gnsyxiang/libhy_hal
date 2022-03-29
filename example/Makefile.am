@@ -25,7 +25,7 @@ SUBDIRS = $(run_os)
 # ------------------
 _no_error_com   =
 _define_com     =
-_include_com    =
+_include_com    = $(include_com)
 _sources_com    =
 _cppflags_com   =
 _cflags_com     =
@@ -56,5 +56,7 @@ _cxxflags_com   +=
 
 _ldflags_com    +=
 
-_ldadd_com      += $(top_builddir)/src/lib@project_name@.la
+_ldadd_com      += \
+                   $(top_builddir)/src/lib@project_name@.la \
+                   $(ldadd_com)
 

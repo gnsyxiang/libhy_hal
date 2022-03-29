@@ -25,7 +25,7 @@ noinst_LTLIBRARIES = libhy_hal_os_thread.la
 # ------------------
 _no_error_com   =
 _define_com     =
-_include_com    =
+_include_com    = $(include_com)
 _sources_com    =
 _cppflags_com   =
 _cflags_com     =
@@ -60,7 +60,7 @@ _cxxflags_com   +=
 
 _ldflags_com    +=
 
-_ldadd_com      +=
+_ldadd_com      += $(lib_com)
 
 libhy_hal_os_thread_la_SOURCES      = $(_sources_com)
 libhy_hal_os_thread_la_CPPFLAGS     = $(_cppflags_com)
@@ -68,3 +68,4 @@ libhy_hal_os_thread_la_CFLAGS       = $(_cflags_com)
 libhy_hal_os_thread_la_CXXFLAGS     = $(_cxxflags_com)
 libhy_hal_os_thread_la_LDFLAGS      = $(_ldflags_com)
 libhy_hal_os_thread_la_LIBADD       = $(_ldadd_com)
+

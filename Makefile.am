@@ -21,20 +21,31 @@
 include res/doxygen.am
 
 SUBDIRS = \
-          build-script  \
           include       \
           src           \
           doc           \
           example       \
-          res
+          res           \
+          build-script
 
 # ------------------
 # defining variables
 # ------------------
 _install_files_com  =
 _dist_files_com     =
+include_com         =
+ldadd_com           =
 
 ACLOCAL_AMFLAGS     = -I m4
+include_com         += $(ACLOCAL_AMFLAGS)
+
+if COMPILE_LIBHY_MCU
+include_com         += $(HY_MCU_INCS)
+ldadd_com           += $(HY_MCU_LIBS)
+endif
+
+export include_com
+export ldadd_com 
 
 # ---------------------
 # add necessary content

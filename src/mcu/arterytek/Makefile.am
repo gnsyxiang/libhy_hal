@@ -27,7 +27,7 @@ noinst_LTLIBRARIES = libmcu_vender.la
 # ------------------
 _no_error_com   =
 _define_com     =
-_include_com    =
+_include_com    = $(include_com)
 _sources_com    =
 _cppflags_com   =
 _cflags_com     =
@@ -46,10 +46,6 @@ _include_com    += \
                    -I$(top_srcdir)/include/$(run_os) \
                    -I$(top_srcdir)/include
 
-if COMPILE_LIBHY_MCU
-_include_com    += $(HY_MCU_INCS)
-endif
-
 _sources_com    +=
 
 _cppflags_com   += \
@@ -63,7 +59,9 @@ _cxxflags_com   +=
 
 _ldflags_com    +=
 
-_ldadd_com      += $(top_builddir)/src/$(run_os)/$(vender)/$(chip)/libmcu.la
+_ldadd_com      += \
+                   $(top_builddir)/src/$(run_os)/$(vender)/$(chip)/libmcu.la \
+                   $(ldadd_com)
 
 libmcu_vender_la_SOURCES    = $(_sources_com)
 libmcu_vender_la_CPPFLAGS   = $(_cppflags_com)
