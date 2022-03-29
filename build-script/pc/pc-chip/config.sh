@@ -6,7 +6,6 @@ product=HY-pc
 
 language=cn en
 
-gcc_version=x86_64-linux-gnu
 host=
 cross_gcc_path=
 
