@@ -43,13 +43,14 @@ hy_s32_t HYSocketRead(void *handle, void *buf, hy_u32_t len)
     HY_ASSERT(buf);
 
     hy_s32_t ret = 0;
-    hy_s32_t fd = ((_socket_context_s *)handle)->fd;
+    _socket_context_s *context = handle;
 
-    ret = HyFileReadN(fd, buf, len);
+    ret = HyFileReadN(context->fd, buf, len);
     if (-1 == ret) {
         LOGE("hy file read n failed \n");
 
-        close(fd);
+        close(context->fd);
+        context->fd = -1;
         return -1;
     } else if (ret >= 0 && ret != (hy_s32_t)len) {
         LOGE("hy file read n error \n");
@@ -160,7 +161,9 @@ void HySocketDestroy(void **handle)
     LOGI("socket destroy, context: %p, fd: %d \n", context, context->fd);
 
     context->exit_flag = 1;
-    close(context->fd);
+    if (context->fd > 0) {
+        close(context->fd);
+    }
 
     HY_MEM_FREE_PP(handle);
 }
