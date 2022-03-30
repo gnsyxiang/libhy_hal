@@ -22,8 +22,6 @@
 #include <string.h>
 #include <unistd.h>
 
-#include "hy_uart.h"
-
 #include "hy_type.h"
 #include "hy_mem.h"
 #include "hy_string.h"
@@ -31,6 +29,8 @@
 #include "hy_module.h"
 #include "hy_hal_utils.h"
 #include "hy_log.h"
+
+#include "hy_uart.h"
 
 #define _APP_NAME "hy_uart_demo"
 
@@ -103,19 +103,21 @@ static _main_context_t *_module_create(void)
     signal_c.save_c.user_cb       = _signal_user_cb;
     signal_c.save_c.args          = context;
 
-    HyUartConfig_t uart_config;
-    uart_config.save_config.speed           = HY_UART_SPEED_115200;
-    uart_config.save_config.flow_control    = HY_UART_FLOW_CONTROL_NONE;
-    uart_config.save_config.data_bit        = HY_UART_DATA_BIT_8;
-    uart_config.save_config.parity_type     = HY_UART_PARITY_NONE;
-    uart_config.save_config.stop_bit        = HY_UART_STOP_BIT_1;
-    HY_STRNCPY(uart_config.dev_path_name, HY_UART_DEV_PATH_NAME_LEN, "/dev/ttyUSB0", HY_STRLEN("/dev/ttyUSB0"));
+    HyUartConfig_t uart_c;
+    uart_c.save_c.speed           = HY_UART_SPEED_115200;
+    uart_c.save_c.flow_control    = HY_UART_FLOW_CONTROL_NONE;
+    uart_c.save_c.data_bit        = HY_UART_DATA_BIT_8;
+    uart_c.save_c.parity_type     = HY_UART_PARITY_NONE;
+    uart_c.save_c.stop_bit        = HY_UART_STOP_BIT_1;
+    #define _DEV_PATH "/dev/ttyUSB0"
+    HY_STRNCPY(uart_c.dev_path, HY_UART_DEV_PATH_LEN_MAX,
+            _DEV_PATH, HY_STRLEN(_DEV_PATH));
 
     // note: 增加或删除要同步到module_destroy_t中
     module_create_t module[] = {
         {"log",     &context->log_h,       &log_c,          (create_t)HyLogCreate,      HyLogDestroy},
         {"signal",  &context->signal_h,    &signal_c,       (create_t)HySignalCreate,   HySignalDestroy},
-        {"uart",    &context->uart_h,      &uart_config,    (create_t)HyUartCreate,     HyUartDestroy},
+        {"uart",    &context->uart_h,      &uart_c,         (create_t)HyUartCreate,     HyUartDestroy},
     };
 
     RUN_CREATE(module);
@@ -133,17 +135,20 @@ int main(int argc, char *argv[])
 
     LOGE("version: %s, data: %s, time: %s \n", "0.1.0", __DATE__, __TIME__);
 
-    ssize_t ret;
+    hy_s32_t ret;
     char buf[BUF_LEN] = {0};
     while (!context->exit_flag) {
-        ret = HyUartRead(context->uart_h, buf, 12);
+        HY_MEMSET(buf, sizeof(buf));
+        ret = HyUartRead(context->uart_h, buf, 1024);
         if (ret == -1) {
-            break;
+            LOGI("ret: %d \n", ret);
+            usleep(100);
+            continue;
         }
 
-        HY_LOG_HEX_ASCII(buf, ret);
+        printf("%s", buf);
 
-        sleep(1);
+        // HY_LOG_HEX_ASCII(buf, ret);
     }
 
     _module_destroy(&context);
