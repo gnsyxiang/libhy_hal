@@ -42,6 +42,16 @@ hy_s32_t HYSocketRead(void *handle, void *buf, hy_u32_t len)
     HY_ASSERT(handle);
     HY_ASSERT(buf);
 
+    _socket_context_s *context = handle;
+
+    return read(context->fd, buf, len);
+}
+
+hy_s32_t HYSocketReadN(void *handle, void *buf, hy_u32_t len)
+{
+    HY_ASSERT(handle);
+    HY_ASSERT(buf);
+
     hy_s32_t ret = 0;
     _socket_context_s *context = handle;
 

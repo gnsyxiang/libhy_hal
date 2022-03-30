@@ -87,9 +87,20 @@ void HySocketDestroy(void **handle);
  * @param buf 数据地址
  * @param len 数据长度
  *
- * @return 成功返回读到的字节数，失败返回-1
+ * @return 跟read返回值一样，需要根据返回值判断
  */
 hy_s32_t HYSocketRead(void *handle, void *buf, hy_u32_t len);
+
+/**
+ * @brief 读取数据
+ *
+ * @param handle 句柄
+ * @param buf 数据地址
+ * @param len 数据长度
+ *
+ * @return 成功返回读到的字节数，失败返回-1
+ */
+hy_s32_t HYSocketReadN(void *handle, void *buf, hy_u32_t len);
 
 /**
  * @brief 写入数据
