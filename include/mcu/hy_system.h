@@ -24,8 +24,7 @@
 extern "C" {
 #endif
 
-#include <stdio.h>
-#include <stdint.h>
+#include "hy_hal/hy_type.h"
 
 typedef struct {
     void (*sys_tick_cb)(void *args);
@@ -44,9 +43,9 @@ void HySystemDeepSleep(void);
 // #define USE_SYSTICK_DELAY
 
 #ifdef USE_SYSTICK_DELAY
-void HySystemDelayUs(uint32_t us);
-void HySystemDelayMs(uint32_t ms);
-void HySystemDelayS(uint32_t s);
+void HySystemDelayUs(hy_u32_t us);
+void HySystemDelayMs(hy_u32_t ms);
+void HySystemDelayS(hy_u32_t s);
 #endif
 
 #ifdef __cplusplus

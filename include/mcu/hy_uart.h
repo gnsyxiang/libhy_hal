@@ -24,8 +24,7 @@
 extern "C" {
 #endif
 
-#include <stdio.h>
-#include <stdint.h>
+#include "hy_hal/hy_type.h"
 
 /**
  * @brief 打开该宏后，可以直接使用printf输出调试信息
@@ -118,9 +117,9 @@ typedef struct {
 void *HyUartCreate(HyUartConfig_t *config);
 void HyUartDestroy(void **handle);
 
-int32_t HyUartProcess(void *handle);
+hy_s32_t HyUartProcess(void *handle);
 
-int32_t HyUartWrite(void *handle, void *buf, size_t len);
+hy_s32_t HyUartWrite(void *handle, void *buf, size_t len);
 
 #ifdef __cplusplus
 }

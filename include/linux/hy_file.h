@@ -24,8 +24,7 @@
 extern "C" {
 #endif
 
-#include <stdio.h>
-#include <stdint.h>
+#include "hy_hal/hy_type.h"
 
 /**
  * @brief 阻塞非阻塞状态
@@ -47,7 +46,7 @@ typedef enum {
  *   2，被中断返回0
  *   3，失败返回-1
  */
-ssize_t HyFileRead(int fd, void *buf, size_t len);
+ssize_t HyFileRead(hy_s32_t fd, void *buf, size_t len);
 
 /**
  * @brief 读取数据
@@ -61,7 +60,7 @@ ssize_t HyFileRead(int fd, void *buf, size_t len);
  *   2，返回-1，表示read函数出现了系统相关错误
  *   3，返回字节数不等于len时，表示对端已经关闭
  */
-ssize_t HyFileReadN(int fd, void *buf, size_t len);
+ssize_t HyFileReadN(hy_s32_t fd, void *buf, size_t len);
 
 /**
  * @brief 读取数据
@@ -76,7 +75,7 @@ ssize_t HyFileReadN(int fd, void *buf, size_t len);
  *   2，失败放回-1
  *   3，超时返回0
  */
-ssize_t HyFileReadNTimeout(int fd, void *buf, size_t cnt, size_t ms);
+ssize_t HyFileReadNTimeout(hy_s32_t fd, void *buf, size_t cnt, size_t ms);
 
 /**
  * @brief 写入数据
@@ -87,7 +86,7 @@ ssize_t HyFileReadNTimeout(int fd, void *buf, size_t cnt, size_t ms);
  *
  * @return 成功返回写入的字节数，失败返回-1，写中断返回0
  */
-ssize_t HyFileWrite(int fd, const void *buf, size_t len);
+ssize_t HyFileWrite(hy_s32_t fd, const void *buf, size_t len);
 
 /**
  * @brief 写入数据
@@ -98,7 +97,7 @@ ssize_t HyFileWrite(int fd, const void *buf, size_t len);
  *
  * @return 成功返回len，失败返回-1
  */
-ssize_t HyFileWriteN(int fd, const void *buf, size_t len);
+ssize_t HyFileWriteN(hy_s32_t fd, const void *buf, size_t len);
 
 /**
  * @brief 设置文件阻塞非阻塞
@@ -108,7 +107,7 @@ ssize_t HyFileWriteN(int fd, const void *buf, size_t len);
  *
  * @return 成功返回0， 失败返回-1
  */
-int32_t HyFileBlockStateSet(int32_t fd, HyFileBlockState_e state);
+hy_s32_t HyFileBlockStateSet(hy_s32_t fd, HyFileBlockState_e state);
 
 /**
  * @brief 获取文件阻塞状态
@@ -117,7 +116,7 @@ int32_t HyFileBlockStateSet(int32_t fd, HyFileBlockState_e state);
  *
  * @return 返回阻塞状态
  */
-HyFileBlockState_e HyFileBlockStateGet(int32_t fd);
+HyFileBlockState_e HyFileBlockStateGet(hy_s32_t fd);
 
 /**
  * @brief 获取文件的长度

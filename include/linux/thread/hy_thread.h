@@ -24,9 +24,9 @@
 extern "C" {
 #endif
 
-#include <stdio.h>
-#include <stdint.h>
 #include <pthread.h>
+
+#include "hy_hal/hy_type.h"
 
 #define HY_THREAD_NAME_LEN_MAX  (16)
 
@@ -60,7 +60,7 @@ typedef enum {
  * @note 创建线程里面有while循环，
  *       也可以在回调函数中增加while循环，但是要控制好退出
  */
-typedef int32_t (*HyThreadLoopCb_t)(void *args);
+typedef hy_s32_t (*HyThreadLoopCb_t)(void *args);
 
 /**
  * @brief 模块配置参数
@@ -73,7 +73,7 @@ typedef struct {
 
     HyThreadDestroyFlag_e   destroy_flag:2;                 ///< 线程退出方式
     HyThreadDetachFlag_e    detach_flag:2;                  ///< 线程是否分离
-    int32_t                 reserved;                       ///< 预留
+    hy_s32_t                reserved;                       ///< 预留
 } HyThreadSaveConfig_s;
 
 /**
@@ -124,13 +124,13 @@ pthread_t HyThreadGetId(void *handle);
  */
 #define HyThreadCreate_m(_name, _thread_loop_cb, _args)                 \
     ({                                                                  \
-        HyThreadConfig_s _thread_c;                                     \
-        HY_MEMSET(&_thread_c, sizeof(_thread_c));                       \
-        _thread_c.save_c.thread_loop_cb     = _thread_loop_cb;          \
-        _thread_c.save_c.args               = _args;                    \
-        HY_STRNCPY(_thread_c.save_c.name,                               \
+        HyThreadConfig_s thread_c;                                      \
+        HY_MEMSET(&thread_c, sizeof(thread_c));                         \
+        thread_c.save_c.thread_loop_cb     = _thread_loop_cb;           \
+        thread_c.save_c.args               = _args;                     \
+        HY_STRNCPY(thread_c.save_c.name,                                \
                 HY_THREAD_NAME_LEN_MAX, _name, HY_STRLEN(_name));       \
-        HyThreadCreate(&_thread_c);                                     \
+        HyThreadCreate(&thread_c);                                      \
      })
 
 #ifdef __cplusplus

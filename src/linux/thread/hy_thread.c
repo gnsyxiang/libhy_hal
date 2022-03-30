@@ -60,7 +60,7 @@ static void *_thread_cb(void *args)
 {
     _thread_context_t *context = args;
     HyThreadSaveConfig_s *save_c = &context->save_c;
-    int32_t ret = 0;
+    hy_s32_t ret = 0;
 
     LOGI("<%s> thread loop start, id: 0x%lx \n", save_c->name, context->id);
 
@@ -171,7 +171,7 @@ void *HyThreadCreate(HyThreadConfig_s *thread_c)
 // pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
 
 #if 0
-    hal_int32_t sched_priority[][2] = {
+    hal_hy_s32_t sched_priority[][2] = {
         {HAL_THREAD_PRIORITY_NORMAL,    50},
         {HAL_THREAD_PRIORITY_LOW,       30},
         {HAL_THREAD_PRIORITY_HIGH,      70},

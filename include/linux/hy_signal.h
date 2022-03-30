@@ -24,8 +24,9 @@
 extern "C" {
 #endif
 
-#include <stdint.h>
 #include <signal.h>
+
+#include "hy_hal/hy_type.h"
 
 #define HY_SIGNAL_NUM_MAX_32   (64)         ///< 系统信号最大值
 
@@ -107,3 +108,4 @@ void HySignalDestroy(void **handle);
 #endif
 
 #endif
+

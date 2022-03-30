@@ -36,7 +36,7 @@ typedef struct {
     hy_s32_t fd;
 } _hal_fifo_context_s;
 
-int32_t HyHalFifoRead(void *fifo_h, void *buf, int32_t len)
+hy_s32_t HyHalFifoRead(void *fifo_h, void *buf, hy_s32_t len)
 {
     LOGT("fifo_h: %p, buf: %p, len: %d \n", fifo_h, buf, len);
     HY_ASSERT(fifo_h);
@@ -47,7 +47,7 @@ int32_t HyHalFifoRead(void *fifo_h, void *buf, int32_t len)
     return read(context->fd, buf, len);
 }
 
-int32_t HyHalFifoWrite(void *fifo_h, const void *buf, int32_t len)
+hy_s32_t HyHalFifoWrite(void *fifo_h, const void *buf, hy_s32_t len)
 {
     LOGT("fifo_h: %p, buf: %p, len: %d \n", fifo_h, buf, len);
     HY_ASSERT(fifo_h);

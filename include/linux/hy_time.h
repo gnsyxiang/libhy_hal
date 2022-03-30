@@ -24,23 +24,23 @@
 extern "C" {
 #endif
 
-#include <stdio.h>
 #include <time.h>
-#include <stdint.h>
+
+#include "hy_hal/hy_type.h"
 
 /**
  * @brief 获取utc时间
  *
  * @return 微妙
  */
-unsigned long long HyTimeGetUTCUs(void);
+hy_u64_t HyTimeGetUTCUs(void);
 
 /**
  * @brief 获取utc时间
  *
  * @return 毫秒
  */
-unsigned long long HyTimeGetUTCMs(void);
+hy_u64_t HyTimeGetUTCMs(void);
 
 /**
  * @brief 获取utc时间
@@ -90,3 +90,4 @@ void HyTimeGetCurDayRegion(const time_t cur_utc, time_t *start, time_t *end);
 #endif
 
 #endif
+

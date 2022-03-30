@@ -24,7 +24,7 @@
 extern "C" {
 #endif
 
-#include <stdint.h>
+#include "hy_hal/hy_type.h"
 
 /**
  * @brief 获取SD卡的空闲大小
@@ -34,7 +34,7 @@ extern "C" {
  *
  * @return 成功返回0，失败返回-1
  */
-int32_t HyStorageSdGetFree(const char *mount_path, uint32_t *free_size);
+hy_s32_t HyStorageSdGetFree(const char *mount_path, hy_u32_t *free_size);
 
 /**
  * @brief 获取SD卡中空闲大小所占的比例
@@ -44,7 +44,7 @@ int32_t HyStorageSdGetFree(const char *mount_path, uint32_t *free_size);
  *
  * @return 成功返回0，失败返回-1
  */
-int32_t HyStorageSdGetFreeRatio(const char *mount_path, float *free_ratio);
+hy_s32_t HyStorageSdGetFreeRatio(const char *mount_path, float *free_ratio);
 
 /**
  * @brief 获取SD卡容量相关信息
@@ -56,11 +56,12 @@ int32_t HyStorageSdGetFreeRatio(const char *mount_path, float *free_ratio);
  *
  * @return 成功返回0，失败返回-1
  */
-int32_t HyStorageSdGetInfo(const char *mount_path,
-        uint32_t *total_size, uint32_t *free_size, float *free_ratio);
+hy_s32_t HyStorageSdGetInfo(const char *mount_path,
+        hy_u32_t *total_size, hy_u32_t *free_size, float *free_ratio);
 
 #ifdef __cplusplus
 }
 #endif
 
 #endif
+

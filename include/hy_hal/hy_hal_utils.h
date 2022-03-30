@@ -34,7 +34,7 @@ extern "C" {
         const typeof( ((type *)0)->member ) *__mptr = (ptr);        \
         (type *)( (char *)__mptr - HY_OFFSETOF(type,member) );})
 
-#define HyHalUtilsArrayCnt(array) (int32_t)(sizeof((array)) / sizeof((array)[0]))
+#define HyHalUtilsArrayCnt(array) (hy_u32_t)(sizeof((array)) / sizeof((array)[0]))
 
 #ifdef __cplusplus
 }

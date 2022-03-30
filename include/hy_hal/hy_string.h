@@ -77,3 +77,4 @@ void HyStrCopyRight2(const char *src, char *dst, size_t len, char ch, char ch2);
 #endif
 
 #endif
+

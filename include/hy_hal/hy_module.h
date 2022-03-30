@@ -64,8 +64,8 @@ typedef struct {
 
 #define RUN_CREATE(module)                                              \
     do {                                                                \
-        int32_t i;                                                      \
-        int32_t len = HyHalUtilsArrayCnt(module);                       \
+        hy_u32_t i;                                                     \
+        hy_u32_t len = HyHalUtilsArrayCnt(module);                      \
         for (i = 0; i < len; ++i) {                                     \
             module_create_t *create = &module[i];                       \
             if (create->create) {                                       \
@@ -78,7 +78,7 @@ typedef struct {
         }                                                               \
                                                                         \
         if (i < len) {                                                  \
-            int32_t j;                                                  \
+            hy_s32_t j;                                                 \
             for (j = i - 1; j >= 0; j--) {                              \
                 module_create_t *create = &module[j];                   \
                 if (create->destroy) {                                  \
@@ -91,7 +91,7 @@ typedef struct {
 
 #define RUN_DESTROY(module)                                             \
     do {                                                                \
-        int32_t i;                                                      \
+        hy_u32_t i;                                                     \
         for (i = 0; i < HyHalUtilsArrayCnt(module); ++i) {              \
             module_destroy_t *destroy = &module[i];                     \
             if (destroy->destroy) {                                     \

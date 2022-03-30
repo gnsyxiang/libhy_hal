@@ -125,7 +125,7 @@ int main(int argc, char *argv[])
     float free_ratio = 0;
     HyStorageSdGetFreeRatio("/mnt/sd", &free_ratio);
 
-    uint32_t free_size = 0;
+    hy_u32_t free_size = 0;
     HyStorageSdGetFree("/mnt/sd", &free_size);
 
     LOGI("free_size: %d, free_ratio: %f \n", free_size, free_ratio);

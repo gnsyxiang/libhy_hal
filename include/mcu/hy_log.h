@@ -24,12 +24,12 @@
 extern "C" {
 #endif
 
-#include <stdio.h>
-#include <stdint.h>
 #include <string.h>
 #include <errno.h>
 #include <pthread.h>
 #include <unistd.h>
+
+#include "hy_hal/hy_type.h"
 
 #if 1
 #define HY_CHECK_FMT_WITH_PRINTF(a, b) __attribute__((format(printf, a, b)))
@@ -60,12 +60,12 @@ typedef enum {
  * @brief 配置参数
  */
 typedef struct {
-    uint32_t            buf_len_min;        ///< 单条日志的最短长度
-    uint32_t            buf_len_max;        ///< 单条日志的最大长度，超过该长度会被截断
+    hy_u32_t            buf_len_min;        ///< 单条日志的最短长度
+    hy_u32_t            buf_len_max;        ///< 单条日志的最大长度，超过该长度会被截断
 
     HyLogLevel_e        level:4;            ///< 打印等级
-    int32_t             color_enable:1;     ///< 是否颜色输出
-    int32_t             reserved;           ///< 预留
+    hy_s32_t             color_enable:1;     ///< 是否颜色输出
+    hy_s32_t             reserved;           ///< 预留
 } HyLogSaveConfig_s;
 
 /**
@@ -102,7 +102,7 @@ void HyLogDestroy(void **handle);
  * @param ... 参数
  */
 void HyLogWrite(HyLogLevel_e level, const char *err_str,
-        const char *file, uint32_t line,
+        const char *file, hy_u32_t line,
         char *fmt, ...) HY_CHECK_FMT_WITH_PRINTF(5, 6);
 
 #define LOG(level, err_str, fmt, ...) \
@@ -145,8 +145,8 @@ void HyLogWrite(HyLogLevel_e level, const char *err_str,
  * @param len 被打印数据的长度
  * @param flag 是否需要打印对应的ascii
  */
-void HyLogHex(const char *name, uint32_t line,
-       const void *buf, uint32_t len, int32_t flag);
+void HyLogHex(const char *name, hy_u32_t line,
+       const void *buf, hy_u32_t len, hy_s32_t flag);
 
 #define HY_LOG_HEX_ASCII(buf, len) HyLogHex(__func__, __LINE__, buf, len, 1)
 #define HY_LOG_HEX(buf, len)       HyLogHex(__func__, __LINE__, buf, len, 0)

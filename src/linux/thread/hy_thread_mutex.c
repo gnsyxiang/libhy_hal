@@ -33,14 +33,14 @@ typedef struct {
     pthread_mutex_t             mutex;
 } _thread_mutex_context_t;
 
-int32_t HyThreadMutexLock(void *handle)
+hy_s32_t HyThreadMutexLock(void *handle)
 {
     HY_ASSERT(handle);
 
     return pthread_mutex_lock(&((_thread_mutex_context_t *)handle)->mutex);
 }
 
-int32_t HyThreadMutexUnLock(void *handle)
+hy_s32_t HyThreadMutexUnLock(void *handle)
 {
     HY_ASSERT(handle);
 

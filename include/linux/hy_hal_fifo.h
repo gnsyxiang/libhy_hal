@@ -24,7 +24,7 @@
 extern "C" {
 #endif
 
-#include <stdint.h>
+#include "hy_hal/hy_type.h"
 
 /**
  * @brief fifo模式
@@ -42,9 +42,9 @@ typedef enum {
  * @brief 配置参数
  */
 typedef struct {
-    char                *name;  ///< fifo名字
-    uint32_t            mode;   ///< fifo权限，为0的话则设置默认0777
-    HyHalFifoFlag_e     flag;   ///< fifo读写模式
+    char                *name;          ///< fifo名字
+    hy_u32_t            mode;           ///< fifo权限，为0的话则设置默认0777
+    HyHalFifoFlag_e     flag;           ///< fifo读写模式
 } HyHalFifoConfig_s;
 
 /**
@@ -61,14 +61,14 @@ void *HyHalFifoCreate(HyHalFifoConfig_s *fifo_c);
 /**
  * @brief 销毁fifo
  *
- * @param pipe_h 句柄的地址(二级指针)
+ * @param handle 句柄的地址(二级指针)
  */
-void HyHalFifoDestroy(void **fifo_h);
+void HyHalFifoDestroy(void **handle);
 
 /**
  * @brief 向fifo中读取数据
  *
- * @param fifo_h 句柄
+ * @param handle 句柄
  * @param buf 数据的地址
  * @param len 数据的长度
  *
@@ -77,18 +77,18 @@ void HyHalFifoDestroy(void **fifo_h);
  *      (=  0)读到文件末尾
  *      (= -1)读取出错
  */
-int32_t HyHalFifoRead(void *fifo_h, void *buf, int32_t len);
+hy_s32_t HyHalFifoRead(void *handle, void *buf, hy_s32_t len);
 
 /**
  * @brief 向fifo中写入数据
  *
- * @param fifo_h 句柄
+ * @param handle 句柄
  * @param buf 数据的地址
  * @param len 数据的长度
  *
  * @return 成功返回写入的字节数，失败返回-1
  */
-int32_t HyHalFifoWrite(void *fifo_h, const void *buf, int32_t len);
+hy_s32_t HyHalFifoWrite(void *handle, const void *buf, hy_s32_t len);
 
 /**
  * @brief 创建fifo

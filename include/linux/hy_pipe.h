@@ -24,7 +24,7 @@
 extern "C" {
 #endif
 
-#include <stdint.h>
+#include "hy_hal/hy_type.h"
 
 /**
  * @brief pipe阻塞状态
@@ -53,14 +53,14 @@ void *HyPipeCreate(HyPipeConfig_s *pipe_c);
 /**
  * @brief 销毁pipe
  *
- * @param pipe_h 句柄的地址(二级指针)
+ * @param handle 句柄的地址(二级指针)
  */
-void HyPipeDestroy(void **pipe_h);
+void HyPipeDestroy(void **handle);
 
 /**
  * @brief 向pipe中读取数据
  *
- * @param pipe_h 句柄
+ * @param handle 句柄
  * @param buf 数据的地址
  * @param len 数据的长度
  *
@@ -69,36 +69,36 @@ void HyPipeDestroy(void **pipe_h);
  *   失败返回-1，
  *   被中断返回0
  */
-int32_t HyPipeRead(void *pipe_h, void *buf, int32_t len);
+hy_s32_t HyPipeRead(void *handle, void *buf, hy_s32_t len);
 
 /**
  * @brief 向pipe中写入数据
  *
- * @param pipe_h 句柄
+ * @param handle 句柄
  * @param buf 数据的地址
  * @param len 数据的长度
  *
  * @return 成功返回len，失败返回-1
  */
-int32_t HyPipeWrite(void *pipe_h, const void *buf, int32_t len);
+hy_s32_t HyPipeWrite(void *handle, const void *buf, hy_s32_t len);
 
 /**
  * @brief 获取读端fd
  *
- * @param pipe_h 句柄
+ * @param handle 句柄
  *
  * @return 成功返回fd，失败返回-1
  */
-int32_t HyPipeReadFdGet(void *pipe_h);
+hy_s32_t HyPipeReadFdGet(void *handle);
 
 /**
  * @brief 获取写端fd
  *
- * @param pipe_h 句柄
+ * @param handle 句柄
  *
  * @return 成功返回fd，失败返回-1
  */
-int32_t HyPipeWriteFdGet(void *pipe_h);
+hy_s32_t HyPipeWriteFdGet(void *handle);
 
 /**
  * @brief 创建pipe宏

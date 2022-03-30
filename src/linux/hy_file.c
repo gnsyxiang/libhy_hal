@@ -35,7 +35,7 @@
 
 #include "hy_file.h"
 
-ssize_t HyFileRead(int fd, void *buf, size_t len)
+ssize_t HyFileRead(hy_s32_t fd, void *buf, size_t len)
 {
     ssize_t ret = 0;
 
@@ -55,7 +55,7 @@ ssize_t HyFileRead(int fd, void *buf, size_t len)
     return ret;
 }
 
-ssize_t HyFileReadN(int fd, void *buf, size_t len)
+ssize_t HyFileReadN(hy_s32_t fd, void *buf, size_t len)
 {
     ssize_t ret;
     size_t nleft;
@@ -85,7 +85,7 @@ ssize_t HyFileReadN(int fd, void *buf, size_t len)
     return offset;
 }
 
-ssize_t HyFileReadNTimeout(int fd, void *buf, size_t cnt, size_t ms)
+ssize_t HyFileReadNTimeout(hy_s32_t fd, void *buf, size_t cnt, size_t ms)
 {
     hy_s32_t len = 0;
     fd_set rfds;
@@ -118,7 +118,7 @@ ssize_t HyFileReadNTimeout(int fd, void *buf, size_t cnt, size_t ms)
     return cnt;
 }
 
-ssize_t HyFileWrite(int fd, const void *buf, size_t len)
+ssize_t HyFileWrite(hy_s32_t fd, const void *buf, size_t len)
 {
     ssize_t ret;
 
@@ -133,7 +133,7 @@ ssize_t HyFileWrite(int fd, const void *buf, size_t len)
     }
 }
 
-ssize_t HyFileWriteN(int fd, const void *buf, size_t len)
+ssize_t HyFileWriteN(hy_s32_t fd, const void *buf, size_t len)
 {
     ssize_t ret;
     size_t nleft;
@@ -182,7 +182,7 @@ static hy_s32_t _reset_fcntl(hy_s32_t fd, hy_s32_t arg)
     return fcntl(fd, F_SETFL, flags & arg);
 }
 
-int32_t HyFileBlockStateSet(int32_t fd, HyFileBlockState_e state)
+hy_s32_t HyFileBlockStateSet(hy_s32_t fd, HyFileBlockState_e state)
 {
     if (HY_FILE_BLOCK_STATE_BLOCK == state) {
         return _reset_fcntl(fd, ~O_NONBLOCK);
@@ -191,7 +191,7 @@ int32_t HyFileBlockStateSet(int32_t fd, HyFileBlockState_e state)
     }
 }
 
-HyFileBlockState_e HyFileBlockStateGet(int32_t fd)
+HyFileBlockState_e HyFileBlockStateGet(hy_s32_t fd)
 {
     hy_s32_t flag;
 

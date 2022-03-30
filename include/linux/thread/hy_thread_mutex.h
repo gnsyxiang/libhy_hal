@@ -24,25 +24,25 @@
 extern "C" {
 #endif
 
-#include <stdint.h>
+#include "hy_hal/hy_type.h"
 
 typedef struct {
 } HyThreadMutexSaveConfig_s;
 
 typedef struct {
-    HyThreadMutexSaveConfig_s save_config;
+    HyThreadMutexSaveConfig_s   save_c;
 } HyThreadMutexConfig_s;
 
-void *HyThreadMutexCreate(HyThreadMutexConfig_s *config);
+void *HyThreadMutexCreate(HyThreadMutexConfig_s *thread_mutex_c);
 void HyThreadMutexDestroy(void **handle);
 
-int32_t HyThreadMutexLock(void *handle);
-int32_t HyThreadMutexUnLock(void *handle);
+hy_s32_t HyThreadMutexLock(void *handle);
+hy_s32_t HyThreadMutexUnLock(void *handle);
 
-#define HyThreadMutexCreate_m()             \
-    ({                                      \
-        HyThreadMutexConfig_s __config;     \
-        HyThreadMutexCreate(&__config);     \
+#define HyThreadMutexCreate_m()                 \
+    ({                                          \
+        HyThreadMutexConfig_s thread_mutex_c;   \
+        HyThreadMutexCreate(&thread_mutex_c);   \
      })
 
 #ifdef __cplusplus
@@ -50,3 +50,4 @@ int32_t HyThreadMutexUnLock(void *handle);
 #endif
 
 #endif
+

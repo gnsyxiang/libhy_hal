@@ -44,13 +44,13 @@ static _system_context_t *context = NULL;
 
 #ifdef USE_SYSTICK_DELAY
 
-static void _delay_com(uint32_t us)
+static void _delay_com(hy_s32_t us)
 {
     SysTick->LOAD   = us;
     SysTick->VAL    = 0x00;
     SysTick->CTRL  |= SysTick_CTRL_ENABLE_Msk;
 
-    uint32_t temp;
+    hy_s32_t temp;
     do {
         temp = SysTick->CTRL;
     } while ((temp & 0x01) && !(temp & (1 << 16)));
@@ -59,25 +59,25 @@ static void _delay_com(uint32_t us)
     SysTick->VAL    = 0x00;
 }
 
-void HySystemDelayUs(uint32_t us)
+void HySystemDelayUs(hy_s32_t us)
 {
-    uint32_t fac_us = SystemCoreClock / (1000000U);
+    hy_s32_t fac_us = SystemCoreClock / (1000000U);
 
     _delay_com(us * fac_us);
 }
 
-void HySystemDelayMs(uint32_t ms)
+void HySystemDelayMs(hy_s32_t ms)
 {
     #define STEP_DELAY_MS 50
-    uint32_t ms_tmp;
-    uint32_t fac_ms = SystemCoreClock / (1000U);
+    hy_s32_t ms_tmp;
+    hy_s32_t fac_ms = SystemCoreClock / (1000U);
 
     while (ms) {
         if (ms > STEP_DELAY_MS) {
-            ms_tmp  = (uint32_t)(STEP_DELAY_MS * fac_ms);
+            ms_tmp  = (hy_s32_t)(STEP_DELAY_MS * fac_ms);
             ms      -= STEP_DELAY_MS;
         } else {
-            ms_tmp  = (uint32_t)(ms * fac_ms);
+            ms_tmp  = (hy_s32_t)(ms * fac_ms);
             ms      = 0;
         }
 
@@ -85,7 +85,7 @@ void HySystemDelayMs(uint32_t ms)
     }
 }
 
-void HySystemDelayS(uint32_t s)
+void HySystemDelayS(hy_s32_t s)
 {
     for (size_t i = 0; i < s; ++i) {
         HySystemDelayMs(500);

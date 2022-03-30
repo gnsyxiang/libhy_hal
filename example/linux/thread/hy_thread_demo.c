@@ -43,7 +43,7 @@ typedef struct {
     hy_s32_t    exit_flag;
 } _main_context_t;
 
-static int32_t _print_loop_cb(void *args)
+static hy_s32_t _print_loop_cb(void *args)
 {
     _main_context_t *context = args;
 

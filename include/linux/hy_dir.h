@@ -24,7 +24,7 @@
 extern "C" {
 #endif
 
-#include <stdint.h>
+#include "hy_hal/hy_type.h"
 
 /**
  * @brief 类型
@@ -46,8 +46,8 @@ typedef enum {
  *
  * @return 返回0表示继续查找，返回-1表示退出查找(找到了需要的文件，直接退出)
  */
-typedef int32_t (*HyDirReadCb_t)(const char *path, const char *name,
-        uint8_t type, void *args);
+typedef hy_s32_t (*HyDirReadCb_t)(const char *path, const char *name,
+        hy_s32_t type, void *args);
 
 /**
  * @brief 读取目录下的所有文件
@@ -59,7 +59,7 @@ typedef int32_t (*HyDirReadCb_t)(const char *path, const char *name,
  *
  * @return 成功返回0，失败返回-1
  */
-int32_t HyDirRead(const char *path, const char *filter,
+hy_s32_t HyDirRead(const char *path, const char *filter,
         HyDirReadCb_t read_cb, void *args);
 
 /**
@@ -72,7 +72,7 @@ int32_t HyDirRead(const char *path, const char *filter,
  *
  * @return 成功返回0，失败返回-1
  */
-int32_t HyDirReadRecurse(const char *path, const char *filter,
+hy_s32_t HyDirReadRecurse(const char *path, const char *filter,
         HyDirReadCb_t read_cb, void *args);
 
 #ifdef __cplusplus

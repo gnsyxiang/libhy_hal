@@ -31,7 +31,7 @@
 #include "hy_log.h"
 
 static hy_s32_t _filter_file(const char *path, const char *name,
-        uint8_t type, void *args,
+        hy_s32_t type, void *args,
         HyDirReadCb_t read_cb, const char *filter)
 {
     char buf[HY_STRING_BUF_MAX_LEN_128] = {0};
@@ -71,7 +71,7 @@ static hy_s32_t _handle_sub_dir(const char *path, char *name, const char *filter
     return ret;
 }
 
-static int32_t _dir_read(int32_t type, const char *path, const char *filter,
+static hy_s32_t _dir_read(hy_s32_t type, const char *path, const char *filter,
         HyDirReadCb_t read_cb, void *args)
 {
     HY_ASSERT_RET_VAL(!path || !read_cb, -1);
@@ -124,13 +124,13 @@ _ERR_DIR_1:
     return 0;
 }
 
-int32_t HyDirRead(const char *path, const char *filter,
+hy_s32_t HyDirRead(const char *path, const char *filter,
         HyDirReadCb_t read_cb, void *args)
 {
     return _dir_read(0, path, filter, read_cb, args);
 }
 
-int32_t HyDirReadRecurse(const char *path, const char *filter,
+hy_s32_t HyDirReadRecurse(const char *path, const char *filter,
         HyDirReadCb_t read_cb, void *args)
 {
     return _dir_read(1, path, filter, read_cb, args);

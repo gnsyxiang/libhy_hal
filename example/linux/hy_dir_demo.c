@@ -112,8 +112,8 @@ static _main_context_t *_module_create(void)
     return context;
 }
 
-static int32_t _dir_read_cb(const char *path, const char *name,
-        uint8_t type, void *args)
+static hy_s32_t _dir_read_cb(const char *path, const char *name,
+        hy_s32_t type, void *args)
 {
     LOGE("path: %s, name: %s, type: %d \n", path, name, type);
     return 0;

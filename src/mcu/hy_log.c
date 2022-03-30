@@ -42,8 +42,8 @@ typedef struct {
 
 static _log_context_t *context = NULL;
 
-void HyLogHex(const char *name, uint32_t line,
-        const void *_buf, uint32_t len, int32_t flag)
+void HyLogHex(const char *name, hy_u32_t line,
+        const void *_buf, hy_u32_t len, hy_s32_t flag)
 {
     if (len <= 0) {
         return;
@@ -51,7 +51,7 @@ void HyLogHex(const char *name, uint32_t line,
     uint8_t *buf = (uint8_t *)_buf;
 
     hy_u8_t cnt = 0;
-    printf("[%s %ld]len: %ld \r\n", name, line, len);
+    printf("[%s %d]len: %d \r\n", name, line, len);
     for (hy_u32_t i = 0; i < len; i++) {
         if (flag == 1) {
             if (buf[i] == 0x0d || buf[i] == 0x0a
@@ -73,7 +73,7 @@ void HyLogHex(const char *name, uint32_t line,
 }
 
 void HyLogWrite(HyLogLevel_e level, const char *err_str, 
-        const char *file, uint32_t line, char *fmt, ...)
+        const char *file, hy_u32_t line, char *fmt, ...)
 {
     printf("%s", (char *)context->buf);
 }

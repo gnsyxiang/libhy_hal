@@ -58,7 +58,7 @@ static hy_s32_t _uart_send_byte(void *handle, char byte);
 
 #ifdef DEBUG_UART
 #ifdef __GNUC__
-int _write(int fd, char *ptr, int len)
+hy_s32_t _write(hy_s32_t fd, char *ptr, hy_s32_t len)
 {
     /*
      * write "len" of char from "ptr" to file id "fd"
@@ -70,7 +70,7 @@ int _write(int fd, char *ptr, int len)
         return -1;
     }
 
-    int i = 0;
+    hy_s32_t i = 0;
     while (*ptr && (i < len)) {
         if (*ptr == '\n') {
             _uart_send_byte(context_array[DEBUG_UART_NUM], '\r');
@@ -83,7 +83,7 @@ int _write(int fd, char *ptr, int len)
 }
 #endif
 #if __CC_ARM
-int fputc(int ch, FILE *f)
+hy_s32_t fputc(hy_s32_t ch, FILE *f)
 {
     if ((hy_u8_t)ch == '\n') {
         _uart_send_byte(context_array[DEBUG_UART_NUM], '\r');
@@ -117,7 +117,7 @@ static hy_s32_t _uart_send_byte(void *handle, char byte)
     return (byte);
 }
 
-int32_t HyUartWrite(void *handle, void *buf, size_t len)
+hy_s32_t HyUartWrite(void *handle, void *buf, size_t len)
 {
     HY_ASSERT_RET_VAL(!handle || !buf, -1);
 
@@ -126,7 +126,7 @@ int32_t HyUartWrite(void *handle, void *buf, size_t len)
 
     FlagStatus status = RESET;
     hy_u32_t cnt = 0;
-    uint16_t i = 0;
+    hy_u16_t i = 0;
     char *str = buf;
 
     do {
@@ -147,7 +147,7 @@ int32_t HyUartWrite(void *handle, void *buf, size_t len)
     return (i);
 }
 
-int32_t HyUartProcess(void *handle)
+hy_s32_t HyUartProcess(void *handle)
 {
     return 0;
 }
@@ -157,7 +157,7 @@ static void _uart_irq_handler(HyUartNum_t num)
     if (context_array[num]) {
         _DEFINE_UART();
 
-        if (USART_GetITStatus(uart[num], USART_INT_RDNE) != RESET) {
+        if (USART_GetITStatus(uart[num], USART_hy_s32_t_RDNE) != RESET) {
 
             HyUartConfigSave_t *config_save = &context_array[num]->config_save;
             if (config_save->read_cb) {
@@ -241,7 +241,7 @@ static void _init_uart_func(HyUartConfig_t *config)
 
     NVIC_Init(&NVIC_InitStructure);
 
-    USART_INTConfig(uart[config->config_save.num], USART_INT_RDNE, ENABLE);
+    USART_hy_s32_tConfig(uart[config->config_save.num], USART_hy_s32_t_RDNE, ENABLE);
 
     USART_Cmd(uart[config->config_save.num], ENABLE);
 }

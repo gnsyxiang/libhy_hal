@@ -29,7 +29,7 @@
 
 #include "hy_storage.h"
 
-int32_t HyStorageSdGetFree(const char *mount_path, uint32_t *free_size)
+hy_s32_t HyStorageSdGetFree(const char *mount_path, hy_u32_t *free_size)
 {
     LOGT("mount_path: %s, free_size: %p \n", mount_path, free_size);
     HY_ASSERT_RET_VAL(!mount_path || !free_size
@@ -55,7 +55,7 @@ int32_t HyStorageSdGetFree(const char *mount_path, uint32_t *free_size)
     return 0;
 }
 
-int32_t HyStorageSdGetFreeRatio(const char *mount_path, float *free_ratio)
+hy_s32_t HyStorageSdGetFreeRatio(const char *mount_path, float *free_ratio)
 {
     LOGT("mount_path: %s, free_ratio: %p \n", mount_path, free_ratio);
     HY_ASSERT_RET_VAL(!mount_path || !free_ratio
@@ -81,8 +81,8 @@ int32_t HyStorageSdGetFreeRatio(const char *mount_path, float *free_ratio)
     return 0;
 }
 
-int32_t HyStorageSdGetInfo(const char *mount_path,
-        uint32_t *total_size, uint32_t *free_size, float *free_ratio)
+hy_s32_t HyStorageSdGetInfo(const char *mount_path,
+        hy_u32_t *total_size, hy_u32_t *free_size, float *free_ratio)
 {
     LOGT("mount_path: %s, total_size: %p, free_size: %p, free_ratio: %p \n",
             mount_path, total_size, free_size, free_ratio);

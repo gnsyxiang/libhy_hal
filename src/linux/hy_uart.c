@@ -39,7 +39,7 @@
 
 typedef struct {
     HyUartSaveConfig_t  save_config;
-    int32_t             fd;
+    hy_s32_t             fd;
 } _uart_context_t;
 
 ssize_t HyUartWrite(void *handle, const void *buf, size_t len)
@@ -63,7 +63,7 @@ static inline void _uart_destroy(_uart_context_t *context)
     close(context->fd);
 }
 
-static int32_t _uart_create(_uart_context_t *context, char *name)
+static hy_s32_t _uart_create(_uart_context_t *context, char *name)
 {
     HyUartSaveConfig_t *save_config = &context->save_config;
     struct termios options;
@@ -73,9 +73,9 @@ static int32_t _uart_create(_uart_context_t *context, char *name)
         // 它们的差别在于设立O_NDELAY会使I/O函式马上回传0，但是又衍生出一个问题，
         // 因为读取到档案结尾时所回传的也是0，这样无法得知是哪中情况；
         // 因此，O_NONBLOCK就产生出来，它在读取不到数据时会回传-1，并且设置errno为EAGAIN。
-        int32_t flags = O_RDWR | O_NOCTTY;
-        // int32_t flags = O_RDWR | O_NOCTTY | O_NONBLOCK;
-        // int32_t flags = O_RDWR | O_NOCTTY | O_NDELAY;
+        hy_s32_t flags = O_RDWR | O_NOCTTY;
+        // hy_s32_t flags = O_RDWR | O_NOCTTY | O_NONBLOCK;
+        // hy_s32_t flags = O_RDWR | O_NOCTTY | O_NDELAY;
 
         context->fd = open(name, flags);
         if (-1 == context->fd) {
@@ -108,7 +108,7 @@ static int32_t _uart_create(_uart_context_t *context, char *name)
         cfsetospeed(&options, speed_2_speed[save_config->speed]);
 
         // 设置数据位
-        int32_t data_bit_2_bit[HY_UART_DATA_BIT_MAX] = {CS5, CS6, CS7, CS8};
+        hy_s32_t data_bit_2_bit[HY_UART_DATA_BIT_MAX] = {CS5, CS6, CS7, CS8};
         options.c_cflag &= ~CSIZE;  // 清零
         options.c_cflag |= data_bit_2_bit[save_config->data_bit];
 
