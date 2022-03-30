@@ -45,7 +45,8 @@ _no_error_com   +=
 _define_com     += -D_GNU_SOURCE
 
 _include_com    += \
-                   -I$(top_srcdir)/include/$(run_os) \
+                   -I$(top_srcdir)/include/$(run_os)    \
+                   -I$(top_srcdir)/include/hy_hal       \
                    -I$(top_srcdir)/include
 
 _sources_com    += \

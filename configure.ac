@@ -98,6 +98,7 @@ AC_CONFIG_FILES([Makefile
                  example/mcu/arterytek/Makefile
                  example/mcu/hdhc/Makefile
                  include/Makefile
+                 include/hy_hal/Makefile
                  include/linux/Makefile
                  include/linux/socket/Makefile
                  include/linux/thread/Makefile

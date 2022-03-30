@@ -5,7 +5,7 @@
 # @file    Makefile.am
 # @brief   
 # @author  gnsyxiang <gnsyxiang@163.com>
-# @date    05/03 2021 10:35
+# @date    30/03 2022 09:38
 # @version v0.0.1
 # 
 # @since    note
@@ -13,14 +13,10 @@
 # 
 #     change log:
 #     NO.     Author              Date            Modified
-#     00      zhenquan.qiu        05/03 2021      create the file
+#     00      zhenquan.qiu        30/03 2022      create the file
 # 
-#     last modified: 05/03 2021 10:35
+#     last modified: 30/03 2022 09:38
 # ===============================================================
-
-SUBDIRS = \
-          hy_hal    \
-          $(run_os)
 
 # ------------------
 # defining variables
@@ -35,7 +31,17 @@ install_includedir      = $(includedir)/@project_name@
 # ---------------------
 _no_install_headers_com +=
 
-_install_headers_com    +=
+_install_headers_com    += \
+                           hy_assert.h      \
+                           hy_barrier.h     \
+                           hy_compile.h     \
+                           hy_error.h       \
+                           hy_hal_utils.h   \
+                           hy_mem.h         \
+                           hy_module.h      \
+                           hy_printf.h      \
+                           hy_string.h      \
+                           hy_type.h
 
 # ------------------
 # make install files
