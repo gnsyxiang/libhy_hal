@@ -85,6 +85,27 @@ time_t HyTimeFormatTime2UTC(const char *data_time);
  */
 void HyTimeGetCurDayRegion(const time_t cur_utc, time_t *start, time_t *end);
 
+/**
+ * @brief 延时us
+ *
+ * @param us 延时时间
+ */
+void HyTimeDelayUs(hy_u32_t us);
+
+/**
+ * @brief 延时ms
+ *
+ * @param ms 延时时间
+ */
+void HyTimeDelayMs(hy_u32_t ms);
+
+/**
+ * @brief 延时s
+ *
+ * @param s 延时时间
+ */
+void HyTimeDelayS(hy_u32_t s);
+
 #ifdef __cplusplus
 }
 #endif

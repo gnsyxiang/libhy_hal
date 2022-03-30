@@ -96,3 +96,31 @@ void HyTimeGetCurDayRegion(const time_t cur_utc, time_t *start, time_t *end)
     *end = 0;
     *end += *start + 86400 - 1;
 }
+
+static void _delay_com(hy_u32_t s, hy_u32_t us)
+{
+    struct timeval tv;
+    tv.tv_sec   = s;
+    tv.tv_usec  = us;
+
+    int err;
+    do {
+        err = select(0, NULL, NULL, NULL, &tv);
+    } while(err < 0 && errno == EINTR);
+}
+
+void HyTimeDelayUs(hy_u32_t us)
+{
+    _delay_com(0, us);
+}
+
+void HyTimeDelayMs(hy_u32_t ms)
+{
+    _delay_com(0, ms * 1000);
+}
+
+void HyTimeDelayS(hy_u32_t s)
+{
+    _delay_com(s, 0);
+}
+
