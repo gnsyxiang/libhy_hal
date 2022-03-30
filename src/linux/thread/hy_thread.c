@@ -135,16 +135,19 @@ void *HyThreadCreate(HyThreadConfig_s *thread_c)
                 LOGES("set detach state fail \n");
                 break;
             }
-        }
 
-        if (0 != pthread_create(&context->id, &attr, _thread_cb, context)) {
-            LOGES("pthread create fail \n");
-            break;
-        }
+            if (0 != pthread_create(&context->id, &attr, _thread_cb, context)) {
+                LOGES("pthread create fail \n");
+                break;
+            }
 
-        if (context->save_c.detach_flag) {
             if (0 != pthread_attr_destroy(&attr)) {
                 LOGES("destroy attr fail \n");
+                break;
+            }
+        } else {
+            if (0 != pthread_create(&context->id, NULL, _thread_cb, context)) {
+                LOGES("pthread create fail \n");
                 break;
             }
         }
