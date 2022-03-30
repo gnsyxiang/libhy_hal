@@ -18,7 +18,9 @@
 #     last modified: 26/10 2021 08:39
 # ===============================================================
 
-SUBDIRS = thread
+SUBDIRS = \
+          socket    \
+          thread
 
 # ------------------
 # defining variables
@@ -43,6 +45,7 @@ _define_com     +=
 
 _include_com    += \
                    -I$(top_srcdir)/include/$(run_os)            \
+                   -I$(top_srcdir)/include/$(run_os)/socket     \
                    -I$(top_srcdir)/include/$(run_os)/thread     \
                    -I$(top_srcdir)/include
 

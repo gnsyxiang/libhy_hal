@@ -5,7 +5,7 @@
 # @file    Makefile.am
 # @brief   
 # @author  gnsyxiang <gnsyxiang@163.com>
-# @date    05/03 2021 10:35
+# @date    30/03 2022 09:05
 # @version v0.0.1
 # 
 # @since    note
@@ -13,14 +13,10 @@
 # 
 #     change log:
 #     NO.     Author              Date            Modified
-#     00      zhenquan.qiu        05/03 2021      create the file
+#     00      zhenquan.qiu        30/03 2022      create the file
 # 
-#     last modified: 05/03 2021 10:35
+#     last modified: 30/03 2022 09:05
 # ===============================================================
-
-SUBDIRS = \
-          socket    \
-          thread
 
 # ------------------
 # defining variables
@@ -35,17 +31,7 @@ install_includedir      = $(includedir)/@project_name@
 # ---------------------
 _no_install_headers_com +=
 
-_install_headers_com    += \
-                           hy_file.h        \
-                           hy_hal_fifo.h    \
-                           hy_dir.h         \
-                           hy_dlopen.h      \
-                           hy_log.h         \
-                           hy_pipe.h        \
-                           hy_signal.h      \
-                           hy_storage.h     \
-                           hy_time.h        \
-                           hy_uart.h
+_install_headers_com    +=
 
 # ------------------
 # make install files

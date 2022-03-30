@@ -18,7 +18,9 @@
 #     last modified: 25/10 2021 18:46
 # ===============================================================
 
-SUBDIRS = thread
+SUBDIRS = \
+          socket    \
+          thread
 
 noinst_LTLIBRARIES = libhy_hal_os.la
 
@@ -70,6 +72,7 @@ _cxxflags_com   +=
 _ldflags_com    +=
 
 _ldadd_com      += \
+                   $(top_builddir)/src/$(run_os)/socket/libhy_hal_os_socket.la \
                    $(top_builddir)/src/$(run_os)/thread/libhy_hal_os_thread.la \
                    $(lib_com)
 
