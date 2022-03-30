@@ -28,23 +28,28 @@
 #include "hy_thread_mutex.h"
 
 typedef struct {
-    HyThreadMutexSaveConfig_s   save_config;
-
     pthread_mutex_t             mutex;
-} _thread_mutex_context_t;
+} _mutex_context_s;
+
+hy_s32_t HyThreadMutexTryLock(void *handle)
+{
+    HY_ASSERT(handle);
+
+    return pthread_mutex_trylock(&((_mutex_context_s *)handle)->mutex);
+}
 
 hy_s32_t HyThreadMutexLock(void *handle)
 {
     HY_ASSERT(handle);
 
-    return pthread_mutex_lock(&((_thread_mutex_context_t *)handle)->mutex);
+    return pthread_mutex_lock(&((_mutex_context_s *)handle)->mutex);
 }
 
 hy_s32_t HyThreadMutexUnLock(void *handle)
 {
     HY_ASSERT(handle);
 
-    return pthread_mutex_unlock(&((_thread_mutex_context_t *)handle)->mutex);
+    return pthread_mutex_unlock(&((_mutex_context_s *)handle)->mutex);
 }
 
 void HyThreadMutexDestroy(void **handle)
@@ -52,7 +57,7 @@ void HyThreadMutexDestroy(void **handle)
     LOGT("&context: %p, context: %p \n", handle, *handle);
     HY_ASSERT_RET(!handle || !*handle)
 
-    _thread_mutex_context_t *context = *handle;
+    _mutex_context_s *context = *handle;
 
     if (0 != pthread_mutex_destroy(&context->mutex)) {
         LOGES("pthread_mutex_destroy failed \n");
@@ -62,14 +67,14 @@ void HyThreadMutexDestroy(void **handle)
     HY_MEM_FREE_PP(handle);
 }
 
-void *HyThreadMutexCreate(HyThreadMutexConfig_s *config)
+void *HyThreadMutexCreate(HyThreadMutexConfig_s *mutex_c)
 {
-    LOGT("thread mutex config: %p \n", config);
-    HY_ASSERT_RET_VAL(!config, NULL);
+    LOGT("mutex_c: %p \n", mutex_c);
+    HY_ASSERT_RET_VAL(!mutex_c, NULL);
 
-    _thread_mutex_context_t *context = NULL;
+    _mutex_context_s *context = NULL;
     do {
-        context = HY_MEM_MALLOC_BREAK(_thread_mutex_context_t *, sizeof(*context));
+        context = HY_MEM_MALLOC_BREAK(_mutex_context_s *, sizeof(*context));
 
         if (0 != pthread_mutex_init(&context->mutex, NULL)) {
             LOGES("pthread_mutex_init failed \n");
@@ -80,6 +85,8 @@ void *HyThreadMutexCreate(HyThreadMutexConfig_s *config)
         return context;
     } while (0);
 
-    LOGI("thread mutex create failed \n");
+    LOGE("thread mutex create failed \n");
+    HyThreadMutexDestroy((void **)&context);
     return NULL;
 }
+
