@@ -40,8 +40,8 @@ _no_error_com   +=
 _define_com     +=
 
 _include_com    += \
-                   -I$(top_srcdir)/include/$(run_os)            \
                    -I$(top_srcdir)/include/$(run_os)/thread     \
+                   -I$(top_srcdir)/include/$(run_os)            \
                    -I$(top_srcdir)/include/hy_hal               \
                    -I$(top_srcdir)/include
 
@@ -62,11 +62,11 @@ _ldadd_com      += \
                    $(top_builddir)/src/lib@project_name@.la \
                    $(ldadd_com)
 
-bin_PROGRAMS                += hy_thread_test
-hy_thread_test_SOURCES      = $(_sources_com) hy_thread_test.c
-hy_thread_test_CPPFLAGS     = $(_cppflags_com)
-hy_thread_test_CFLAGS       = $(_cflags_com)
-hy_thread_test_CXXFLAGS     = $(_cxxflags_com)
-hy_thread_test_LDFLAGS      = $(_ldflags_com)
-hy_thread_test_LDADD        = $(_ldadd_com)
+bin_PROGRAMS                += hy_thread_demo
+hy_thread_demo_SOURCES      = $(_sources_com) hy_thread_demo.c
+hy_thread_demo_CPPFLAGS     = $(_cppflags_com)
+hy_thread_demo_CFLAGS       = $(_cflags_com)
+hy_thread_demo_CXXFLAGS     = $(_cxxflags_com)
+hy_thread_demo_LDFLAGS      = $(_ldflags_com)
+hy_thread_demo_LDADD        = $(_ldadd_com)
 

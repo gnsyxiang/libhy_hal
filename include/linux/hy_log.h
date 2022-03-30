@@ -73,7 +73,7 @@ typedef struct {
  * @brief 配置参数
  */
 typedef struct {
-    HyLogSaveConfig_s   save_config;        ///< 配置参数
+    HyLogSaveConfig_s   save_c;             ///< 配置参数
 } HyLogConfig_s;
 
 /**
@@ -130,12 +130,12 @@ void HyLogWrite(HyLogLevel_e level, const char *err_str,
  */
 #define HyLogCreate_m(_buf_len_min, _buf_len_max, _level, _color_enable)    \
     ({                                                                      \
-        HyLogConfig_s __config;                                             \
-        __config.save_config.buf_len_min  = _buf_len_min;                   \
-        __config.save_config.buf_len_max  = _buf_len_max;                   \
-        __config.save_config.level        = _level;                         \
-        __config.save_config.color_enable = _color_enable;                  \
-        HyLogCreate(&__config);                                             \
+        HyLogConfig_s log_c;                                                \
+        log_c.save_c.buf_len_min  = _buf_len_min;                           \
+        log_c.save_c.buf_len_max  = _buf_len_max;                           \
+        log_c.save_c.level        = _level;                                 \
+        log_c.save_c.color_enable = _color_enable;                          \
+        HyLogCreate(&log_c);                                                \
      })
 
 /**

@@ -2,10 +2,10 @@
  * 
  * Release under GPLv-3.0.
  * 
- * @file    hy_time_test.c
+ * @file    hy_dlopen_demo.c
  * @brief   
  * @author  gnsyxiang <gnsyxiang@163.com>
- * @date    20/12 2021 19:37
+ * @date    26/10 2021 09:26
  * @version v0.0.1
  * 
  * @since    note
@@ -13,30 +13,34 @@
  * 
  *     change log:
  *     NO.     Author              Date            Modified
- *     00      zhenquan.qiu        20/12 2021      create the file
+ *     00      zhenquan.qiu        26/10 2021      create the file
  * 
- *     last modified: 20/12 2021 19:37
+ *     last modified: 26/10 2021 09:26
  */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 
-#include "hy_time.h"
-
+#include "hy_dlopen.h"
 #include "hy_type.h"
 #include "hy_mem.h"
 #include "hy_string.h"
 #include "hy_signal.h"
+
 #include "hy_module.h"
 #include "hy_hal_utils.h"
 #include "hy_log.h"
 
-typedef struct {
-    void *log_handle;
-    void *signal_handle;
+#define _APP_NAME "hy_dlopen_demo"
 
-    hy_s32_t exit_flag;
+typedef void (*module_init_cb_t)(void);
+
+typedef struct {
+    void        *log_h;
+    void        *signal_h;
+
+    hy_s32_t    exit_flag;
 } _main_context_t;
 
 static void _signal_error_cb(void *args)
@@ -61,8 +65,8 @@ static void _module_destroy(_main_context_t **context_pp)
 
     // note: 增加或删除要同步到module_create_t中
     module_destroy_t module[] = {
-        {"signal",  &context->signal_handle,    HySignalDestroy},
-        {"log",     &context->log_handle,       HyLogDestroy},
+        {"signal",      &context->signal_h,     HySignalDestroy},
+        {"log",         &context->log_h,        HyLogDestroy},
     };
 
     RUN_DESTROY(module);
@@ -74,11 +78,11 @@ static _main_context_t *_module_create(void)
 {
     _main_context_t *context = HY_MEM_MALLOC_RET_VAL(_main_context_t *, sizeof(*context), NULL);
 
-    HyLogConfig_s log_config;
-    log_config.save_config.buf_len_min  = 512;
-    log_config.save_config.buf_len_max  = 512;
-    log_config.save_config.level        = HY_LOG_LEVEL_TRACE;
-    log_config.save_config.color_enable = HY_TYPE_FLAG_ENABLE;
+    HyLogConfig_s log_c;
+    log_c.save_c.buf_len_min  = 512;
+    log_c.save_c.buf_len_max  = 512;
+    log_c.save_c.level        = HY_LOG_LEVEL_TRACE;
+    log_c.save_c.color_enable = HY_TYPE_FLAG_ENABLE;
 
     int8_t signal_error_num[HY_SIGNAL_NUM_MAX_32] = {
         SIGQUIT, SIGILL, SIGTRAP, SIGABRT, SIGFPE,
@@ -89,20 +93,20 @@ static _main_context_t *_module_create(void)
         SIGINT, SIGTERM, SIGUSR1, SIGUSR2,
     };
 
-    HySignalConfig_t signal_config;
-    memset(&signal_config, 0, sizeof(signal_config));
-    HY_MEMCPY(signal_config.error_num, signal_error_num, sizeof(signal_error_num));
-    HY_MEMCPY(signal_config.user_num, signal_user_num, sizeof(signal_user_num));
-    signal_config.save_config.app_name      = "template";
-    signal_config.save_config.coredump_path = "./";
-    signal_config.save_config.error_cb      = _signal_error_cb;
-    signal_config.save_config.user_cb       = _signal_user_cb;
-    signal_config.save_config.args          = context;
+    HySignalConfig_t signal_c;
+    memset(&signal_c, 0, sizeof(signal_c));
+    HY_MEMCPY(signal_c.error_num, signal_error_num, sizeof(signal_error_num));
+    HY_MEMCPY(signal_c.user_num, signal_user_num, sizeof(signal_user_num));
+    signal_c.save_c.app_name      = _APP_NAME;
+    signal_c.save_c.coredump_path = "./";
+    signal_c.save_c.error_cb      = _signal_error_cb;
+    signal_c.save_c.user_cb       = _signal_user_cb;
+    signal_c.save_c.args          = context;
 
     // note: 增加或删除要同步到module_destroy_t中
     module_create_t module[] = {
-        {"log",     &context->log_handle,       &log_config,        (create_t)HyLogCreate,      HyLogDestroy},
-        {"signal",  &context->signal_handle,    &signal_config,     (create_t)HySignalCreate,   HySignalDestroy},
+        {"log",         &context->log_h,        &log_c,         (create_t)HyLogCreate,      HyLogDestroy},
+        {"signal",      &context->signal_h,     &signal_c,      (create_t)HySignalCreate,   HySignalDestroy},
     };
 
     RUN_CREATE(module);
@@ -120,26 +124,10 @@ int main(int argc, char *argv[])
 
     LOGE("version: %s, data: %s, time: %s \n", "0.1.0", __DATE__, __TIME__);
 
-    char buf[64] = {0};
-    HyTimeFormatLocalTime(buf, sizeof(buf));
-    LOGD("buf: %s \n", buf);
-
-    time_t utc = HyTimeGetUTC();
-    LOGD("utc: %ld \n", utc);
-
-    time_t s = HyTimeFormatTime2UTC("2021-12-20_19-00-00");
-    LOGD("s: %ld \n", s);
-
-    unsigned long long us = HyTimeGetUTCUs();
-    LOGD("us: %lld \n", us);
-
-    unsigned long long ms = HyTimeGetUTCMs();
-    LOGD("ms: %lld \n", ms);
-
-    time_t start;
-    time_t end;
-    HyTimeGetCurDayRegion(1642466044, &start, &end);
-    LOGD("region[%ld, %ld] \n", start, end);
+    void *handle = HyDlLibOpen("../lib/libautotools_demo_lib.so");
+    module_init_cb_t module_init = HyDlLibLoadSymbol(handle, "HyModuleAInit");
+    module_init();
+    HyDlLibClose(&handle);
 
     while (!context->exit_flag) {
         sleep(1);
@@ -149,3 +137,6 @@ int main(int argc, char *argv[])
 
     return 0;
 }
+
+// 查看Linux程序装载动态库的位置命令
+// $ LD_DEBUG=libs app -v

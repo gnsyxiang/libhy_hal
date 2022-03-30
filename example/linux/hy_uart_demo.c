@@ -2,7 +2,7 @@
  * 
  * Release under GPLv-3.0.
  * 
- * @file    hy_uart_test.c
+ * @file    hy_uart_demo.c
  * @brief   
  * @author  gnsyxiang <gnsyxiang@163.com>
  * @date    30/10 2021 09:45
@@ -32,12 +32,14 @@
 #include "hy_hal_utils.h"
 #include "hy_log.h"
 
-typedef struct {
-    void *log_handle;
-    void *signal_handle;
-    void *uart_handle;
+#define _APP_NAME "hy_uart_demo"
 
-    hy_s32_t exit_flag;
+typedef struct {
+    void        *log_h;
+    void        *signal_h;
+    void        *uart_h;
+
+    hy_s32_t    exit_flag;
 } _main_context_t;
 
 static void _signal_error_cb(void *args)
@@ -62,9 +64,9 @@ static void _module_destroy(_main_context_t **context_pp)
 
     // note: 增加或删除要同步到module_create_t中
     module_destroy_t module[] = {
-        {"uart",    &context->uart_handle,      HyUartDestroy},
-        {"signal",  &context->signal_handle,    HySignalDestroy},
-        {"log",     &context->log_handle,       HyLogDestroy},
+        {"uart",    &context->uart_h,      HyUartDestroy},
+        {"signal",  &context->signal_h,    HySignalDestroy},
+        {"log",     &context->log_h,       HyLogDestroy},
     };
 
     RUN_DESTROY(module);
@@ -76,11 +78,11 @@ static _main_context_t *_module_create(void)
 {
     _main_context_t *context = HY_MEM_MALLOC_RET_VAL(_main_context_t *, sizeof(*context), NULL);
 
-    HyLogConfig_s log_config;
-    log_config.save_config.buf_len_min  = 512;
-    log_config.save_config.buf_len_max  = 512;
-    log_config.save_config.level        = HY_LOG_LEVEL_TRACE;
-    log_config.save_config.color_enable = HY_TYPE_FLAG_ENABLE;
+    HyLogConfig_s log_c;
+    log_c.save_c.buf_len_min  = 512;
+    log_c.save_c.buf_len_max  = 512;
+    log_c.save_c.level        = HY_LOG_LEVEL_TRACE;
+    log_c.save_c.color_enable = HY_TYPE_FLAG_ENABLE;
 
     int8_t signal_error_num[HY_SIGNAL_NUM_MAX_32] = {
         SIGQUIT, SIGILL, SIGTRAP, SIGABRT, SIGFPE,
@@ -91,15 +93,15 @@ static _main_context_t *_module_create(void)
         SIGINT, SIGTERM, SIGUSR1, SIGUSR2,
     };
 
-    HySignalConfig_t signal_config;
-    memset(&signal_config, 0, sizeof(signal_config));
-    HY_MEMCPY(signal_config.error_num, signal_error_num, sizeof(signal_error_num));
-    HY_MEMCPY(signal_config.user_num, signal_user_num, sizeof(signal_user_num));
-    signal_config.save_config.app_name      = "template";
-    signal_config.save_config.coredump_path = "./";
-    signal_config.save_config.error_cb      = _signal_error_cb;
-    signal_config.save_config.user_cb       = _signal_user_cb;
-    signal_config.save_config.args          = context;
+    HySignalConfig_t signal_c;
+    memset(&signal_c, 0, sizeof(signal_c));
+    HY_MEMCPY(signal_c.error_num, signal_error_num, sizeof(signal_error_num));
+    HY_MEMCPY(signal_c.user_num, signal_user_num, sizeof(signal_user_num));
+    signal_c.save_c.app_name      = _APP_NAME;
+    signal_c.save_c.coredump_path = "./";
+    signal_c.save_c.error_cb      = _signal_error_cb;
+    signal_c.save_c.user_cb       = _signal_user_cb;
+    signal_c.save_c.args          = context;
 
     HyUartConfig_t uart_config;
     uart_config.save_config.speed           = HY_UART_SPEED_115200;
@@ -111,9 +113,9 @@ static _main_context_t *_module_create(void)
 
     // note: 增加或删除要同步到module_destroy_t中
     module_create_t module[] = {
-        {"log",     &context->log_handle,       &log_config,        (create_t)HyLogCreate,      HyLogDestroy},
-        {"signal",  &context->signal_handle,    &signal_config,     (create_t)HySignalCreate,   HySignalDestroy},
-        {"uart",    &context->uart_handle,      &uart_config,       (create_t)HyUartCreate,     HyUartDestroy},
+        {"log",     &context->log_h,       &log_c,          (create_t)HyLogCreate,      HyLogDestroy},
+        {"signal",  &context->signal_h,    &signal_c,       (create_t)HySignalCreate,   HySignalDestroy},
+        {"uart",    &context->uart_h,      &uart_config,    (create_t)HyUartCreate,     HyUartDestroy},
     };
 
     RUN_CREATE(module);
@@ -134,7 +136,7 @@ int main(int argc, char *argv[])
     ssize_t ret;
     char buf[BUF_LEN] = {0};
     while (!context->exit_flag) {
-        ret = HyUartRead(context->uart_handle, buf, 12);
+        ret = HyUartRead(context->uart_h, buf, 12);
         if (ret == -1) {
             break;
         }

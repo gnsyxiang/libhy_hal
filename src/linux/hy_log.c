@@ -52,7 +52,7 @@ typedef struct {
 } _log_buf_t;
 
 typedef struct {
-    HyLogSaveConfig_s   save_config;
+    HyLogSaveConfig_s   save_c;
 
     hy_s32_t            init_flag;
     pthread_mutex_t     printf_mutex;
@@ -162,9 +162,9 @@ static void _thread_key_destroy(void)
 static _log_buf_t *_thread_key_create(void)
 {
     _log_buf_t *log_buf = NULL;
-    HyLogSaveConfig_s *save_config = &context->save_config;
+    HyLogSaveConfig_s *save_c = &context->save_c;
 
-    log_buf = _log_buf_create(save_config->buf_len_min, save_config->buf_len_max);
+    log_buf = _log_buf_create(save_c->buf_len_min, save_c->buf_len_max);
     if (!log_buf) {
         printf("_log_buf_create fail \n");
         return NULL;
@@ -223,7 +223,7 @@ HY_WEAK void HyLogWrite(HyLogLevel_e level, const char *err_str,
         {"T", ""},
     };
 
-    if (!context || context->save_config.level < level) {
+    if (!context || context->save_c.level < level) {
         return ;
     }
 
@@ -233,7 +233,7 @@ HY_WEAK void HyLogWrite(HyLogLevel_e level, const char *err_str,
         return ;
     }
 
-    if (context->save_config.color_enable) {
+    if (context->save_c.color_enable) {
         log_buf->len_cur += snprintf(_SNPRINTF_FMT, "%s[%s]",
                 color[level][1], color[level][0]);
     }
@@ -254,7 +254,7 @@ HY_WEAK void HyLogWrite(HyLogLevel_e level, const char *err_str,
         log_buf->len_cur += snprintf(_SNPRINTF_FMT, ", error: %s \n", err_str);
     }
 
-    if (context->save_config.color_enable) {
+    if (context->save_c.color_enable) {
         log_buf->len_cur += snprintf(_SNPRINTF_FMT, "%s", PRINT_ATTR_RESET);
     }
 
@@ -272,9 +272,9 @@ HY_WEAK void HyLogDestroy(void **handle)
     }
 }
 
-HY_WEAK void *HyLogCreate(HyLogConfig_s *config)
+HY_WEAK void *HyLogCreate(HyLogConfig_s *log_c)
 {
-    HY_ASSERT_RET_VAL(!config, NULL);
+    HY_ASSERT_RET_VAL(!log_c, NULL);
 
     if (context && context->init_flag) {
         LOGW("hy_log already initialized \n");
@@ -284,8 +284,7 @@ HY_WEAK void *HyLogCreate(HyLogConfig_s *config)
     do {
         context = HY_MEM_MALLOC_BREAK(_log_context_t *, sizeof(*context));
 
-        HyLogSaveConfig_s *save_config = &config->save_config;
-        HY_MEMCPY(&context->save_config, save_config, sizeof(*save_config));
+        HY_MEMCPY(&context->save_c, &log_c->save_c, sizeof(context->save_c));
 
         if (0 != pthread_key_create(&thread_key, _log_buf_destroy)) {
             printf("pthread_key_create failed \n");

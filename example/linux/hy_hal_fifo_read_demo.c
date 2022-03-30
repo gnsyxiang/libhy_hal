@@ -2,10 +2,10 @@
  * 
  * Release under GPLv-3.0.
  * 
- * @file    hy_mem_test.c
+ * @file    hy_hal_fifo_read_demo.c
  * @brief   
  * @author  gnsyxiang <gnsyxiang@163.com>
- * @date    02/12 2021 10:03
+ * @date    08/03 2022 08:49
  * @version v0.0.1
  * 
  * @since    note
@@ -13,9 +13,9 @@
  * 
  *     change log:
  *     NO.     Author              Date            Modified
- *     00      zhenquan.qiu        02/12 2021      create the file
+ *     00      zhenquan.qiu        08/03 2022      create the file
  * 
- *     last modified: 02/12 2021 10:03
+ *     last modified: 08/03 2022 08:49
  */
 #include <stdio.h>
 #include <stdlib.h>
@@ -30,11 +30,17 @@
 #include "hy_hal_utils.h"
 #include "hy_log.h"
 
-typedef struct {
-    void *log_handle;
-    void *signal_handle;
+#include "hy_hal_fifo.h"
 
-    hy_s32_t exit_flag;
+#define _APP_NAME "hy_hal_fifo_read_demo"
+
+typedef struct {
+    void        *log_h;
+    void        *signal_h;
+
+    void        *hal_fifo_h;
+
+    hy_s32_t    exit_flag;
 } _main_context_t;
 
 static void _signal_error_cb(void *args)
@@ -59,8 +65,9 @@ static void _module_destroy(_main_context_t **context_pp)
 
     // note: 增加或删除要同步到module_create_t中
     module_destroy_t module[] = {
-        {"signal",  &context->signal_handle,    HySignalDestroy},
-        {"log",     &context->log_handle,       HyLogDestroy},
+        {"hal fifo",    &context->hal_fifo_h,   HyHalFifoDestroy},
+        {"signal",      &context->signal_h,     HySignalDestroy},
+        {"log",         &context->log_h,        HyLogDestroy},
     };
 
     RUN_DESTROY(module);
@@ -72,11 +79,11 @@ static _main_context_t *_module_create(void)
 {
     _main_context_t *context = HY_MEM_MALLOC_RET_VAL(_main_context_t *, sizeof(*context), NULL);
 
-    HyLogConfig_s log_config;
-    log_config.save_config.buf_len_min  = 512;
-    log_config.save_config.buf_len_max  = 512;
-    log_config.save_config.level        = HY_LOG_LEVEL_TRACE;
-    log_config.save_config.color_enable = HY_TYPE_FLAG_ENABLE;
+    HyLogConfig_s log_c;
+    log_c.save_c.buf_len_min  = 512;
+    log_c.save_c.buf_len_max  = 512;
+    log_c.save_c.level        = HY_LOG_LEVEL_TRACE;
+    log_c.save_c.color_enable = HY_TYPE_FLAG_ENABLE;
 
     int8_t signal_error_num[HY_SIGNAL_NUM_MAX_32] = {
         SIGQUIT, SIGILL, SIGTRAP, SIGABRT, SIGFPE,
@@ -87,33 +94,31 @@ static _main_context_t *_module_create(void)
         SIGINT, SIGTERM, SIGUSR1, SIGUSR2,
     };
 
-    HySignalConfig_t signal_config;
-    memset(&signal_config, 0, sizeof(signal_config));
-    HY_MEMCPY(signal_config.error_num, signal_error_num, sizeof(signal_error_num));
-    HY_MEMCPY(signal_config.user_num, signal_user_num, sizeof(signal_user_num));
-    signal_config.save_config.app_name      = "template";
-    signal_config.save_config.coredump_path = "./";
-    signal_config.save_config.error_cb      = _signal_error_cb;
-    signal_config.save_config.user_cb       = _signal_user_cb;
-    signal_config.save_config.args          = context;
+    HySignalConfig_t signal_c;
+    memset(&signal_c, 0, sizeof(signal_c));
+    HY_MEMCPY(signal_c.error_num, signal_error_num, sizeof(signal_error_num));
+    HY_MEMCPY(signal_c.user_num, signal_user_num, sizeof(signal_user_num));
+    signal_c.save_c.app_name      = _APP_NAME;
+    signal_c.save_c.coredump_path = "./";
+    signal_c.save_c.error_cb      = _signal_error_cb;
+    signal_c.save_c.user_cb       = _signal_user_cb;
+    signal_c.save_c.args          = context;
+
+    HyHalFifoConfig_s fifo_c;
+    HY_MEMSET(&fifo_c, sizeof(fifo_c));
+    fifo_c.name = "fifo_demo";
+    fifo_c.flag = HY_HAL_FIFO_FLAG_NOBLOCK_READ;
 
     // note: 增加或删除要同步到module_destroy_t中
     module_create_t module[] = {
-        {"log",     &context->log_handle,       &log_config,        (create_t)HyLogCreate,      HyLogDestroy},
-        {"signal",  &context->signal_handle,    &signal_config,     (create_t)HySignalCreate,   HySignalDestroy},
+        {"log",         &context->log_h,        &log_c,         (create_t)HyLogCreate,      HyLogDestroy},
+        {"signal",      &context->signal_h,     &signal_c,      (create_t)HySignalCreate,   HySignalDestroy},
+        {"hal fifo",    &context->hal_fifo_h,   &fifo_c,        (create_t)HyHalFifoCreate,  HyHalFifoDestroy},
     };
 
     RUN_CREATE(module);
 
     return context;
-}
-
-static void _print_mem_val(const char *buf, size_t len)
-{
-    for (size_t i = 0; i < len; ++i) {
-        LOGD("mem: %p, val: %02x \n", &buf[i], buf[i]);
-    }
-    LOGD("\n");
 }
 
 int main(int argc, char *argv[])
@@ -126,17 +131,10 @@ int main(int argc, char *argv[])
 
     LOGE("version: %s, data: %s, time: %s \n", "0.1.0", __DATE__, __TIME__);
 
-    int num_int = 0x11223344;
-    _print_mem_val((char *)&num_int, 4);
+    hy_s32_t test = -1;
 
-    char array[] = {0x11, 0x22};
-    short num_short = HY_MEM_LSB_BYTE_2_WORD(array);
-    _print_mem_val((char *)&num_short, 2);
-
-    short num_short_1 = 0x1122;
-    char num_short_array[2] = {0};
-    HY_MEM_LSB_WORD_2_BYTE(num_short_array, num_short_1);
-    _print_mem_val((char *)&num_short, 2);
+    HyHalFifoRead(context->hal_fifo_h, &test, sizeof(test));
+    LOGD("test: %d \n", test);
 
     while (!context->exit_flag) {
         sleep(1);
@@ -146,5 +144,4 @@ int main(int argc, char *argv[])
 
     return 0;
 }
-
 

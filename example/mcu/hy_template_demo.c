@@ -2,7 +2,7 @@
  * 
  * Release under GPLv-3.0.
  * 
- * @file    hy_template_test.c
+ * @file    hy_template_demo.c
  * @brief   
  * @author  gnsyxiang <gnsyxiang@163.com>
  * @date    08/11 2021 19:30
@@ -33,10 +33,10 @@
 #define ALONE_DEBUG 1
 
 typedef struct {
-    void *debug_uart_handle;
-    void *log_handle;
+    void        *debug_uart_h;
+    void        *log_h;
 
-    hy_s32_t exit_flag;
+    hy_s32_t    exit_flag;
 } _main_context_t;
 
 static void _module_destroy(_main_context_t **context_pp)
@@ -45,8 +45,8 @@ static void _module_destroy(_main_context_t **context_pp)
 
     // note: 增加或删除要同步到module_create_t中
     module_destroy_t module[] = {
-        {"log",         &context->log_handle,           HyLogDestroy},
-        {"debug_uart",  &context->debug_uart_handle,    HyUartDestroy},
+        {"log",         &context->log_h,           HyLogDestroy},
+        {"debug_uart",  &context->debug_uart_h,    HyUartDestroy},
     };
 
     RUN_DESTROY(module);
@@ -69,14 +69,14 @@ static _main_context_t *_module_create(void)
     debug_uart_config.stop                  = HY_UART_STOP_1;
 
     HyLogConfig_t log_config;
-    log_config.save_config.buf_len      = 512;
-    log_config.save_config.level        = HY_LOG_LEVEL_TRACE;
-    log_config.save_config.color_enable = HY_TYPE_FLAG_ENABLE;
+    log_c.save_c.buf_len      = 512;
+    log_c.save_c.level        = HY_LOG_LEVEL_TRACE;
+    log_c.save_c.color_enable = HY_TYPE_FLAG_ENABLE;
 
     // note: 增加或删除要同步到module_destroy_t中
     module_create_t module[] = {
-        {"debug_uart",  &context->debug_uart_handle,    &debug_uart_config,     (create_t)HyUartCreate,     HyUartDestroy},
-        {"log",         &context->log_handle,           &log_config,            (create_t)HyLogCreate,      HyLogDestroy},
+        {"debug_uart",  &context->debug_uart_h,    &debug_uart_config,     (create_t)HyUartCreate,     HyUartDestroy},
+        {"log",         &context->log_h,           &log_config,            (create_t)HyLogCreate,      HyLogDestroy},
     };
 
     RUN_CREATE(module);

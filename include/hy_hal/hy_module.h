@@ -24,7 +24,22 @@
 extern "C" {
 #endif
 
+/**
+ * @brief 创建模块
+ *
+ * @param 配置参数
+ *
+ * @return 成功返回句柄，失败返回NULL
+ */
 typedef void *(*create_t)(void *config);
+
+/**
+ * @brief 销毁模块
+ *
+ * @param 模块句柄的地址（二级指针）
+ *
+ * @return 无
+ */
 typedef void (*destroy_t)(void **handle);
 
 /**

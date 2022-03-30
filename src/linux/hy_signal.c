@@ -48,7 +48,7 @@
     } while (0);
 
 typedef struct {
-    HySignalSaveConfig_t    save_config;
+    HySignalSaveConfig_t    save_c;
 } _signal_context_t;
 
 static _signal_context_t *context = NULL;
@@ -94,13 +94,13 @@ static hy_s32_t _dump_backtrace(void)
 
 static void _error_handler(int signo)
 {
-    HySignalSaveConfig_t *save_config = &context->save_config;
+    HySignalSaveConfig_t *save_c= &context->save_c;
 
     LOGE("<<<%s(pid: %d)>>> crashed by signal %s \n",
-            save_config->app_name, getpid(), signal_str[signo]);
+            save_c->app_name, getpid(), signal_str[signo]);
 
-    if (save_config->error_cb) {
-        save_config->error_cb(save_config->args);
+    if (save_c->error_cb) {
+        save_c->error_cb(save_c->args);
     }
 
     if (0 != _dump_backtrace()) {
@@ -112,7 +112,7 @@ static void _error_handler(int signo)
         exit(-1);
     } else {
         char cmd[256] = {0};
-        snprintf(cmd, sizeof(cmd), "mkdir -p %s", save_config->coredump_path);
+        snprintf(cmd, sizeof(cmd), "mkdir -p %s", save_c->coredump_path);
         system(cmd);
 
         printf("Process maps:\n");
@@ -121,17 +121,17 @@ static void _error_handler(int signo)
         system(cmd);
 
         snprintf(cmd, 256, "cat /proc/%d/maps > %s/%s.%d.maps", getpid(),
-             save_config->coredump_path, save_config->app_name, getpid());
+             save_c->coredump_path, save_c->app_name, getpid());
         system(cmd);
     }
 }
 
 static void _user_handler(int signo)
 {
-    HySignalSaveConfig_t *save_config = &context->save_config;
+    HySignalSaveConfig_t *save_c= &context->save_c;
 
-    if (save_config->user_cb) {
-        save_config->user_cb(save_config->args);
+    if (save_c->user_cb) {
+        save_c->user_cb(save_c->args);
     }
 }
 
@@ -143,26 +143,26 @@ void HySignalDestroy(void **handle)
     LOGI("signal destroy successful \n");
 }
 
-void *HySignalCreate(HySignalConfig_t *config)
+void *HySignalCreate(HySignalConfig_t *signal_c)
 {
-    LOGT("config: %p \n", config);
-    HY_ASSERT_RET_VAL(!config, NULL);
+    LOGT("signal_c: %p \n", signal_c);
+    HY_ASSERT_RET_VAL(!signal_c, NULL);
 
     struct sigaction act;
 
     do {
         context = HY_MEM_MALLOC_BREAK(_signal_context_t *, sizeof(*context));
-        HY_MEMCPY(&context->save_config, &config->save_config, sizeof(config->save_config));
+        HY_MEMCPY(&context->save_c, &signal_c->save_c, sizeof(signal_c->save_c));
 
         act.sa_flags = SA_RESETHAND;
         sigemptyset(&act.sa_mask);
         act.sa_handler = _error_handler;
 
-        _ADD_SIGNAL(config->error_num, &act);
+        _ADD_SIGNAL(signal_c->error_num, &act);
 
         act.sa_handler = _user_handler;
 
-        _ADD_SIGNAL(config->user_num, &act);
+        _ADD_SIGNAL(signal_c->user_num, &act);
 
         signal(SIGPIPE, SIG_IGN);
 
@@ -174,7 +174,7 @@ void *HySignalCreate(HySignalConfig_t *config)
     return NULL;
 }
 #else
-void *HySignalCreate(HySignalConfig_t *signal_config) {return NULL;}
+void *HySignalCreate(HySignalConfig_t *signal_c) {return NULL;}
 void HySignalDestroy(void **handle) {}
 #endif
 

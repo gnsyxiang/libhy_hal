@@ -70,23 +70,23 @@ _ldflags_com    += -T$(top_srcdir)/src/$(run_os)/$(vender)/$(chip)/AT32F407xG_FL
 endif
 endif
 
-# _elf_file                   += hy_gpio_test
-# bin_PROGRAMS                += hy_gpio_test
-# hy_gpio_test_SOURCES        = $(_sources_com) hy_gpio_test.c
-# hy_gpio_test_CPPFLAGS       = $(_cppflags_com)
-# hy_gpio_test_CFLAGS         = $(_cflags_com)
-# hy_gpio_test_CXXFLAGS       = $(_cxxflags_com)
-# hy_gpio_test_LDFLAGS        = $(_ldflags_com) -Wl,--gc-sections,-Map=hy_gpio_test.map,-cref,-u,Reset_Handler
-# hy_gpio_test_LDADD          = $(_ldadd_com)
+# _elf_file                   += hy_gpio_demo
+# bin_PROGRAMS                += hy_gpio_demo
+# hy_gpio_demo_SOURCES        = $(_sources_com) hy_gpio_demo.c
+# hy_gpio_demo_CPPFLAGS       = $(_cppflags_com)
+# hy_gpio_demo_CFLAGS         = $(_cflags_com)
+# hy_gpio_demo_CXXFLAGS       = $(_cxxflags_com)
+# hy_gpio_demo_LDFLAGS        = $(_ldflags_com) -Wl,--gc-sections,-Map=hy_gpio_demo.map,-cref,-u,Reset_Handler
+# hy_gpio_demo_LDADD          = $(_ldadd_com)
 # 
-# _elf_file                   += hy_template_test
-# bin_PROGRAMS                += hy_template_test
-# hy_template_test_SOURCES    = $(_sources_com) hy_template_test.c
-# hy_template_test_CPPFLAGS   = $(_cppflags_com)
-# hy_template_test_CFLAGS     = $(_cflags_com)
-# hy_template_test_CXXFLAGS   = $(_cxxflags_com)
-# hy_template_test_LDFLAGS    = $(_ldflags_com) -Wl,--gc-sections,-Map=hy_template_test.map,-cref,-u,Reset_Handler
-# hy_template_test_LDADD      = $(_ldadd_com)
+# _elf_file                   += hy_template_demo
+# bin_PROGRAMS                += hy_template_demo
+# hy_template_demo_SOURCES    = $(_sources_com) hy_template_demo.c
+# hy_template_demo_CPPFLAGS   = $(_cppflags_com)
+# hy_template_demo_CFLAGS     = $(_cflags_com)
+# hy_template_demo_CXXFLAGS   = $(_cxxflags_com)
+# hy_template_demo_LDFLAGS    = $(_ldflags_com) -Wl,--gc-sections,-Map=hy_template_demo.map,-cref,-u,Reset_Handler
+# hy_template_demo_LDADD      = $(_ldadd_com)
 # 
 # install-exec-hook:
 # 	for file in $(_elf_file); do \

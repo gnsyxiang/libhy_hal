@@ -48,7 +48,7 @@ typedef struct {
     int8_t user_num[HY_SIGNAL_NUM_MAX_32];  ///< 注册用户信号
     int8_t error_num[HY_SIGNAL_NUM_MAX_32]; ///< 注册系统错误信号
 
-    HySignalSaveConfig_t    save_config;    ///< 参数，详见HySignalSaveConfig_t
+    HySignalSaveConfig_t    save_c;         ///< 参数，详见HySignalSaveConfig_t
 } HySignalConfig_t;
 
 /**
@@ -58,7 +58,7 @@ typedef struct {
  *
  * @return 模块句柄，失败返回NULL
  */
-void *HySignalCreate(HySignalConfig_t *config);
+void *HySignalCreate(HySignalConfig_t *signal_c);
 
 /**
  * @brief 销毁信号处理模块

@@ -82,15 +82,9 @@ doxygen/
 *.o
 *.lo
 *.la
-example/mcu/hy_*_test.bin
-example/mcu/hy_*_test.map
+hy_*_demo.bin
+hy_*_demo.map
+hy_*_demo
 
-example/main
-example/linux/hy_*_test
-example/linux/thread/hy_*_test
-example/mac/hy_*_test
-example/mcu/hy_*_test
-example/rtos/hy_*_test
-example/window/hy_*_test
 hy_hal.pc
 
