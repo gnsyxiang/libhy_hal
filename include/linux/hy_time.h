@@ -106,6 +106,15 @@ void HyTimeDelayMs(hy_u32_t ms);
  */
 void HyTimeDelayS(hy_u32_t s);
 
+/**
+ * @brief 转换时间
+ *
+ * @param ms ms
+ *
+ * @return 转换struct timespec
+ */
+struct timespec HyTimeGetTimespec(hy_u32_t ms);
+
 #ifdef __cplusplus
 }
 #endif

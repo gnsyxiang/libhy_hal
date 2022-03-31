@@ -124,3 +124,13 @@ void HyTimeDelayS(hy_u32_t s)
     _delay_com(s, 0);
 }
 
+struct timespec HyTimeGetTimespec(hy_u32_t ms)
+{
+    struct timespec ts;
+
+    ts.tv_sec = ms / 1000;
+    ts.tv_nsec = (ms % 1000) * 1000;
+
+    return ts;
+}
+
