@@ -145,9 +145,9 @@ int main(int argc, char *argv[])
 
     LOGE("version: %s, data: %s, time: %s \n", "0.1.0", __DATE__, __TIME__);
 
-    context->fd = open("./audio_recorder.pcm", O_WRONLY);
+    context->fd = open("./audio_recorder.pcm", O_WRONLY | O_CREAT | O_TRUNC, 0777);
     if (context->fd == -1) {
-        LOGE("open failed \n");
+        LOGES("open failed \n");
     }
 
     HyAudioRecorderStart(context->audio_recorder_h);

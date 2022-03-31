@@ -52,12 +52,11 @@ typedef struct {
     hy_s32_t                    exit_flag;
 } _audio_recorder_context_t;
 
-static void _set_state(_audio_recorder_context_t *context,
-        HyAudioRecorderState_e state)
-{
-    LOGI("state change from %d to %d \n", context->state, state);
-    context->state = state;
-}
+#define _set_state_m(context, _state)                                   \
+    do {                                                                \
+        LOGI("state change from %d to %d \n", context->state, _state);  \
+        context->state = _state;                                        \
+    } while (0)
 
 static hy_s32_t _check_state(_audio_recorder_context_t *context,
         HyAudioRecorderState_e state)
@@ -73,8 +72,11 @@ static hy_s32_t _read_data_thread_cb(void *args)
     hy_s32_t frame = 0;
     hy_u32_t len = save_c->period_size * save_c->period_count;
 
-    if (len / context->bytes_per_frame) {
+    LOGE("len: %d, %d \n", len, context->bytes_per_frame);
+
+    if (len % context->bytes_per_frame) {
         LOGE("the frame is error \n");
+        context->exit_flag = 1;
         return -1;
     }
 
@@ -84,7 +86,7 @@ static hy_s32_t _read_data_thread_cb(void *args)
 
     while (!context->exit_flag) {
         if (_check_state(context, HY_AUDIO_RECORDER_STATE_STOP)) {
-            _set_state(context, HY_AUDIO_RECORDER_STATE_IDEL);
+            _set_state_m(context, HY_AUDIO_RECORDER_STATE_IDEL);
 
             HyThreadSemPost_m(context->wait_stop_sem_h);
             LOGI("audio recorder force stop \n");
@@ -120,7 +122,7 @@ hy_s32_t HyAudioRecorderStart(void *handle)
         return -1;
     }
 
-    _set_state(context, HY_AUDIO_RECORDER_STATE_RUNNING);
+    _set_state_m(context, HY_AUDIO_RECORDER_STATE_RUNNING);
     HyThreadSemPost_m(context->wait_start_sem_h);
 
     LOGI("audio recorder start \n");
@@ -139,8 +141,10 @@ hy_s32_t HyAudioRecorderStop(void *handle)
         return -1;
     }
 
-    _set_state(context, HY_AUDIO_RECORDER_STATE_STOP);
-    HyThreadSemWait_m(context->wait_stop_sem_h);
+    _set_state_m(context, HY_AUDIO_RECORDER_STATE_STOP);
+    if (!context->exit_flag) {
+        HyThreadSemWait_m(context->wait_stop_sem_h);
+    }
 
     return 0;
 }

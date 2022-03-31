@@ -53,7 +53,7 @@ void HyThreadSemDestroy(void **handle)
     _sem_context_t *context = *handle;
 
     if (0 != sem_destroy(&context->sem)) {
-        LOGE("sem_destroy failed \n");
+        LOGES("sem_destroy failed \n");
     }
 
     LOGI("thread sem destroy, context: %p \n", context);
@@ -67,10 +67,10 @@ void *HyThreadSemCreate(HyThreadSemConfig_s *sem_c)
 
     _sem_context_t *context = NULL;
     do {
-        context = HY_MEM_MALLOC_BREAK(_sem_context_t *, sizeof(context));
+        context = HY_MEM_MALLOC_BREAK(_sem_context_t *, sizeof(*context));
 
         if (0 != sem_init(&context->sem, 0, sem_c->value)) {
-            LOGE("sem_init failed \n");
+            LOGES("sem_init failed \n");
             break;
         }
 
