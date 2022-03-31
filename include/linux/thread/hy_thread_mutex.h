@@ -50,7 +50,7 @@ void *HyThreadMutexCreate(HyThreadMutexConfig_s *mutex_c);
 void HyThreadMutexDestroy(void **handle);
 
 /**
- * @brief 关锁
+ * @brief 加锁
  *
  * @param handle 句柄
  *
@@ -77,15 +77,66 @@ hy_s32_t HyThreadMutexUnLock(void *handle);
 hy_s32_t HyThreadMutexTryLock(void *handle);
 
 /**
+ * @brief 获取锁
+ *
+ * @param handle 句柄
+ *
+ * @return 成功返回锁的地址，失败返回NULL
+ */
+void *HyThreadMutexGetLock(void *handle);
+
+/**
  * @brief 创建模块
  *
- * @return 
+ * @return 成功返回句柄，失败返回NULL
  */
-#define HyThreadMutexCreate_m()                 \
-    ({                                          \
-        HyThreadMutexConfig_s thread_mutex_c;   \
-        HyThreadMutexCreate(&thread_mutex_c);   \
+#define HyThreadMutexCreate_m()                         \
+    ({                                                  \
+        HyThreadMutexConfig_s thread_mutex_c;           \
+        HyThreadMutexCreate(&thread_mutex_c);           \
      })
+
+/**
+ * @brief 加锁
+ *
+ * @param _handle 句柄
+ *
+ * @return 无
+ */
+#define HyThreadMutexLock_m(_handle)                    \
+    do {                                                \
+        if (0 != HyThreadMutexLock(_handle)) {          \
+            LOGES("HyThreadMutexLock failed \n");       \
+        }                                               \
+    } while (0)
+
+/**
+ * @brief 开锁
+ *
+ * @param _handle 句柄
+ *
+ * @return 无
+ */
+#define HyThreadMutexUnLock_m(_handle)                  \
+    do {                                                \
+        if (0 != HyThreadMutexUnLock(_handle)) {        \
+            LOGES("HyThreadMutexUnLock failed \n");     \
+        }                                               \
+    } while (0)
+
+/**
+ * @brief 尝试开锁
+ *
+ * @param _handle 句柄
+ *
+ * @return 无
+ */
+#define HyThreadMutexTryLock_m(_handle)                 \
+    do {                                                \
+        if (0 != HyThreadMutexTryLock(_handle)) {       \
+            LOGES("HyThreadMutexTryLock failed \n");    \
+        }                                               \
+    } while (0)
 
 #ifdef __cplusplus
 }

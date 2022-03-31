@@ -52,10 +52,17 @@ hy_s32_t HyThreadMutexUnLock(void *handle)
     return pthread_mutex_unlock(&((_mutex_context_s *)handle)->mutex);
 }
 
+void *HyThreadMutexGetLock(void *handle)
+{
+    HY_ASSERT(handle);
+
+    return &((_mutex_context_s *)handle)->mutex;
+}
+
 void HyThreadMutexDestroy(void **handle)
 {
     LOGT("&context: %p, context: %p \n", handle, *handle);
-    HY_ASSERT_RET(!handle || !*handle)
+    HY_ASSERT_RET(!handle || !*handle);
 
     _mutex_context_s *context = *handle;
 
