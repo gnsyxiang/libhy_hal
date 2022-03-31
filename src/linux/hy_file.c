@@ -35,6 +35,28 @@
 
 #include "hy_file.h"
 
+#if 0
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+
+int open(const char *pathname, int flags);
+int open(const char *pathname, int flags, mode_t mode);
+
+成功返回文件描述符，失败返回-1
+
+O_RDONLY　　只读打开
+O_WRONLY　  只写打开
+O_RDWR      读写打开
+
+O_APPEND    将写入追加到文件的尾端
+O_CREAT     若文件不存在，则创建它。使用该选项时，需要第三个参数mode，用来指定新文件的访问权限位
+O_EXCL      如果同时指定了O_CREAT，而文件已经存在，则会出错
+O_TRUNC     如果此文件存在，而且为只写或读写模式成功打开，则将其长度截短为0
+O_NOCTTY    如果pathname指的是终端设备，则不将该设备分配作为此进程的控制终端
+O_NONBLOCK  如果pathname指的是一个FIFO文件、块设备文件或字符设备文件，则此选项将文件的本次打开操作和后续的I/O操作设置为非阻塞模式
+#endif
+
 ssize_t HyFileRead(hy_s32_t fd, void *buf, size_t len)
 {
     ssize_t ret = 0;
