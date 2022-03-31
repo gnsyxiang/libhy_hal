@@ -19,7 +19,6 @@
 # ===============================================================
 
 SUBDIRS = \
-          socket    \
           thread
 
 # ------------------
@@ -36,13 +35,14 @@ install_includedir      = $(includedir)/@project_name@
 _no_install_headers_com +=
 
 _install_headers_com    += \
-                           hy_file.h        \
-                           hy_hal_fifo.h    \
                            hy_dir.h         \
                            hy_dlopen.h      \
+                           hy_file.h        \
+                           hy_hal_fifo.h    \
                            hy_log.h         \
                            hy_pipe.h        \
                            hy_signal.h      \
+                           hy_socket.h      \
                            hy_storage.h     \
                            hy_time.h        \
                            hy_uart.h

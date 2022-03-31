@@ -89,7 +89,6 @@ AC_CONFIG_FILES([Makefile
                  doc/Makefile
                  example/Makefile
                  example/linux/Makefile
-                 example/linux/socket/Makefile
                  example/linux/thread/Makefile
                  example/mcu/Makefile
                  example/mcu/arterytek/Makefile
@@ -97,7 +96,6 @@ AC_CONFIG_FILES([Makefile
                  include/Makefile
                  include/hy_hal/Makefile
                  include/linux/Makefile
-                 include/linux/socket/Makefile
                  include/linux/thread/Makefile
                  include/mcu/Makefile
                  include/mcu/arterytek/Makefile
@@ -105,7 +103,6 @@ AC_CONFIG_FILES([Makefile
                  res/Makefile
                  src/Makefile
                  src/linux/Makefile
-                 src/linux/socket/Makefile
                  src/linux/thread/Makefile
                  src/mcu/Makefile
                  src/mcu/arterytek/Makefile

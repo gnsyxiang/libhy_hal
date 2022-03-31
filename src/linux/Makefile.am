@@ -19,7 +19,6 @@
 # ===============================================================
 
 SUBDIRS = \
-          socket    \
           thread
 
 noinst_LTLIBRARIES = libhy_hal_os.la
@@ -57,6 +56,7 @@ _sources_com    += \
                    hy_log.c         \
                    hy_pipe.c        \
                    hy_signal.c      \
+                   hy_socket.c      \
                    hy_storage.c     \
                    hy_time.c        \
                    hy_uart.c
@@ -73,7 +73,6 @@ _cxxflags_com   +=
 _ldflags_com    +=
 
 _ldadd_com      += \
-                   $(top_builddir)/src/$(run_os)/socket/libhy_hal_os_socket.la \
                    $(top_builddir)/src/$(run_os)/thread/libhy_hal_os_thread.la \
                    $(lib_com)
 
