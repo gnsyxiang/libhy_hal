@@ -33,6 +33,7 @@ _no_install_headers_com +=
 
 _install_headers_com    += \
                            hy_thread.h          \
+                           hy_thread_cond.h     \
                            hy_thread_mutex.h    \
                            hy_thread_sem.h
 
