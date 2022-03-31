@@ -44,6 +44,11 @@ include_com         += $(HY_MCU_INCS)
 ldadd_com           += $(HY_MCU_LIBS)
 endif
 
+if COMPILE_LIBTINYALSA
+include_com         += $(TINYALSA_INCS)
+ldadd_com           += $(TINYALSA_LIBS)
+endif
+
 export include_com
 export ldadd_com 
 
