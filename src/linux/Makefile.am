@@ -19,6 +19,7 @@
 # ===============================================================
 
 SUBDIRS = \
+          audio     \
           thread
 
 noinst_LTLIBRARIES = libhy_hal_os.la
@@ -73,7 +74,8 @@ _cxxflags_com   +=
 _ldflags_com    +=
 
 _ldadd_com      += \
-                   $(top_builddir)/src/$(run_os)/thread/libhy_hal_os_thread.la \
+                   $(top_builddir)/src/$(run_os)/thread/libhy_hal_os_thread.la  \
+                   $(top_builddir)/src/$(run_os)/audio/libhy_hal_os_audio.la    \
                    $(lib_com)
 
 libhy_hal_os_la_SOURCES    = $(_sources_com)
