@@ -49,7 +49,9 @@ typedef struct {
 
 static void _audio_recorder_data_cb(const void *buf, hy_u32_t len, void *args)
 {
+    _main_context_t *context = args;
 
+    write(context->fd, buf, len);
 }
 
 static void _signal_error_cb(void *args)
@@ -117,7 +119,7 @@ static _main_context_t *_module_create(void)
     HY_MEMSET(&audio_recorder_c, sizeof(audio_recorder_c));
     audio_recorder_c.rate                   = 16 * 1000;
     audio_recorder_c.channel                = 1;
-    audio_recorder_c.bit                    = HY_AUDIO_RECORDER_BIT_S16_LE;
+    audio_recorder_c.bit                    = 16;
     audio_recorder_c.save_c.period_size     = 1024;
     audio_recorder_c.save_c.period_count    = 4;
     audio_recorder_c.save_c.data_cb         = _audio_recorder_data_cb;

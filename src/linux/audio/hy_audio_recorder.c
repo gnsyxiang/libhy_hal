@@ -26,24 +26,32 @@
 #include "hy_thread.h"
 
 #include "tinyalsa/pcm.h"
-#include "tinyalsa/mixer.h"
 
 #include "hy_thread_sem.h"
 #include "hy_audio_recorder.h"
+
+#define _dump_tinyalsa_config(_audio_recorder_c, _save_c)                   \
+    do {                                                                    \
+        LOGD("capture \n");                                                 \
+        LOGD("channel:\t\t%d \n",          _audio_recorder_c->channel);     \
+        LOGD("rate:\t\t\t%d \n",           _audio_recorder_c->rate);        \
+        LOGD("bit:\t\t\t%d \n",            _audio_recorder_c->bit);         \
+                                                                            \
+        LOGD("period_size:\t\t%d \n",      _save_c->period_size);           \
+        LOGD("period_count:\t\t%d \n",     _save_c->period_count);          \
+    } while (0)
+
+#define _set_state_m(_context, _state)                                      \
+    do {                                                                    \
+        LOGI("state change from %d to %d \n", _context->state, _state);     \
+        _context->state = _state;                                           \
+    } while (0)
 
 typedef struct {
     HyAudioRecordSaveConfig_s   save_c;
 
     struct pcm                  *pcm;
-    struct mixer                *mixer;
-
-    hy_u32_t                    card;
-    hy_u32_t                    device;
-    hy_u32_t                    pcm_flags;
-
-    hy_u32_t                    bytes_per_frame;
-    hy_u32_t                    frames_per_sec;
-    hy_u32_t                    buffer_size;
+    char                        *buf;
 
     HyAudioRecorderState_e      state;
     void                        *wait_start_sem_h;
@@ -51,12 +59,6 @@ typedef struct {
     void                        *read_data_thread_h;
     hy_s32_t                    exit_flag;
 } _audio_recorder_context_t;
-
-#define _set_state_m(context, _state)                                   \
-    do {                                                                \
-        LOGI("state change from %d to %d \n", context->state, _state);  \
-        context->state = _state;                                        \
-    } while (0)
 
 static hy_s32_t _check_state(_audio_recorder_context_t *context,
         HyAudioRecorderState_e state)
@@ -68,21 +70,9 @@ static hy_s32_t _read_data_thread_cb(void *args)
 {
     _audio_recorder_context_t *context = args;
     HyAudioRecordSaveConfig_s *save_c = &context->save_c;
-    char *buf = NULL;
     hy_s32_t frame = 0;
-    hy_u32_t len = save_c->period_size * save_c->period_count;
-
-    LOGE("len: %d, %d \n", len, context->bytes_per_frame);
-
-    if (len % context->bytes_per_frame) {
-        LOGE("the frame is error \n");
-        context->exit_flag = 1;
-        return -1;
-    }
 
     HyThreadSemWait(context->wait_start_sem_h);
-
-    buf = HY_MEM_MALLOC_RET_VAL(char *, len, -1);
 
     while (!context->exit_flag) {
         if (_check_state(context, HY_AUDIO_RECORDER_STATE_STOP)) {
@@ -97,15 +87,13 @@ static hy_s32_t _read_data_thread_cb(void *args)
             continue;
         }
 
-        frame = pcm_readi(context->pcm, buf, len / context->bytes_per_frame);
+        frame = pcm_readi(context->pcm, context->buf, pcm_get_buffer_size(context->pcm));
 
         if (save_c->data_cb) {
-            save_c->data_cb(buf,
+            save_c->data_cb(context->buf,
                     pcm_frames_to_bytes(context->pcm, frame), save_c->args);
         }
     }
-
-    HY_MEM_FREE_PP(&buf);
 
     return -1;
 }
@@ -149,41 +137,15 @@ hy_s32_t HyAudioRecorderStop(void *handle)
     return 0;
 }
 
-static inline void _dump_audio_recorder_config(struct pcm_config *config,
-        hy_s32_t bit)
-{
-    char *format_str[] = {
-        "PCM_FORMAT_S16_LE",
-        "PCM_FORMAT_S8",
-        "PCM_FORMAT_S16_BE",
-        "PCM_FORMAT_S24_LE",
-        "PCM_FORMAT_S24_BE",
-        "PCM_FORMAT_S24_3LE",
-        "PCM_FORMAT_S24_3BE",
-        "PCM_FORMAT_S32_LE",
-        "PCM_FORMAT_S32_BE",
-        "PCM_FORMAT_MAX",
-    };
-
-    LOGT("capture \n");
-    LOGT("channel:\t\t%d \n",          config->channels);
-    LOGT("rate:\t\t\t%d \n",           config->rate);
-    LOGT("bit:\t\t\t%s \n",            format_str[bit]);
-
-    LOGT("period_size:\t\t%d \n",      config->period_size);
-    LOGT("period_count:\t\t%d \n",     config->period_count);
-}
-
 static void _tinyalsa_destroy(_audio_recorder_context_t *context)
 {
-    if (context->mixer) {
-        mixer_close(context->mixer);
-        context->mixer = NULL;
-    }
-
     if (context->pcm) {
         pcm_close(context->pcm);
         context->pcm = NULL;
+    }
+
+    if (context->buf) {
+        HY_MEM_FREE_PP(&context->buf);
     }
 }
 
@@ -192,53 +154,35 @@ static hy_s32_t _tinyalsa_create(_audio_recorder_context_t *context,
 {
     do {
         HyAudioRecordSaveConfig_s *save_c = &context->save_c;
+        struct pcm_config pcm_config;
+        hy_u32_t size = 0;
 
-        hy_s32_t format[] = {
-            PCM_FORMAT_S16_LE,
-            PCM_FORMAT_S8,
-            PCM_FORMAT_S16_BE,
-            PCM_FORMAT_S24_LE,
-            PCM_FORMAT_S24_BE,
-            PCM_FORMAT_S24_3LE,
-            PCM_FORMAT_S24_3BE,
-            PCM_FORMAT_S32_LE,
-            PCM_FORMAT_S32_BE,
-            PCM_FORMAT_MAX
-        };
-
-        struct pcm_config pcm_config = {0};
+        HY_MEMSET(&pcm_config, sizeof(pcm_config));
 
         pcm_config.channels     = audio_recorder_c->channel;
         pcm_config.rate         = audio_recorder_c->rate;
-        pcm_config.format       = format[audio_recorder_c->bit];
-
         pcm_config.period_size  = save_c->period_size;
         pcm_config.period_count = save_c->period_count;
+        if (audio_recorder_c->bit == 8) {
+            pcm_config.format   = PCM_FORMAT_S8;
+        } else if (audio_recorder_c->bit == 16) {
+            pcm_config.format   = PCM_FORMAT_S16_LE;
+        } else if (audio_recorder_c->bit == 24) {
+            pcm_config.format   = PCM_FORMAT_S24_LE;
+        } else if (audio_recorder_c->bit == 32) {
+            pcm_config.format   = PCM_FORMAT_S32_LE;
+        }
 
-        _dump_audio_recorder_config(&pcm_config, audio_recorder_c->bit);
-
-        context->card            = 0;
-        context->device          = 0;
-        context->pcm_flags       = PCM_IN;
-
-        context->pcm = pcm_open(context->card, context->device, context->pcm_flags, &pcm_config);
-        if(NULL == context->pcm) {
-            LOGE("failed to allocate memory for PCM \n");
-            break;
-        } else if (!pcm_is_ready(context->pcm)){
-            LOGE("failed to open PCM, %s\n", pcm_get_error(context->pcm));
+        context->pcm = pcm_open(0, 0, PCM_IN, &pcm_config);
+        if(!context->pcm || !pcm_is_ready(context->pcm)) {
+            LOGE("failed to open PCM, %s \n", pcm_get_error(context->pcm));
             break;
         }
 
-        context->mixer = mixer_open(context->card);
-        if(NULL == context->mixer){
-            LOGE("mixer_open failed (%s)\n", pcm_get_error(context->pcm));
-            break;
-        }
+        size = pcm_frames_to_bytes(context->pcm, pcm_get_buffer_size(context->pcm));
+        context->buf = HY_MEM_MALLOC_BREAK(char *, size);
 
-        context->bytes_per_frame = pcm_frames_to_bytes(context->pcm, 1);
-        context->frames_per_sec = pcm_get_rate(context->pcm);
-        context->buffer_size = pcm_frames_to_bytes(context->pcm, pcm_get_buffer_size(context->pcm));
+        _dump_tinyalsa_config(audio_recorder_c, save_c);
 
         return 0;
     } while (0);
