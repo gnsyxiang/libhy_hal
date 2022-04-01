@@ -65,8 +65,8 @@ typedef struct {
     hy_u32_t            buf_len_max;        ///< 单条日志的最大长度，超过该长度会被截断
 
     HyLogLevel_e        level:4;            ///< 打印等级
-    hy_s32_t             color_enable:1;     ///< 是否颜色输出
-    hy_s32_t             reserved;           ///< 预留
+    hy_s32_t            color_enable:1;     ///< 是否颜色输出
+    hy_s32_t            reserved;           ///< 预留
 } HyLogSaveConfig_s;
 
 /**
