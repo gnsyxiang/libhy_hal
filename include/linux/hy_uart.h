@@ -135,7 +135,7 @@ void HyUartDestroy(void **handle);
  *
  * @return 成功返回写入的字节数，失败返回-1
  */
-hy_s32_t HyUartWrite(void *handle, const void *buf, size_t len);
+hy_s32_t HyUartWrite(void *handle, const void *buf, hy_u32_t len);
 
 /**
  * @brief 读取数据
@@ -146,7 +146,7 @@ hy_s32_t HyUartWrite(void *handle, const void *buf, size_t len);
  *
  * @return 跟read返回值一样，需要根据返回值判断
  */
-hy_s32_t HyUartRead(void *handle, void *buf, size_t len);
+hy_s32_t HyUartRead(void *handle, void *buf, hy_u32_t len);
 
 /**
  * @brief 读取数据
@@ -157,7 +157,7 @@ hy_s32_t HyUartRead(void *handle, void *buf, size_t len);
  *
  * @return 成功返回读到的字节数，失败返回-1
  */
-hy_s32_t HyUartReadN(void *handle, void *buf, size_t len);
+hy_s32_t HyUartReadN(void *handle, void *buf, hy_u32_t len);
 
 #ifdef __cplusplus
 }

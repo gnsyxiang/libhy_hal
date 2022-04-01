@@ -39,7 +39,7 @@ typedef struct {
     hy_s32_t             fd;
 } _uart_context_t;
 
-hy_s32_t HyUartWrite(void *handle, const void *buf, size_t len)
+hy_s32_t HyUartWrite(void *handle, const void *buf, hy_u32_t len)
 {
     HY_ASSERT(handle);
     HY_ASSERT(buf);
@@ -49,7 +49,7 @@ hy_s32_t HyUartWrite(void *handle, const void *buf, size_t len)
     return HyFileWriteN(context->fd, buf, len);
 }
 
-hy_s32_t HyUartRead(void *handle, void *buf, size_t len)
+hy_s32_t HyUartRead(void *handle, void *buf, hy_u32_t len)
 {
     HY_ASSERT(handle);
     HY_ASSERT(buf);
@@ -59,7 +59,7 @@ hy_s32_t HyUartRead(void *handle, void *buf, size_t len)
     return read(context->fd, buf, len);
 }
 
-hy_s32_t HyUartReadN(void *handle, void *buf, size_t len)
+hy_s32_t HyUartReadN(void *handle, void *buf, hy_u32_t len)
 {
     HY_ASSERT(handle);
     HY_ASSERT(buf);

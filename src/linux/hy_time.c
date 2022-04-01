@@ -53,7 +53,7 @@ void HyTimeGetLocalTime(struct tm *tm)
     localtime_r(&t, tm);    // localtime_r可重入，localtime不可重入
 }
 
-void HyTimeFormatLocalTime(char *buf, size_t len)
+void HyTimeFormatLocalTime(char *buf, hy_u32_t len)
 {
     struct tm tm;
 

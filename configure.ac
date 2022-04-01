@@ -69,8 +69,7 @@ AC_CHECK_HEADERS([arpa/inet.h fcntl.h inttypes.h stdint.h stdlib.h string.h sys/
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_INLINE
 AC_TYPE_INT8_T
-AC_TYPE_SIZE_T
-AC_TYPE_SSIZE_T
+AC_TYPE_MODE_T
 AC_TYPE_UINT8_T
 
 # Checks for library functions.

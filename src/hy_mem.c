@@ -24,7 +24,7 @@
 #include "hy_assert.h"
 #include "hy_log.h"
 
-void *HyMemMalloc(size_t size)
+void *HyMemMalloc(hy_s32_t size)
 {
     LOGE("HyMemMalloc failed \n");
 
@@ -38,14 +38,14 @@ void HyMemFree(void **pptr)
     LOGE("HyMemFree failed \n");
 }
 
-void *HyMemCalloc(size_t nmemb, size_t size)
+void *HyMemCalloc(hy_s32_t nmemb, hy_s32_t size)
 {
     LOGE("HyMemCalloc failed \n");
 
     return NULL;
 }
 
-void *HyMemRealloc(void *ptr, size_t nmemb, size_t size)
+void *HyMemRealloc(void *ptr, hy_s32_t nmemb, hy_s32_t size)
 {
     HY_ASSERT_RET_VAL(!ptr, NULL);
 

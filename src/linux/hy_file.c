@@ -57,9 +57,31 @@ O_NOCTTY    如果pathname指的是终端设备，则不将该设备分配作为
 O_NONBLOCK  如果pathname指的是一个FIFO文件、块设备文件或字符设备文件，则此选项将文件的本次打开操作和后续的I/O操作设置为非阻塞模式
 #endif
 
-ssize_t HyFileRead(hy_s32_t fd, void *buf, size_t len)
+hy_s64_t HyFileGetLen(const char *file)
 {
-    ssize_t ret = 0;
+    FILE *fp = NULL;
+    hy_s64_t len = 0;
+
+    fp = fopen(file, "r");
+    if (!fp) {
+        LOGES("fopen %s faild", file);
+        return -1;
+    }
+
+    fseek(fp, 0, SEEK_END);
+    len = ftell(fp);
+    if (len == -1) {
+        LOGES("ftell failed \n");
+    }
+
+    fclose(fp);
+
+    return len;
+}
+
+hy_s32_t HyFileRead(hy_s32_t fd, void *buf, hy_u32_t len)
+{
+    hy_s32_t ret = 0;
 
     ret = read(fd, buf, len);
     if (ret < 0) {
@@ -77,11 +99,11 @@ ssize_t HyFileRead(hy_s32_t fd, void *buf, size_t len)
     return ret;
 }
 
-ssize_t HyFileReadN(hy_s32_t fd, void *buf, size_t len)
+hy_s32_t HyFileReadN(hy_s32_t fd, void *buf, hy_u32_t len)
 {
-    ssize_t ret;
-    size_t nleft;
-    size_t offset = 0;
+    hy_s32_t ret;
+    hy_u32_t nleft;
+    hy_u32_t offset = 0;
 
     nleft = len;
 
@@ -107,7 +129,7 @@ ssize_t HyFileReadN(hy_s32_t fd, void *buf, size_t len)
     return offset;
 }
 
-ssize_t HyFileReadNTimeout(hy_s32_t fd, void *buf, size_t cnt, size_t ms)
+hy_s32_t HyFileReadNTimeout(hy_s32_t fd, void *buf, hy_u32_t cnt, hy_u32_t ms)
 {
     hy_s32_t len = 0;
     fd_set rfds;
@@ -119,7 +141,7 @@ ssize_t HyFileReadNTimeout(hy_s32_t fd, void *buf, size_t cnt, size_t ms)
 	time.tv_sec = ms / 1000;
 	time.tv_usec = (ms % 1000) * 1000;
 
-    size_t ret = select(fd+1, &rfds, NULL, NULL, &time);
+    hy_u32_t ret = select(fd+1, &rfds, NULL, NULL, &time);
     switch (ret) {
         case -1:
             LOGES("select error");
@@ -140,9 +162,9 @@ ssize_t HyFileReadNTimeout(hy_s32_t fd, void *buf, size_t cnt, size_t ms)
     return cnt;
 }
 
-ssize_t HyFileWrite(hy_s32_t fd, const void *buf, size_t len)
+hy_s32_t HyFileWrite(hy_s32_t fd, const void *buf, hy_u32_t len)
 {
-    ssize_t ret;
+    hy_s32_t ret;
 
     ret = write(fd, buf, len);
     if (ret < 0 && errno == EINTR) {
@@ -155,10 +177,10 @@ ssize_t HyFileWrite(hy_s32_t fd, const void *buf, size_t len)
     }
 }
 
-ssize_t HyFileWriteN(hy_s32_t fd, const void *buf, size_t len)
+hy_s32_t HyFileWriteN(hy_s32_t fd, const void *buf, hy_u32_t len)
 {
-    ssize_t ret;
-    size_t nleft;
+    hy_s32_t ret;
+    hy_u32_t nleft;
     const void *ptr;
 
     ptr   = buf;
@@ -236,27 +258,5 @@ HyFileBlockState_e HyFileBlockStateGet(hy_s32_t fd)
 hy_s32_t file_close_on_exec(hy_s32_t fd)
 {
     return _set_fcntl(fd, FD_CLOEXEC);
-}
-
-long HyFileGetLen(const char *file)
-{
-    FILE *fp = NULL;
-    long len = 0;
-
-    fp = fopen(file, "r");
-    if (!fp) {
-        LOGES("fopen %s faild", file);
-        return -1;
-    }
-
-    fseek(fp, 0, SEEK_END);
-    len = ftell(fp);
-    if (len == -1) {
-        LOGES("ftell failed \n");
-    }
-
-    fclose(fp);
-
-    return len;
 }
 

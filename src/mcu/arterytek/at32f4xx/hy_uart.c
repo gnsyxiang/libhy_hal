@@ -117,7 +117,7 @@ static hy_s32_t _uart_send_byte(void *handle, char byte)
     return (byte);
 }
 
-hy_s32_t HyUartWrite(void *handle, void *buf, size_t len)
+hy_s32_t HyUartWrite(void *handle, void *buf, hy_u32_t len)
 {
     HY_ASSERT_RET_VAL(!handle || !buf, -1);
 

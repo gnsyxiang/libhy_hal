@@ -64,7 +64,7 @@ void HyTimeGetLocalTime(struct tm *tm);
  *
  * @note 2021-12-20_19-00-00，时分秒不用分号的原因是在fat32文件系统中无法识别
  */
-void HyTimeFormatLocalTime(char *buf, size_t len);
+void HyTimeFormatLocalTime(char *buf, hy_u32_t len);
 
 /**
  * @brief 把格式化时间转成UTC时间

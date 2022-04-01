@@ -25,14 +25,14 @@
 #include "hy_mem.h"
 #include "hy_log.h"
 
-void HyStrCopyRight(const char *src, char *dst, size_t len, char ch)
+void HyStrCopyRight(const char *src, char *dst, hy_u32_t len, char ch)
 {
     HY_ASSERT_RET(!src || !dst);
 
     HY_MEMSET(dst, len);
 
-    size_t src_len = HY_STRLEN(src);
-    size_t cnt = 0;
+    hy_u32_t src_len = HY_STRLEN(src);
+    hy_u32_t cnt = 0;
     const char *str = src + src_len - 1;
     while (*str && cnt < src_len) {
         if (*str == ch) {
@@ -49,14 +49,14 @@ void HyStrCopyRight(const char *src, char *dst, size_t len, char ch)
     HY_MEMCPY(dst, str + 1, cnt);
 }
 
-void HyStrCopyRight2(const char *src, char *dst, size_t len, char ch, char ch2)
+void HyStrCopyRight2(const char *src, char *dst, hy_u32_t len, char ch, char ch2)
 {
     HY_ASSERT_RET(!src || !dst);
 
     HY_MEMSET(dst, len);
 
-    size_t src_len = HY_STRLEN(src);
-    size_t cnt = 0;
+    hy_u32_t src_len = HY_STRLEN(src);
+    hy_u32_t cnt = 0;
     const char *str = src + src_len - 1;
     while (*str && cnt < src_len) {
         if (*str == ch || *str == ch2) {

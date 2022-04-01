@@ -87,7 +87,7 @@ void HySystemDelayMs(hy_s32_t ms)
 
 void HySystemDelayS(hy_s32_t s)
 {
-    for (size_t i = 0; i < s; ++i) {
+    for (hy_u32_t i = 0; i < s; ++i) {
         HySystemDelayMs(500);
         HySystemDelayMs(500);
     }

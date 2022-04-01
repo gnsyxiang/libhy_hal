@@ -99,7 +99,7 @@ typedef enum {
 typedef struct {
     HyUartNum_t num;
 
-    void (*read_cb)(void *buf, size_t len, void *args);
+    void (*read_cb)(void *buf, hy_u32_t len, void *args);
     void *args;
 } HyUartConfigSave_t;
 
@@ -119,7 +119,7 @@ void HyUartDestroy(void **handle);
 
 hy_s32_t HyUartProcess(void *handle);
 
-hy_s32_t HyUartWrite(void *handle, void *buf, size_t len);
+hy_s32_t HyUartWrite(void *handle, void *buf, hy_u32_t len);
 
 #ifdef __cplusplus
 }

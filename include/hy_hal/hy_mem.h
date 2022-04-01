@@ -27,11 +27,13 @@ extern "C" {
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "hy_hal/hy_type.h"
+
 #define HY_MEM_BYTE(x)                          (*((unsigned char *)(x)))                                   ///< 得到指定地址上的一个字节
 #define HY_MEM_WORD(x)                          (*((unsigned short *)(x)))                                  ///< 得到指定地址上的一个字
 #define HY_MEM_DOUBLE_WORD(x)                   (*((unsigned int *)(x)))                                    ///< 得到指定地址上的一个双字
 
-#define HY_MEM_OFFSETOF(type, member)           ((size_t) &((type *)0)->member)                             ///< 得到一个member在结构体(struct)中的偏移量
+#define HY_MEM_OFFSETOF(type, member)           ((hy_s32_t) &((type *)0)->member)                             ///< 得到一个member在结构体(struct)中的偏移量
 #define HY_MEM_OFFSETOF_SIZE(type, member)      sizeof(((type *)0)->member)                                 ///< 得到一个结构体中member所占用的字节数
 
 #define HY_MEM_LSB_BYTE_2_WORD(array)           ((((unsigned short) (array)[0]) << 8) + (array)[1])         ///< 按照LSB格式把两个字节转化为一个Word
@@ -105,7 +107,7 @@ extern "C" {
  *
  * @return 成功返回内存的地址，失败返回NULL
  */
-void *HyMemMalloc(size_t size);
+void *HyMemMalloc(hy_s32_t size);
 
 /**
  * @brief 释放内存
@@ -122,7 +124,7 @@ void HyMemFree(void **pptr);
  *
  * @return 成功返回内存的地址，失败返回NULL
  */
-void *HyMemCalloc(size_t nmemb, size_t size);
+void *HyMemCalloc(hy_s32_t nmemb, hy_s32_t size);
 
 /**
  * @brief 申请内存
@@ -133,7 +135,7 @@ void *HyMemCalloc(size_t nmemb, size_t size);
  *
  * @return 成功返回内存的地址，失败返回NULL
  */
-void *HyMemRealloc(void *ptr, size_t nmemb, size_t size);
+void *HyMemRealloc(void *ptr, hy_s32_t nmemb, hy_s32_t size);
 
 #ifdef __cplusplus
 }

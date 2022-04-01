@@ -35,7 +35,7 @@ static hy_s32_t _filter_file(const char *path, const char *name,
         HyDirReadCb_t read_cb, const char *filter)
 {
     char buf[HY_STRING_BUF_MAX_LEN_128] = {0};
-    size_t len;
+    hy_u32_t len;
 
     if (filter) {
         buf[0] = '.';
@@ -59,7 +59,7 @@ static hy_s32_t _filter_file(const char *path, const char *name,
 static hy_s32_t _handle_sub_dir(const char *path, char *name, const char *filter,
         HyDirReadCb_t handle_cb, void *args)
 {
-    size_t len = strlen(path) + 1 + strlen(name) + 1; // 1 for space('\0'), 1 for '/'
+    hy_u32_t len = strlen(path) + 1 + strlen(name) + 1; // 1 for space('\0'), 1 for '/'
     char *sub_path = HY_MEM_MALLOC_RET_VAL(char *, len, -1);
     hy_s32_t ret;
 

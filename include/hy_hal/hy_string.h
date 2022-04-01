@@ -27,6 +27,8 @@ extern "C" {
 #include <stdio.h>
 #include <string.h>
 
+#include "hy_hal/hy_type.h"
+
 #define HY_STRING_BUF_MAX_LEN_4             (4)
 #define HY_STRING_BUF_MAX_LEN_8             (8)
 #define HY_STRING_BUF_MAX_LEN_16            (16)
@@ -43,7 +45,7 @@ extern "C" {
 
 #define HY_STRNCPY(dst, dst_len, src, src_len)  \
     do {                                        \
-        size_t len = src_len;                   \
+        hy_u32_t len = src_len;                 \
         if (len >= dst_len) {                   \
             len = dst_len - 1;                  \
         }                                       \
@@ -59,7 +61,7 @@ extern "C" {
  * @param len 目的字符串长度
  * @param ch 指定分界字符
  */
-void HyStrCopyRight(const char *src, char *dst, size_t len, char ch);
+void HyStrCopyRight(const char *src, char *dst, hy_u32_t len, char ch);
 
 /**
  * @brief 从右边开始拷贝字符，直到指定字符停止，不拷贝指定字符
@@ -70,7 +72,7 @@ void HyStrCopyRight(const char *src, char *dst, size_t len, char ch);
  * @param ch 指定第一个分界字符
  * @param ch2 指定第二个分界字符
  */
-void HyStrCopyRight2(const char *src, char *dst, size_t len, char ch, char ch2);
+void HyStrCopyRight2(const char *src, char *dst, hy_u32_t len, char ch, char ch2);
 
 #ifdef __cplusplus
 }

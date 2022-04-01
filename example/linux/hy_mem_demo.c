@@ -110,9 +110,9 @@ static _main_context_t *_module_create(void)
     return context;
 }
 
-static void _print_mem_val(const char *buf, size_t len)
+static void _print_mem_val(const char *buf, hy_u32_t len)
 {
-    for (size_t i = 0; i < len; ++i) {
+    for (hy_u32_t i = 0; i < len; ++i) {
         LOGD("mem: %p, val: %02x \n", &buf[i], buf[i]);
     }
     LOGD("\n");

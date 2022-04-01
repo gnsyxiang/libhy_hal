@@ -27,7 +27,7 @@ extern "C" {
 #ifdef __compiler_offsetof
 #define HY_OFFSETOF(TYPE,MEMBER) __compiler_offsetof(TYPE,MEMBER)
 #else
-#define HY_OFFSETOF(TYPE, MEMBER) ((size_t) &((TYPE *)0)->MEMBER)
+#define HY_OFFSETOF(TYPE, MEMBER) ((hy_u32_t) &((TYPE *)0)->MEMBER)
 #endif
 
 #define HY_CONTAINER_OF(ptr, type, member) ({                       \
