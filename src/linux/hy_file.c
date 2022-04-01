@@ -30,8 +30,8 @@
 #include <unistd.h>
 #include <fcntl.h>
 
+#include "hy_assert.h"
 #include "hy_log.h"
-#include "hy_type.h"
 
 #include "hy_file.h"
 
@@ -56,6 +56,20 @@ O_TRUNC     如果此文件存在，而且为只写或读写模式成功打开�
 O_NOCTTY    如果pathname指的是终端设备，则不将该设备分配作为此进程的控制终端
 O_NONBLOCK  如果pathname指的是一个FIFO文件、块设备文件或字符设备文件，则此选项将文件的本次打开操作和后续的I/O操作设置为非阻塞模式
 #endif
+
+hy_s32_t HyFileIsExist(const char *file_path)
+{
+    HY_ASSERT_RET_VAL(!file_path, -1);
+
+    return access(file_path, F_OK);
+}
+
+void HyFileRemove(const char *file_path)
+{
+    HY_ASSERT_RET(!file_path);
+
+    remove(file_path);
+}
 
 hy_s64_t HyFileGetLen(const char *file)
 {

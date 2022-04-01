@@ -35,6 +35,36 @@ typedef enum {
 } HyFileBlockState_e;
 
 /**
+ * @brief 判断文件是否存在
+ *
+ * @param file_path 文件路径
+ *
+ * @return 成功返回0，失败返回-1
+ */
+hy_s32_t HyFileIsExist(const char *file_path);
+
+/**
+ * @brief 判断文件是否存在
+ *
+ * @param _file_path 文件路径
+ *
+ * @return 无
+ */
+#define HyFileIsExist_m(_file_path)                                     \
+    do {                                                                \
+        if (0 != HyFileIsExist(_file_path)) {                           \
+            LOGE("HyFileIsExist failed, file_path: %s \n", _file_path); \
+        }                                                               \
+    } while (0)
+
+/**
+ * @brief 移除文件
+ *
+ * @param file_path 文件路径
+ */
+void HyFileRemove(const char *file_path);
+
+/**
  * @brief 获取文件的长度
  *
  * @param file 文件
