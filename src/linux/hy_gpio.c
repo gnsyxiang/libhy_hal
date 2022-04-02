@@ -34,87 +34,101 @@
 #define _HY_GPIO_DIR_OUT        "out"
 #define _HY_GPIO_DIR_IN         "in"
 
-#define _EXPORT_GPIO(_gpio)                                         \
-    do {                                                            \
-        FILE *fp = fopen(_GPIO_EXPORT_PATH, "w");                   \
-        if (!fp) {                                                  \
-            LOGES("open %s failed", _GPIO_EXPORT_PATH);             \
-            return -1;                                              \
-        }                                                           \
-        fprintf(fp, "%d", _gpio);                                   \
-        fclose(fp);                                                 \
+#define _EXPORT_GPIO(_gpio)                                             \
+    do {                                                                \
+        FILE *fp = fopen(_GPIO_EXPORT_PATH, "w");                       \
+        if (!fp) {                                                      \
+            LOGES("open %s failed", _GPIO_EXPORT_PATH);                 \
+            return -1;                                                  \
+        }                                                               \
+        fprintf(fp, "%d", _gpio->gpio);                                 \
+        fclose(fp);                                                     \
     } while (0)
 
-#define _UNEXPORT_GPIO(_gpio)                                       \
-    do {                                                            \
-        FILE *fp = fopen(_GPIO_UNEXPORT_PATH, "w");                 \
-        if (!fp) {                                                  \
-            LOGES("open %s failed", _GPIO_UNEXPORT_PATH);           \
-            return -1;                                              \
-        }                                                           \
-        fprintf(fp, "%d", _gpio);                                   \
-        fclose(fp);                                                 \
+#define _UNEXPORT_GPIO(_gpio)                                           \
+    do {                                                                \
+        FILE *fp = fopen(_GPIO_UNEXPORT_PATH, "w");                     \
+        if (!fp) {                                                      \
+            LOGES("open %s failed", _GPIO_UNEXPORT_PATH);               \
+            return -1;                                                  \
+        }                                                               \
+        fprintf(fp, "%d", _gpio->gpio);                                 \
+        fclose(fp);                                                     \
     } while (0)
 
-#define _SET_DIRECTION(_gpio, _direction)                           \
-    do {                                                            \
-        char buf[64] = {0};                                         \
-        FILE *fp = NULL;                                            \
-        snprintf(buf, sizeof(buf), _GPIO_DIRECTION_PATH, _gpio);    \
-        fp = fopen(buf, "w");                                       \
-        if (!fp) {                                                  \
-            LOGES("open %s failed", buf);                           \
-            return -1;                                              \
-        }                                                           \
-        if (_direction) {                                           \
-            fprintf(fp, "%s", "out");                               \
-        } else {                                                    \
-            fprintf(fp, "%s", "in");                                \
-        }                                                           \
-        fclose(fp);                                                 \
+#define _SET_DIRECTION(_gpio, _direction)                               \
+    do {                                                                \
+        char buf[64] = {0};                                             \
+        FILE *fp = NULL;                                                \
+        snprintf(buf, sizeof(buf), _GPIO_DIRECTION_PATH, _gpio->gpio);  \
+        fp = fopen(buf, "w");                                           \
+        if (!fp) {                                                      \
+            LOGES("open %s failed", buf);                               \
+            return -1;                                                  \
+        }                                                               \
+        if (_direction) {                                               \
+            fprintf(fp, "%s", "out");                                   \
+        } else {                                                        \
+            fprintf(fp, "%s", "in");                                    \
+        }                                                               \
+        fclose(fp);                                                     \
     } while (0)
 
-#define _SET_VAL(_gpio, _val)                                       \
-    do {                                                            \
-        FILE *fp = NULL;                                            \
-        char buf[64] = {0};                                         \
-        snprintf(buf, sizeof(buf), _GPIO_VALUE_PATH, _gpio);        \
-        fp = fopen(buf, "w");                                       \
-        if (!fp) {                                                  \
-            LOGES("open %s failed", buf);                           \
-            return -1;                                              \
-        }                                                           \
-        if (_val) {                                                 \
-            fprintf(fp, "%d", 1);                                   \
-        } else {                                                    \
-            fprintf(fp, "%d", 0);                                   \
-        }                                                           \
-        fclose(fp);                                                 \
+#define _SET_VAL(_gpio, _val)                                           \
+    do {                                                                \
+        FILE *fp = NULL;                                                \
+        char buf[64] = {0};                                             \
+        snprintf(buf, sizeof(buf), _GPIO_VALUE_PATH, _gpio->gpio);      \
+        fp = fopen(buf, "w");                                           \
+        if (!fp) {                                                      \
+            LOGES("open %s failed", buf);                               \
+            return -1;                                                  \
+        }                                                               \
+        if (HY_GPIO_VAL_ON == _val) {                                   \
+            if (_gpio->active_val == HY_GPIO_ACTIVE_VAL_1) {            \
+                fprintf(fp, "%d", 1);                                   \
+            } else {                                                    \
+                fprintf(fp, "%d", 0);                                   \
+            }                                                           \
+        } else {                                                        \
+            if (_gpio->active_val == HY_GPIO_ACTIVE_VAL_1) {            \
+                fprintf(fp, "%d", 0);                                   \
+            } else {                                                    \
+                fprintf(fp, "%d", 1);                                   \
+            }                                                           \
+        }                                                               \
+        fclose(fp);                                                     \
     } while (0)
 
-#define _GET_VAL(_gpio, _val)                                       \
-    do {                                                            \
-        char buf[64] = {0};                                         \
-        char ch;                                                    \
-        FILE *fp = NULL;                                            \
-        snprintf(buf, sizeof(buf), _GPIO_VALUE_PATH, _gpio);        \
-        fp = fopen(buf, "r");                                       \
-        if (!fp) {                                                  \
-            LOGES("open %s failed\n", buf);                         \
-            return -1;                                              \
-        }                                                           \
-        \
-        fread(&ch, 1, 1, fp);                                       \
-        if (ch != '0') {                                            \
-            _val = 1;                                               \
-        } else {                                                    \
-            _val = 0;                                               \
-        }                                                           \
-        \
-        fclose(fp);                                                 \
+#define _GET_VAL(_gpio, _val)                                           \
+    do {                                                                \
+        char buf[64] = {0};                                             \
+        char ch;                                                        \
+        FILE *fp = NULL;                                                \
+        snprintf(buf, sizeof(buf), _GPIO_VALUE_PATH, _gpio->gpio);      \
+        fp = fopen(buf, "r");                                           \
+        if (!fp) {                                                      \
+            LOGES("open %s failed\n", buf);                             \
+            return -1;                                                  \
+        }                                                               \
+        fread(&ch, 1, 1, fp);                                           \
+        if (ch != '1') {                                                \
+            if (_gpio->active_val == HY_GPIO_ACTIVE_VAL_1) {            \
+                _val = 1;                                               \
+            } else {                                                    \
+                _val = 0;                                               \
+            }                                                           \
+        } else {                                                        \
+            if (_gpio->active_val == HY_GPIO_ACTIVE_VAL_1) {            \
+                _val = 0;                                               \
+            } else {                                                    \
+                _val = 1;                                               \
+            }                                                           \
+        }                                                               \
+        fclose(fp);                                                     \
     } while (0)
 
-hy_s32_t HyGpioSetOutputVal(hy_u32_t gpio, hy_s32_t val)
+hy_s32_t HyGpioSetOutputVal(HyGpio_s *gpio, HyGpioVal_e val)
 {
     _EXPORT_GPIO(gpio);
     _SET_DIRECTION(gpio, HY_GPIO_DIRECTION_OUT);
@@ -124,7 +138,7 @@ hy_s32_t HyGpioSetOutputVal(hy_u32_t gpio, hy_s32_t val)
     return 0;
 }
 
-hy_s32_t HyGpioSetDirection(hy_u32_t gpio, HyGpioDirection_e direction)
+hy_s32_t HyGpioSetDirection(HyGpio_s *gpio, HyGpioDirection_e direction)
 {
     _EXPORT_GPIO(gpio);
     _SET_DIRECTION(gpio, direction);
@@ -133,7 +147,7 @@ hy_s32_t HyGpioSetDirection(hy_u32_t gpio, HyGpioDirection_e direction)
     return 0;
 }
 
-hy_s32_t HyGpioSetVal(hy_u32_t gpio, hy_s32_t val)
+hy_s32_t HyGpioSetVal(HyGpio_s *gpio, HyGpioVal_e val)
 {
     _EXPORT_GPIO(gpio);
     _SET_VAL(gpio, val);
@@ -142,7 +156,7 @@ hy_s32_t HyGpioSetVal(hy_u32_t gpio, hy_s32_t val)
     return 0;
 }
 
-hy_s32_t HyGpioGetVal(hy_u32_t gpio, hy_s32_t *val)
+hy_s32_t HyGpioGetVal(HyGpio_s *gpio, HyGpioVal_e *val)
 {
     _EXPORT_GPIO(gpio);
     _GET_VAL(gpio, *val);

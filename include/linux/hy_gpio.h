@@ -26,10 +26,37 @@ extern "C" {
 
 #include "hy_hal/hy_type.h"
 
+/**
+ * @brief gpio方向
+ */
 typedef enum {
-    HY_GPIO_DIRECTION_IN,
-    HY_GPIO_DIRECTION_OUT,
+    HY_GPIO_DIRECTION_IN,               ///< 输入
+    HY_GPIO_DIRECTION_OUT,              ///< 输出
 } HyGpioDirection_e;
+
+/**
+ * @brief 工作状态电平有效值
+ */
+typedef enum {
+    HY_GPIO_ACTIVE_VAL_0,               ///< 工作状态低电平有效
+    HY_GPIO_ACTIVE_VAL_1,               ///< 工作状态高电平有效
+} HyGpioActiveVal_e;
+
+/**
+ * @brief gpio值状态
+ */
+typedef enum {
+    HY_GPIO_VAL_OFF,                    ///< 非工作状态
+    HY_GPIO_VAL_ON,                     ///< 工作状态
+} HyGpioVal_e;
+
+/**
+ * @brief gpio结构体
+ */
+typedef struct {
+    hy_s32_t            gpio;           ///< gpio
+    HyGpioActiveVal_e   active_val;     ///< 工作状态的电平
+} HyGpio_s;
 
 /**
  * @brief 设置gpio为输出，同时设置val值
@@ -39,7 +66,7 @@ typedef enum {
  *
  * @return 成功返回0，失败返回-1
  */
-hy_s32_t HyGpioSetOutputVal(hy_u32_t gpio, hy_s32_t val);
+hy_s32_t HyGpioSetOutputVal(HyGpio_s *gpio, HyGpioVal_e val);
 
 /**
  * @brief 设置gpio的方向
@@ -49,7 +76,7 @@ hy_s32_t HyGpioSetOutputVal(hy_u32_t gpio, hy_s32_t val);
  *
  * @return 成功返回0，失败返回-1
  */
-hy_s32_t HyGpioSetDirection(hy_u32_t gpio, HyGpioDirection_e direction);
+hy_s32_t HyGpioSetDirection(HyGpio_s *gpio, HyGpioDirection_e direction);
 
 /**
  * @brief 设置gpio的值
@@ -59,7 +86,7 @@ hy_s32_t HyGpioSetDirection(hy_u32_t gpio, HyGpioDirection_e direction);
  *
  * @return 成功返回0，失败返回-1
  */
-hy_s32_t HyGpioSetVal(hy_u32_t gpio, hy_s32_t val);
+hy_s32_t HyGpioSetVal(HyGpio_s *gpio, HyGpioVal_e val);
 
 /**
  * @brief 获取gpio的值
@@ -69,7 +96,7 @@ hy_s32_t HyGpioSetVal(hy_u32_t gpio, hy_s32_t val);
  *
  * @return 成功返回0，失败返回-1
  */
-hy_s32_t HyGpioGetVal(hy_u32_t gpio, hy_s32_t *val);
+hy_s32_t HyGpioGetVal(HyGpio_s *gpio, HyGpioVal_e *val);
 
 #ifdef __cplusplus
 }
