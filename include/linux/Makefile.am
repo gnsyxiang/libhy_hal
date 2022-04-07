@@ -43,6 +43,7 @@ _install_headers_com    += \
                            hy_hal_fifo.h    \
                            hy_log.h         \
                            hy_pipe.h        \
+                           hy_sd.h          \
                            hy_signal.h      \
                            hy_socket.h      \
                            hy_storage.h     \

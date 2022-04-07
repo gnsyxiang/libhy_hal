@@ -57,6 +57,7 @@ _sources_com    += \
                    hy_hal_fifo.c    \
                    hy_log.c         \
                    hy_pipe.c        \
+                   hy_sd.c          \
                    hy_signal.c      \
                    hy_socket.c      \
                    hy_storage.c     \

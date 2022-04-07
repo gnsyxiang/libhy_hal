@@ -130,6 +130,14 @@ hy_pipe_demo_CXXFLAGS           = $(_cxxflags_com)
 hy_pipe_demo_LDFLAGS            = $(_ldflags_com)
 hy_pipe_demo_LDADD              = $(_ldadd_com)
 
+bin_PROGRAMS                    += hy_sd_demo
+hy_sd_demo_SOURCES              = $(_sources_com) hy_sd_demo.c
+hy_sd_demo_CPPFLAGS             = $(_cppflags_com)
+hy_sd_demo_CFLAGS               = $(_cflags_com)
+hy_sd_demo_CXXFLAGS             = $(_cxxflags_com)
+hy_sd_demo_LDFLAGS              = $(_ldflags_com)
+hy_sd_demo_LDADD                = $(_ldadd_com)
+
 bin_PROGRAMS                    += hy_socket_client_demo
 hy_socket_client_demo_SOURCES   = $(_sources_com) hy_socket_client_demo.c
 hy_socket_client_demo_CPPFLAGS  = $(_cppflags_com)

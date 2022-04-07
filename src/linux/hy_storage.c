@@ -113,3 +113,4 @@ hy_s32_t HyStorageSdGetInfo(const char *mount_path,
 
     return 0;
 }
+
