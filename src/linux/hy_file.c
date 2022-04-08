@@ -311,23 +311,20 @@ static hy_s32_t _set_fcntl(hy_s32_t fd, hy_s32_t arg)
     return fcntl(fd, F_SETFL, flags | arg);
 }
 
-static hy_s32_t _reset_fcntl(hy_s32_t fd, hy_s32_t arg)
+hy_s32_t HyFileBlockStateSet(hy_s32_t fd, HyFileBlockState_e state)
 {
     hy_s32_t flags;
 
-    if ((flags = fcntl(fd, F_GETFL, 0)) == -1) {
-        flags = 0;
+    flags = fcntl(fd, F_GETFL, 0);
+    if (flags == -1) {
+        LOGE("fcntl failed \n");
+        return -1;
     }
 
-    return fcntl(fd, F_SETFL, flags & arg);
-}
-
-hy_s32_t HyFileBlockStateSet(hy_s32_t fd, HyFileBlockState_e state)
-{
     if (HY_FILE_BLOCK_STATE_BLOCK == state) {
-        return _reset_fcntl(fd, ~O_NONBLOCK);
+        return fcntl(fd, F_SETFL, flags & ~O_NONBLOCK);
     } else {
-        return _set_fcntl(fd, O_NONBLOCK);
+        return fcntl(fd, F_SETFL, flags | O_NONBLOCK);
     }
 }
 
