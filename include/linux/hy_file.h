@@ -79,11 +79,24 @@ hy_s64_t HyFileGetLen(const char *file);
  * @param file 文件
  * @param content 数据的地址
  *
- * @return 成功返回0，失败返回-1
+ * @return 成功返回读取到的实际长度，失败返回-1
  *
  * @note content在内部分配，使用完后切记要释放，否则造成内存泄露
  */
 hy_s32_t HyFileGetContent(const char *file, char **content);
+
+/**
+ * @brief 获取文件的内容
+ *
+ * @param file 文件
+ * @param content 数据的地址
+ * @param content_len 数据的长度
+ *
+ * @return 成功返回读取到的实际长度，失败返回-1
+ *
+ * @note linux系统有些文件(/proc/partitions)不能调用函数获取文件的大小
+ */
+hy_s32_t HyFileGetContent2(const char *file, char *content, hy_u32_t content_len);
 
 /**
  * @brief 读取数据

@@ -112,8 +112,8 @@ hy_s32_t HyFileGetContent(const char *file, char **content)
     HY_ASSERT(content);
 
     FILE *fp = NULL;
-    long len = 0;
     char *buf = NULL;
+    long len = 0;
 
     do {
         fp = fopen(file, "r");
@@ -136,15 +136,12 @@ hy_s32_t HyFileGetContent(const char *file, char **content)
         }
 
         fseek(fp, 0, SEEK_SET);
-        if ((size_t)len != fread(buf, 1, len, fp)) {
-            LOGES("fread failed \n");
-            break;
-        }
+        len = fread(buf, 1, len, fp);
 
         *content = buf;
         fclose(fp);
 
-        return 0;
+        return len;
     } while (0);
 
     if (fp) {
@@ -156,6 +153,26 @@ hy_s32_t HyFileGetContent(const char *file, char **content)
     }
 
     return -1;
+}
+
+hy_s32_t HyFileGetContent2(const char *file, char *content, hy_u32_t content_len)
+{
+    HY_ASSERT(file);
+
+    FILE *fp = NULL;
+    long len = content_len;
+
+    fp = fopen(file, "r");
+    if (!fp) {
+        LOGES("fopen %s failed, fp: %p \n", file, fp);
+        return -1;
+    }
+
+    len = fread(content, 1, len, fp);
+
+    fclose(fp);
+
+    return len;
 }
 
 hy_s32_t HyFileRead(hy_s32_t fd, void *buf, hy_u32_t len)

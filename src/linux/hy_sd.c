@@ -27,33 +27,11 @@
 #include "hy_assert.h"
 #include "hy_log.h"
 #include "hy_hal_utils.h"
+#include "hy_file.h"
 
 #include "hy_sd.h"
 
 #define _SD_PARTITIIONS_PATH     "/proc/partitions"
-
-static hy_s32_t _get_partitions_content(const char *name,
-        char *content, hy_u32_t content_len)
-{
-    hy_s32_t fd = -1;
-
-    fd = open(name, O_RDONLY);
-    if (-1 == fd) {
-        LOGES("open %s failed \n", name);
-        return -1;
-    }
-
-    if (read(fd, content, content_len) <= 0) {
-        LOGE("the %s length is 0 \n", name);
-
-        close(0);
-        return -1;
-    }
-
-    close(fd);
-
-    return 0;
-}
 
 hy_s32_t HySdGetPartitionsName(char *name, hy_u32_t name_len_max)
 {
@@ -73,8 +51,8 @@ hy_s32_t HySdGetPartitionsName(char *name, hy_u32_t name_len_max)
         {"/dev/mmcblk0",    "mmcblk0"},
     };
 
-    if (0 != _get_partitions_content(_SD_PARTITIIONS_PATH, buf, sizeof(buf))) {
-        LOGE("_get_partitions_content failed \n");
+    if (-1 == HyFileGetContent2(_SD_PARTITIIONS_PATH, buf, sizeof(buf))) {
+        LOGE("HyFileGetContent2 failed \n");
         return ret;
     }
 
