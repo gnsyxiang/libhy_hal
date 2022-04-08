@@ -45,8 +45,9 @@ _no_error_com   +=
 _define_com     += -D_GNU_SOURCE
 
 _include_com    += \
-                   -I$(top_srcdir)/include/$(run_os)    \
-                   -I$(top_srcdir)/include/hy_hal       \
+                   -I$(top_srcdir)/include/$(run_os)/thread     \
+                   -I$(top_srcdir)/include/$(run_os)            \
+                   -I$(top_srcdir)/include/hy_hal               \
                    -I$(top_srcdir)/include
 
 _sources_com    += \
@@ -55,6 +56,7 @@ _sources_com    += \
                    hy_file.c        \
                    hy_gpio.c        \
                    hy_hal_fifo.c    \
+                   hy_hotplug.c     \
                    hy_log.c         \
                    hy_pipe.c        \
                    hy_sd.c          \

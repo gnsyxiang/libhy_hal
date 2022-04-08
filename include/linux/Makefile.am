@@ -41,6 +41,7 @@ _install_headers_com    += \
                            hy_file.h        \
                            hy_gpio.h        \
                            hy_hal_fifo.h    \
+                           hy_hotplug.h     \
                            hy_log.h         \
                            hy_pipe.h        \
                            hy_sd.h          \
