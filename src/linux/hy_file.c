@@ -31,6 +31,8 @@
 #include <fcntl.h>
 
 #include "hy_assert.h"
+#include "hy_mem.h"
+#include "hy_string.h"
 #include "hy_log.h"
 
 #include "hy_file.h"
@@ -73,24 +75,87 @@ void HyFileRemove(const char *file_path)
 
 hy_s64_t HyFileGetLen(const char *file)
 {
+    HY_ASSERT(file);
+
     FILE *fp = NULL;
     hy_s64_t len = 0;
 
-    fp = fopen(file, "r");
-    if (!fp) {
-        LOGES("fopen %s faild", file);
-        return -1;
+    do {
+        fp = fopen(file, "r");
+        if (!fp) {
+            LOGES("fopen %s failed, fp: %p \n", file, fp);
+            break;
+        }
+
+        fseek(fp, 0, SEEK_END);
+        len = ftell(fp);
+        if (len == -1) {
+            LOGES("ftell failed, len: -1 \n");
+            break;
+        }
+
+        fclose(fp);
+
+        return len;
+    } while (0);
+
+    if (fp) {
+        fclose(fp);
     }
 
-    fseek(fp, 0, SEEK_END);
-    len = ftell(fp);
-    if (len == -1) {
-        LOGES("ftell failed \n");
+    return -1;
+}
+
+hy_s32_t HyFileGetContent(const char *file, char **content)
+{
+    HY_ASSERT(file);
+    HY_ASSERT(content);
+
+    FILE *fp = NULL;
+    long len = 0;
+    char *buf = NULL;
+
+    do {
+        fp = fopen(file, "r");
+        if (!fp) {
+            LOGES("fopen %s failed, fp: %p \n", file, fp);
+            break;
+        }
+
+        fseek(fp, 0, SEEK_END);
+        len = ftell(fp);
+        if (len == -1) {
+            LOGES("ftell failed, len: -1 \n");
+            break;
+        }
+
+        buf = malloc(len);
+        if (!buf) {
+            LOGES("malloc failed, buf: %p \n", buf);
+            break;
+        }
+
+        fseek(fp, 0, SEEK_SET);
+        if ((size_t)len != fread(buf, 1, len, fp)) {
+            LOGES("fread failed \n");
+            break;
+        }
+
+        *content = buf;
+        fclose(fp);
+
+        return 0;
+    } while (0);
+
+    if (fp) {
+        fclose(fp);
     }
 
-    fclose(fp);
+    if (buf) {
+        free(buf);
+    }
 
-    return len;
+    return -1;
 }
 
 hy_s32_t HyFileRead(hy_s32_t fd, void *buf, hy_u32_t len)

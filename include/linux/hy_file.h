@@ -74,6 +74,18 @@ void HyFileRemove(const char *file_path);
 hy_s64_t HyFileGetLen(const char *file);
 
 /**
+ * @brief 获取文件的内容
+ *
+ * @param file 文件
+ * @param content 数据的地址
+ *
+ * @return 成功返回0，失败返回-1
+ *
+ * @note content在内部分配，使用完后切记要释放，否则造成内存泄露
+ */
+hy_s32_t HyFileGetContent(const char *file, char **content);
+
+/**
  * @brief 读取数据
  *
  * @param fd 文件fd
