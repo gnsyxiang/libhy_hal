@@ -21,6 +21,9 @@
 #include <sys/types.h>          /* See NOTES */
 #include <sys/socket.h>
 #include <linux/netlink.h>
+#include <sys/time.h>
+#include <sys/types.h>
+#include <unistd.h>
 
 #include "hy_mem.h"
 #include "hy_string.h"
@@ -32,6 +35,7 @@
 #include "hy_hotplug.h"
 
 #define _HOTPLUG_BUF_LEN_MAX    (4 * 1024)
+#define _HOTPLUG_NAME_LEN_MAX   (16)
 
 typedef struct {
     char                    *name;
@@ -39,94 +43,129 @@ typedef struct {
 } _hotplug_name_s;
 
 typedef struct {
+    char                    *info;
+    HyHotplugState_e        state;
+} _hotplug_type_s;
+
+typedef struct {
     HyHotplugSaveConfig_s   save_c;
 
     hy_s32_t                fd;
     char                    *buf;
 
+    char                    name[_HOTPLUG_NAME_LEN_MAX];
+    HyHotplugType_e         type;
+
     void                    *thread_h;
     hy_s32_t                exit_flag;
 } _hotplug_context_s;
 
-static hy_s32_t _hotplug_thread_cb(void *args)
+static hy_s32_t _parse_data(_hotplug_context_s *context)
 {
-    _hotplug_context_s *context = args;
-    HyHotplugType_e type;
-    char *seek;
-
+    char *seek = NULL;
+    char *seek_tmp = NULL;
+    char *result = NULL;
+    HyHotplugSaveConfig_s *save_c = &context->save_c;
     _hotplug_name_s hotplug_name[] = {
         {"mmcblk",      HY_HOTPLUG_TYPE_SDCARD},
         {"usb",         HY_HOTPLUG_TYPE_UDISK},
     };
+    _hotplug_type_s hotplug_type[] = {
+        {"unbind",      HY_HOTPLUG_STATE_PULL_OUT},
+        {"bind",        HY_HOTPLUG_STATE_INSERT},
+    };
+
+    HY_MEMSET(context->buf, _HOTPLUG_BUF_LEN_MAX);
+    if (-1 == recv(context->fd, context->buf, _HOTPLUG_BUF_LEN_MAX, 0)) {
+        LOGE("recv failed \n");
+        return -1;
+    }
+
+    for (hy_u32_t i = 0; i < HyHalUtilsArrayCnt(hotplug_name); ++i) {
+        seek = strstr(context->buf, hotplug_name[i].name);
+        if (seek) {
+            result = strtok_r(seek, "/", &seek_tmp);
+            if (HY_STRLEN(seek_tmp) > HY_STRLEN(result)) {
+                if (HY_STRLEN(seek_tmp) > HY_STRLEN(context->name)) {
+                    HY_STRNCPY(context->name, sizeof(context->name),
+                            seek_tmp, HY_STRLEN(seek_tmp));
+                }
+            } else {
+                if (HY_STRLEN(result) > HY_STRLEN(context->name)) {
+                    HY_STRNCPY(context->name, sizeof(context->name),
+                            result, HY_STRLEN(result));
+                }
+            }
+            context->type = hotplug_name[i].type;
+            LOGD("hotplug type: %d, name: %s \n", context->type, context->name);
+            return 0;
+        }
+    }
+
+    if (context->type == HY_HOTPLUG_TYPE_UNKNOW) {
+        return 0;
+    }
+
+    for (hy_u32_t i = 0; i < HyHalUtilsArrayCnt(hotplug_type); ++i) {
+        seek = strstr(context->buf, hotplug_type[i].info);
+        if (seek) {
+            if (save_c->hotplug_cb) {
+                save_c->hotplug_cb(context->type, context->name,
+                        hotplug_type[i].state, save_c->args);
+            }
+
+            LOGD("hotplug state: %d \n", hotplug_type[i].state);
+            context->type = HY_HOTPLUG_TYPE_UNKNOW;
+            HY_MEMSET(context->name, sizeof(context->name));
+            break;
+        }
+    }
+
+    return 0;
+}
+
+static hy_s32_t _hotplug_thread_cb(void *args)
+{
+    _hotplug_context_s *context = args;
+    struct timeval timeout;
+    fd_set read_fs;
+
+    HY_MEMSET(&read_fs, sizeof(read_fs));
+    HY_MEMSET(&timeout, sizeof(timeout));
 
     while (!context->exit_flag) {
-_RECV:
-        HY_MEMSET(context->buf, _HOTPLUG_BUF_LEN_MAX);
-        if (-1 == recv(context->fd, context->buf, _HOTPLUG_BUF_LEN_MAX, 0)) {
-            LOGE("recv failed \n");
+        FD_ZERO(&read_fs);
+        FD_SET(context->fd, &read_fs);
+
+        timeout.tv_sec = 1;
+        if (select(FD_SETSIZE, &read_fs, NULL, NULL, &timeout) < 0) {
+            LOGES("select failed \n");
             break;
         }
 
-        LOGE("-1-buf: %s \n", context->buf);
-
-        for (hy_u32_t i = 0; i < HyHalUtilsArrayCnt(hotplug_name); ++i) {
-            seek = strstr(context->buf, hotplug_name[i].name);
-            if (seek) {
-                type = hotplug_name[i].type;
-                LOGE("type: %s \n", hotplug_name[i].name);
-                goto _RECV;
+        if (FD_ISSET(context->fd, &read_fs)) {
+            if (-1 == _parse_data(context)) {
+                LOGE("parse data failed \n");
+                break;
             }
-        }
-
-        seek = strstr(context->buf, "unbind");
-        if (seek) {
-            LOGE("unbind\n");
-            continue;
-        }
-
-        seek = strstr(context->buf, "bind");
-        if (seek) {
-            LOGE("bind\n");
-            continue;
         }
     }
 
     return -1;
 }
 
-void HyHotplugDestroy(void **handle)
+static void _scoket_destroy(_hotplug_context_s *context)
 {
-    LOGT("&handle: %p, handle: %p \n", handle, *handle);
-    HY_ASSERT_RET(!handle || !*handle);
-
-    _hotplug_context_s *context = *handle;
-
-    context->exit_flag = 1;
-    send(context->fd, context, sizeof(*context), 0);
-    HyThreadDestroy(&context->thread_h);
-
-    LOGI("hotplug destroy, context: %p \n", context);
-
-    HY_MEM_FREE_PP(&context->buf);
-    HY_MEM_FREE_PP(handle);
+    close(context->fd);
 }
 
-void *HyHotplugCreate(HyHotplugConfig_s *hotplug_c)
+static hy_s32_t _scoket_create(_hotplug_context_s *context)
 {
-    LOGT("hotplug_c: %p \n", hotplug_c);
-    HY_ASSERT_RET_VAL(!hotplug_c, NULL);
-
-    _hotplug_context_s *context = NULL;
-	struct sockaddr_nl snl;
     hy_s32_t len = _HOTPLUG_BUF_LEN_MAX;
+    struct sockaddr_nl snl;
     hy_s32_t ret = 0;
 
     do {
-        context = HY_MEM_MALLOC_BREAK(_hotplug_context_s *, sizeof(*context));
-        HY_MEMCPY(&context->save_c, &hotplug_c->save_c, sizeof(context->save_c));
-
-        context->buf = HY_MEM_MALLOC_BREAK(char *, _HOTPLUG_BUF_LEN_MAX);
-
         context->fd = socket(PF_NETLINK,
                 SOCK_DGRAM | SOCK_CLOEXEC, NETLINK_KOBJECT_UEVENT);
         if (-1 == context->fd) {
@@ -141,13 +180,57 @@ void *HyHotplugCreate(HyHotplugConfig_s *hotplug_c)
             break;
         }
 
-        memset(&snl, 0, sizeof(struct sockaddr_nl));
-        snl.nl_family = AF_NETLINK;
-        snl.nl_pid = getpid();
-        snl.nl_groups = 1;
-        ret = bind(context->fd, (struct sockaddr *)&snl, sizeof(struct sockaddr_nl));
+        HY_MEMSET(&snl, sizeof(snl));
+        snl.nl_family   = AF_NETLINK;
+        snl.nl_pid      = getpid();
+        snl.nl_groups   = 1;
+        ret = bind(context->fd, (struct sockaddr *)&snl,
+                sizeof(struct sockaddr_nl));
         if (-1 == ret) {
             LOGE("bind failed \n");
+            break;
+        }
+
+        return 0;
+    } while (0);
+
+    _scoket_destroy(context);
+    return -1;
+}
+
+void HyHotplugDestroy(void **handle)
+{
+    LOGT("&handle: %p, handle: %p \n", handle, *handle);
+    HY_ASSERT_RET(!handle || !*handle);
+
+    _hotplug_context_s *context = *handle;
+
+    context->exit_flag = 1;
+    HyThreadDestroy(&context->thread_h);
+
+    _scoket_destroy(context);
+
+    LOGI("hotplug destroy, context: %p \n", context);
+
+    HY_MEM_FREE_PP(&context->buf);
+    HY_MEM_FREE_PP(handle);
+}
+
+void *HyHotplugCreate(HyHotplugConfig_s *hotplug_c)
+{
+    LOGT("hotplug_c: %p \n", hotplug_c);
+    HY_ASSERT_RET_VAL(!hotplug_c, NULL);
+
+    _hotplug_context_s *context = NULL;
+
+    do {
+        context = HY_MEM_MALLOC_BREAK(_hotplug_context_s *, sizeof(*context));
+        HY_MEMCPY(&context->save_c, &hotplug_c->save_c, sizeof(context->save_c));
+
+        context->buf = HY_MEM_MALLOC_BREAK(char *, _HOTPLUG_BUF_LEN_MAX);
+
+        if (0 != _scoket_create(context)) {
+            LOGE("_scoket_create failed \n");
             break;
         }
 
@@ -163,6 +246,7 @@ void *HyHotplugCreate(HyHotplugConfig_s *hotplug_c)
     } while (0);
 
     LOGE("hotplug create failed \n");
+    HyHotplugDestroy((void **)&context);
     return NULL;
 }
 

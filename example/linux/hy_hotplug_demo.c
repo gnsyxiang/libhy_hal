@@ -43,9 +43,10 @@ typedef struct {
     hy_s32_t    exit_flag;
 } _main_context_t;
 
-static void _hotplug_cb(HyHotplugType_e type, HyHotplugState_e state, void *args)
+static void _hotplug_cb(HyHotplugType_e type, const char *name,
+        HyHotplugState_e state, void *args)
 {
-    LOGD("type: %d, state: %d \n", type, state);
+    LOGI("type: %d, name: %s, state: %d \n", type, name, state);
 }
 
 static void _signal_error_cb(void *args)
