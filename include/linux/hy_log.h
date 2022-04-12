@@ -131,20 +131,6 @@ void HyLogWrite(HyLogLevel_e level, const char *err_str,
         HyLogCreate(&log_c);                                                \
      })
 
-/**
- * @brief 打印二进制信息
- *
- * @param name 函数名
- * @param line 行号
- * @param buf 被打印数据
- * @param len 被打印数据的长度
- * @param flag 是否需要打印对应的ascii
- */
-void HyLogHex(const char *name, hy_u32_t line,
-       const void *buf, hy_u32_t len, hy_s32_t flag);
-
-#define HY_LOG_HEX_ASCII(buf, len) HyLogHex(__func__, __LINE__, buf, len, 1)
-#define HY_LOG_HEX(buf, len)       HyLogHex(__func__, __LINE__, buf, len, 0)
 
 #ifdef __cplusplus
 }

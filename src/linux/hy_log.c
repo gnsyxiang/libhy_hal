@@ -61,36 +61,6 @@ typedef struct {
 static pthread_key_t thread_key;
 static _log_context_t *context = NULL;
 
-HY_WEAK void HyLogHex(const char *name, hy_u32_t line,
-        const void *_buf, hy_u32_t len, hy_s32_t flag)
-{
-    if (len <= 0) {
-        return;
-    }
-    const unsigned char *buf = (const unsigned char *)_buf;
-
-    hy_u8_t cnt = 0;
-    printf("[%s %d]len: %d \r\n", name, line, len);
-    for (hy_u32_t i = 0; i < len; i++) {
-        if (flag == 1) {
-            if (buf[i] == 0x0d || buf[i] == 0x0a
-                    || buf[i] < 32 || buf[i] >= 127) {
-                printf("%02x[ ]  ", buf[i]);
-            } else {
-                printf("%02x[%c]  ", buf[i], buf[i]);
-            }
-        } else {
-            printf("%02x ", buf[i]);
-        }
-        cnt++;
-        if (cnt == 16) {
-            cnt = 0;
-            printf("\r\n");
-        }
-    }
-    printf("\r\n");
-}
-
 static void _log_buf_reset(_log_buf_t *log_buf)
 {
     if (!log_buf) {
