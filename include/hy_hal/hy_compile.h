@@ -69,6 +69,8 @@ extern "C" {
 #if (__linux__ && __GLIBC__ && !__UCLIBC__) || __APPLE__
 #endif
 
+#define HY_CHECK_FMT_WITH_PRINTF(a, b) __attribute__((format(printf, a, b)))
+
 #ifdef __cplusplus
 }
 #endif

@@ -32,14 +32,9 @@ extern "C" {
 
 #include "hy_hal/hy_type.h"
 
-#if 1
-#define HY_CHECK_FMT_WITH_PRINTF(a, b) __attribute__((format(printf, a, b)))
-#else
-#define HY_CHECK_FMT_WITH_PRINTF(a, b)
-#endif
-
 #define HY_STRRCHR_FILE (strrchr(__FILE__, '/'))
 #define HY_FILENAME     (HY_STRRCHR_FILE ? (HY_STRRCHR_FILE + 1) : __FILE__)
+#include "hy_hal/hy_compile.h"
 
 /**
  * @brief 打印等级定义
