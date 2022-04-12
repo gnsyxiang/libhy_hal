@@ -36,6 +36,7 @@ _install_headers_com    += \
                            hy_barrier.h     \
                            hy_compile.h     \
                            hy_error.h       \
+                           hy_hal_misc.h    \
                            hy_hal_utils.h   \
                            hy_mem.h         \
                            hy_module.h      \

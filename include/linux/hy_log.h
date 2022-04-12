@@ -31,10 +31,8 @@ extern "C" {
 #include <unistd.h>
 
 #include "hy_hal/hy_type.h"
-
-#define HY_STRRCHR_FILE (strrchr(__FILE__, '/'))
-#define HY_FILENAME     (HY_STRRCHR_FILE ? (HY_STRRCHR_FILE + 1) : __FILE__)
 #include "hy_hal/hy_compile.h"
+#include "hy_hal/hy_hal_misc.h"
 
 /**
  * @brief 打印等级定义
