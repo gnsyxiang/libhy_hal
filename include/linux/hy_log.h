@@ -79,6 +79,26 @@ typedef struct {
 void *HyLogCreate(HyLogConfig_s *log_c);
 
 /**
+ * @brief 创建log模块
+ *
+ * @param _buf_len_min 单条日志的最短长度
+ * @param _buf_len_max 单条日志的最大长度，超过该长度会被截断
+ * @param _level 打印等级
+ * @param _color_enable 是否颜色输出
+ *
+ * @return 成功返回句柄，失败返回NULL
+ */
+#define HyLogCreate_m(_buf_len_min, _buf_len_max, _level, _color_enable)    \
+    ({                                                                      \
+        HyLogConfig_s log_c;                                                \
+        log_c.save_c.buf_len_min  = _buf_len_min;                           \
+        log_c.save_c.buf_len_max  = _buf_len_max;                           \
+        log_c.save_c.level        = _level;                                 \
+        log_c.save_c.color_enable = _color_enable;                          \
+        HyLogCreate(&log_c);                                                \
+     })
+
+/**
  * @brief 销毁log模块
  *
  * @param handle 模块句柄的地址
@@ -110,26 +130,6 @@ void HyLogWrite(HyLogLevel_e level, const char *err_str,
 #define LOGI(fmt, ...)  LOG(HY_LOG_LEVEL_INFO,  NULL,            fmt, ##__VA_ARGS__)
 #define LOGD(fmt, ...)  LOG(HY_LOG_LEVEL_DEBUG, NULL,            fmt, ##__VA_ARGS__)
 #define LOGT(fmt, ...)  LOG(HY_LOG_LEVEL_TRACE, NULL,            fmt, ##__VA_ARGS__)
-
-/**
- * @brief 创建log模块
- *
- * @param _buf_len_min 单条日志的最短长度
- * @param _buf_len_max 单条日志的最大长度，超过该长度会被截断
- * @param _level 打印等级
- * @param _color_enable 是否颜色输出
- *
- * @return 成功返回句柄，失败返回NULL
- */
-#define HyLogCreate_m(_buf_len_min, _buf_len_max, _level, _color_enable)    \
-    ({                                                                      \
-        HyLogConfig_s log_c;                                                \
-        log_c.save_c.buf_len_min  = _buf_len_min;                           \
-        log_c.save_c.buf_len_max  = _buf_len_max;                           \
-        log_c.save_c.level        = _level;                                 \
-        log_c.save_c.color_enable = _color_enable;                          \
-        HyLogCreate(&log_c);                                                \
-     })
 
 
 #ifdef __cplusplus

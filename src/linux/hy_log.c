@@ -24,8 +24,6 @@
 #include <sys/time.h>
 
 #include "hy_assert.h"
-#include "hy_compile.h"
-#include "hy_type.h"
 #include "hy_mem.h"
 #include "hy_printf.h"
 
@@ -278,3 +276,4 @@ HY_WEAK void *HyLogCreate(HyLogConfig_s *log_c)
     HyLogDestroy((void **)&context);
     return NULL;
 }
+
