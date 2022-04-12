@@ -123,14 +123,23 @@ void HyLogWrite(HyLogLevel_e level, const char *err_str,
     HyLogWrite(level, err_str, HY_FILENAME, __LINE__, \
             pthread_self(), syscall(SYS_gettid), fmt, ##__VA_ARGS__)
 
-#define LOGF(fmt, ...)  LOG(HY_LOG_LEVEL_FATAL, strerror(errno), fmt, ##__VA_ARGS__)
-#define LOGES(fmt, ...) LOG(HY_LOG_LEVEL_ERROR, strerror(errno), fmt, ##__VA_ARGS__)
-#define LOGE(fmt, ...)  LOG(HY_LOG_LEVEL_ERROR, NULL,            fmt, ##__VA_ARGS__)
-#define LOGW(fmt, ...)  LOG(HY_LOG_LEVEL_WARN,  NULL,            fmt, ##__VA_ARGS__)
-#define LOGI(fmt, ...)  LOG(HY_LOG_LEVEL_INFO,  NULL,            fmt, ##__VA_ARGS__)
-#define LOGD(fmt, ...)  LOG(HY_LOG_LEVEL_DEBUG, NULL,            fmt, ##__VA_ARGS__)
-#define LOGT(fmt, ...)  LOG(HY_LOG_LEVEL_TRACE, NULL,            fmt, ##__VA_ARGS__)
-
+#if defined __STDC_VERSION__ && __STDC_VERSION__ >= 199901L
+#   define LOGF(fmt, ...)  LOG(HY_LOG_LEVEL_FATAL, strerror(errno), fmt, ##__VA_ARGS__)
+#   define LOGES(fmt, ...) LOG(HY_LOG_LEVEL_ERROR, strerror(errno), fmt, ##__VA_ARGS__)
+#   define LOGE(fmt, ...)  LOG(HY_LOG_LEVEL_ERROR, NULL,            fmt, ##__VA_ARGS__)
+#   define LOGW(fmt, ...)  LOG(HY_LOG_LEVEL_WARN,  NULL,            fmt, ##__VA_ARGS__)
+#   define LOGI(fmt, ...)  LOG(HY_LOG_LEVEL_INFO,  NULL,            fmt, ##__VA_ARGS__)
+#   define LOGD(fmt, ...)  LOG(HY_LOG_LEVEL_DEBUG, NULL,            fmt, ##__VA_ARGS__)
+#   define LOGT(fmt, ...)  LOG(HY_LOG_LEVEL_TRACE, NULL,            fmt, ##__VA_ARGS__)
+#else
+#   define LOGF(fmt, args...)  LOG(HY_LOG_LEVEL_FATAL, strerror(errno), fmt, ##args)
+#   define LOGES(fmt, args...) LOG(HY_LOG_LEVEL_ERROR, strerror(errno), fmt, ##args)
+#   define LOGE(fmt, args...)  LOG(HY_LOG_LEVEL_ERROR, NULL,            fmt, ##args)
+#   define LOGW(fmt, args...)  LOG(HY_LOG_LEVEL_WARN,  NULL,            fmt, ##args)
+#   define LOGI(fmt, args...)  LOG(HY_LOG_LEVEL_INFO,  NULL,            fmt, ##args)
+#   define LOGD(fmt, args...)  LOG(HY_LOG_LEVEL_DEBUG, NULL,            fmt, ##args)
+#   define LOGT(fmt, args...)  LOG(HY_LOG_LEVEL_TRACE, NULL,            fmt, ##args)
+#endif
 
 #ifdef __cplusplus
 }
