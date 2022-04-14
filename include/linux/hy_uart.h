@@ -28,19 +28,36 @@ extern "C" {
 
 #include "hy_hal/hy_type.h"
 
-#define HY_UART_DEV_PATH_LEN_MAX   (32)
+#define HY_UART_DEV_PATH_LEN_MAX    (32)
 
 // @FIXME: open串口为阻塞情况下，这两个参数适配应用层协议
-#define UART_READ_VMIN_LEN      (0)
-#define UART_READ_VTIME_100MS   (1)
+#define UART_READ_VMIN_LEN          (0)
+#define UART_READ_VTIME_100MS       (1)
 
 /**
  * @brief 串口波特率
  */
 typedef enum {
-    HY_UART_SPEED_4800,                     ///< 4800
-    HY_UART_SPEED_9600,                     ///< 9600
-    HY_UART_SPEED_115200,                   ///< 115200
+    HY_UART_SPEED_2400,
+    HY_UART_SPEED_4800,
+    HY_UART_SPEED_9600,
+    HY_UART_SPEED_19200,
+    HY_UART_SPEED_38400,
+    HY_UART_SPEED_57600,
+    HY_UART_SPEED_115200,
+    HY_UART_SPEED_230400,
+    HY_UART_SPEED_460800,
+    HY_UART_SPEED_500000,
+    HY_UART_SPEED_576000,
+    HY_UART_SPEED_921600,
+    HY_UART_SPEED_1000000,
+    HY_UART_SPEED_1152000,
+    HY_UART_SPEED_1500000,
+    HY_UART_SPEED_2000000,
+    HY_UART_SPEED_2500000,
+    HY_UART_SPEED_3000000,
+    HY_UART_SPEED_3500000,
+    HY_UART_SPEED_4000000,
 
     HY_UART_SPEED_MAX,
 } HyUartSpeed_t;
@@ -60,10 +77,10 @@ typedef enum {
  * @brief 数据宽度
  */
 typedef enum {
-    HY_UART_DATA_BIT_5,                     ///< 5位
-    HY_UART_DATA_BIT_6,                     ///< 6位
-    HY_UART_DATA_BIT_7,                     ///< 7位
-    HY_UART_DATA_BIT_8,                     ///< 8位
+    HY_UART_DATA_BIT_5,
+    HY_UART_DATA_BIT_6,
+    HY_UART_DATA_BIT_7,
+    HY_UART_DATA_BIT_8,
 
     HY_UART_DATA_BIT_MAX,
 } HyUartDataBit_t;
@@ -105,9 +122,9 @@ typedef struct {
  * @brief 配置参数
  */
 typedef struct {
-    HyUartSaveConfig_t      save_c;    ///< 配置参数
+    HyUartSaveConfig_t      save_c;                                 ///< 配置参数
 
-    char                    dev_path[HY_UART_DEV_PATH_LEN_MAX];  ///< 设备节点地址
+    char                    dev_path[HY_UART_DEV_PATH_LEN_MAX];     ///< 设备节点地址
 } HyUartConfig_t;
 
 /**

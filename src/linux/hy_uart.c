@@ -36,17 +36,15 @@
 
 typedef struct {
     HyUartSaveConfig_t  save_c;
-    hy_s32_t             fd;
-} _uart_context_t;
+    hy_s32_t            fd;
+} _uart_context_s;
 
 hy_s32_t HyUartWrite(void *handle, const void *buf, hy_u32_t len)
 {
     HY_ASSERT(handle);
     HY_ASSERT(buf);
 
-    _uart_context_t *context = handle;
-
-    return HyFileWriteN(context->fd, buf, len);
+    return HyFileWriteN(((_uart_context_s *)handle)->fd, buf, len);
 }
 
 hy_s32_t HyUartRead(void *handle, void *buf, hy_u32_t len)
@@ -54,9 +52,7 @@ hy_s32_t HyUartRead(void *handle, void *buf, hy_u32_t len)
     HY_ASSERT(handle);
     HY_ASSERT(buf);
 
-    _uart_context_t *context = handle;
-
-    return read(context->fd, buf, len);
+    return read(((_uart_context_s *)handle)->fd, buf, len);
 }
 
 hy_s32_t HyUartReadN(void *handle, void *buf, hy_u32_t len)
@@ -64,7 +60,7 @@ hy_s32_t HyUartReadN(void *handle, void *buf, hy_u32_t len)
     HY_ASSERT(handle);
     HY_ASSERT(buf);
 
-    _uart_context_t *context = handle;
+    _uart_context_s *context = handle;
     hy_s32_t ret = 0;
 
     ret = HyFileReadN(context->fd, buf, len);
@@ -83,14 +79,14 @@ hy_s32_t HyUartReadN(void *handle, void *buf, hy_u32_t len)
     }
 }
 
-static inline void _uart_destroy(_uart_context_t *context)
+static inline void _uart_destroy(_uart_context_s *context)
 {
     if (context->fd > 0) {
         close(context->fd);
     }
 }
 
-static hy_s32_t _uart_create(_uart_context_t *context, char *name)
+static hy_s32_t _uart_create(_uart_context_s *context, char *name)
 {
     HyUartSaveConfig_t *save_c = &context->save_c;
     struct termios options;
@@ -109,6 +105,7 @@ static hy_s32_t _uart_create(_uart_context_t *context, char *name)
             LOGE("open %s failed \n", name);
             break;
         }
+        LOGI("open %s successful \n", name);
 
         if (tcgetattr(context->fd, &options)) {
             LOGE("tcgetattr failed \n");
@@ -130,7 +127,12 @@ static hy_s32_t _uart_create(_uart_context_t *context, char *name)
         options.c_cflag |= (CLOCAL | CREAD); 
 
         // 设置波特率
-        speed_t speed_2_speed[HY_UART_SPEED_MAX] = {B4800, B9600, B115200};
+        speed_t speed_2_speed[HY_UART_SPEED_MAX] = {
+            B2400,      B4800,      B9600,      B19200,     B38400,
+            B57600,     B115200,    B230400,    B460800,    B500000,
+            B576000,    B921600,    B1000000,   B1152000,   B1500000,
+            B2000000,   B2500000,   B3000000,   B3500000,   B4000000,
+        };
         cfsetispeed(&options, speed_2_speed[save_c->speed]);
         cfsetospeed(&options, speed_2_speed[save_c->speed]);
 
@@ -163,7 +165,7 @@ static hy_s32_t _uart_create(_uart_context_t *context, char *name)
         switch (save_c->stop_bit) {
             case HY_UART_STOP_BIT_1:    options.c_cflag &= ~CSTOPB;         break;
             case HY_UART_STOP_BIT_2:    options.c_cflag |= CSTOPB;          break;
-            case HY_UART_STOP_BIT_MAX: LOGE("the stop_bit is error \n");    break;
+            case HY_UART_STOP_BIT_MAX:  LOGE("the stop_bit is error \n");   break;
         }
 
         // 设置数据流控
@@ -171,7 +173,7 @@ static hy_s32_t _uart_create(_uart_context_t *context, char *name)
             case HY_UART_FLOW_CONTROL_NONE:     options.c_cflag &= ~CRTSCTS;             break;
             case HY_UART_FLOW_CONTROL_HARDWARE: options.c_cflag |= CRTSCTS;              break;
             case HY_UART_FLOW_CONTROL_SOFT:     options.c_cflag |= IXON | IXOFF | IXANY; break;
-            case HY_UART_FLOW_CONTROL_MAX: LOGE("the flow_control is error \n");     break;
+            case HY_UART_FLOW_CONTROL_MAX:      LOGE("the flow_control is error \n");    break;
         }
 
         // open的时候没有设置O_NONBLOCK或O_NDELAY，下面两个参数起效
@@ -206,7 +208,7 @@ void HyUartDestroy(void **handle)
     LOGT("&handle: %p, handle: %p \n", handle, *handle);
     HY_ASSERT_RET(!handle || !*handle);
 
-    _uart_context_t *context = *handle;
+    _uart_context_s *context = *handle;
 
     _uart_destroy(context);
 
@@ -219,9 +221,9 @@ void *HyUartCreate(HyUartConfig_t *uart_c)
     LOGT("uart_c: %p \n", uart_c);
     HY_ASSERT_RET_VAL(!uart_c, NULL);
 
-    _uart_context_t *context = NULL;
+    _uart_context_s *context = NULL;
     do {
-        context = HY_MEM_MALLOC_BREAK(_uart_context_t *, sizeof(*context));
+        context = HY_MEM_MALLOC_BREAK(_uart_context_s *, sizeof(*context));
         HY_MEMCPY(&context->save_c, &uart_c->save_c, sizeof(context->save_c));
 
         if (HY_ERR_OK != _uart_create(context, uart_c->dev_path)) {

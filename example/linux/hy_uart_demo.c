@@ -40,13 +40,13 @@ typedef struct {
     void        *uart_h;
 
     hy_s32_t    exit_flag;
-} _main_context_t;
+} _main_context_s;
 
 static void _signal_error_cb(void *args)
 {
     LOGE("------error cb\n");
 
-    _main_context_t *context = args;
+    _main_context_s *context = args;
     context->exit_flag = 1;
 }
 
@@ -54,13 +54,13 @@ static void _signal_user_cb(void *args)
 {
     LOGW("------user cb\n");
 
-    _main_context_t *context = args;
+    _main_context_s *context = args;
     context->exit_flag = 1;
 }
 
-static void _module_destroy(_main_context_t **context_pp)
+static void _module_destroy(_main_context_s **context_pp)
 {
-    _main_context_t *context = *context_pp;
+    _main_context_s *context = *context_pp;
 
     // note: 增加或删除要同步到module_create_t中
     module_destroy_t module[] = {
@@ -74,9 +74,9 @@ static void _module_destroy(_main_context_t **context_pp)
     HY_MEM_FREE_PP(context_pp);
 }
 
-static _main_context_t *_module_create(void)
+static _main_context_s *_module_create(void)
 {
-    _main_context_t *context = HY_MEM_MALLOC_RET_VAL(_main_context_t *, sizeof(*context), NULL);
+    _main_context_s *context = HY_MEM_MALLOC_RET_VAL(_main_context_s *, sizeof(*context), NULL);
 
     HyLogConfig_s log_c;
     log_c.save_c.buf_len_min  = 512;
@@ -110,7 +110,7 @@ static _main_context_t *_module_create(void)
     uart_c.save_c.parity_type     = HY_UART_PARITY_NONE;
     uart_c.save_c.stop_bit        = HY_UART_STOP_BIT_1;
     #define _DEV_PATH "/dev/ttyUSB0"
-    HY_STRNCPY(uart_c.dev_path, HY_UART_DEV_PATH_LEN_MAX,
+    HY_STRNCPY(uart_c.dev_path, sizeof(uart_c.dev_path),
             _DEV_PATH, HY_STRLEN(_DEV_PATH));
 
     // note: 增加或删除要同步到module_destroy_t中
@@ -127,7 +127,7 @@ static _main_context_t *_module_create(void)
 
 int main(int argc, char *argv[])
 {
-    _main_context_t *context = _module_create();
+    _main_context_s *context = _module_create();
     if (!context) {
         LOGE("_module_create faild \n");
         return -1;
@@ -147,8 +147,6 @@ int main(int argc, char *argv[])
         }
 
         printf("%s", buf);
-
-        // HY_LOG_HEX_ASCII(buf, ret);
     }
 
     _module_destroy(&context);
