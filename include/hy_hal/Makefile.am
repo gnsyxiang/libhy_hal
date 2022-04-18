@@ -38,6 +38,7 @@ _install_headers_com    += \
                            hy_error.h       \
                            hy_hal_misc.h    \
                            hy_hal_utils.h   \
+                           hy_hex.h         \
                            hy_mem.h         \
                            hy_module.h      \
                            hy_printf.h      \
