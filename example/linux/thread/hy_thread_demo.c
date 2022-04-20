@@ -96,10 +96,12 @@ static _main_context_t *_module_create(void)
     _main_context_t *context = HY_MEM_MALLOC_RET_VAL(_main_context_t *, sizeof(*context), NULL);
 
     HyLogConfig_s log_c;
+#if 0
     log_c.save_c.buf_len_min  = 512;
     log_c.save_c.buf_len_max  = 512;
     log_c.save_c.level        = HY_LOG_LEVEL_TRACE;
     log_c.save_c.color_enable = HY_TYPE_FLAG_ENABLE;
+#endif
 
     int8_t signal_error_num[HY_SIGNAL_NUM_MAX_32] = {
         SIGQUIT, SIGILL, SIGTRAP, SIGABRT, SIGFPE,
