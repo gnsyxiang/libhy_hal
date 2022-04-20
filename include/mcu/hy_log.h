@@ -32,9 +32,9 @@ extern "C" {
 #include "hy_hal/hy_type.h"
 
 #if 1
-#define HY_CHECK_FMT_WITH_PRINTF(a, b) __attribute__((format(printf, a, b)))
+#define HY_CHECK_PRINTF(a, b) __attribute__((format(printf, a, b)))
 #else
-#define HY_CHECK_FMT_WITH_PRINTF(a, b)
+#define HY_CHECK_PRINTF(a, b)
 #endif
 
 #define HY_STRRCHR_FILE (strrchr(__FILE__, '/'))
@@ -103,7 +103,7 @@ void HyLogDestroy(void **handle);
  */
 void HyLogWrite(HyLogLevel_e level, const char *err_str,
         const char *file, hy_u32_t line,
-        char *fmt, ...) HY_CHECK_FMT_WITH_PRINTF(5, 6);
+        char *fmt, ...) HY_CHECK_PRINTF(5, 6);
 
 #define LOG(level, err_str, fmt, ...) \
     HyLogWrite(level, err_str, HY_FILENAME, __LINE__, fmt, ##__VA_ARGS__)

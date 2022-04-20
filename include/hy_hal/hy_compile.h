@@ -51,11 +51,7 @@ extern "C" {
 
 #define HY_WEAK __attribute__((weak))
 
-#if 1
-#   define HY_CHECK_FMT_WITH_PRINTF(a, b) __attribute__((format(printf, a, b)))
-#else
-#   define HY_CHECK_FMT_WITH_PRINTF(a, b)
-#endif
+#define HY_CHECK_PRINTF(a, b) __attribute__((format(printf, a, b)))
 
 #ifdef __GNUC__
 #   define UNPACKED         __attribute__ ((packed))
@@ -68,8 +64,6 @@ extern "C" {
 
 #if (__linux__ && __GLIBC__ && !__UCLIBC__) || __APPLE__
 #endif
-
-#define HY_CHECK_FMT_WITH_PRINTF(a, b) __attribute__((format(printf, a, b)))
 
 #ifdef __cplusplus
 }
