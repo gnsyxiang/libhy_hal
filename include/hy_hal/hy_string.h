@@ -38,7 +38,7 @@ extern "C" {
 #define HY_STRING_BUF_MAX_LEN_256           (256)
 #define HY_STRING_BUF_MAX_LEN_512           (512)
 
-#define HY_STRLEN(str)                      strlen(str)
+#define HY_STRLEN(str)                      ((hy_s32_t)strlen(str))
 #define HY_STRCMP(src, dst)                 strcmp(src, dst)
 #define HY_STRNCMP(src, dst, len)           strncmp(src, dst, len)
 #define HY_STRCPY(dst, src)                 strcpy(dst, src)
