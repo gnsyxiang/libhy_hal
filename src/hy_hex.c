@@ -19,28 +19,27 @@
  */
 #include <stdio.h>
 
-#include "hy_hal/hy_type.h"
-#include "hy_hal/hy_string.h"
-#include "hy_hal/hy_assert.h"
-#include "hy_hal/hy_mem.h"
+#include "hy_type.h"
+#include "hy_string.h"
+#include "hy_assert.h"
+#include "hy_mem.h"
+#include "hy_compile.h"
 
 #include "hy_log.h"
 #include "hy_hex.h"
 
-void HyHex(const char *name, hy_u32_t line,
-        const void *_buf, hy_u32_t len, hy_s32_t flag)
+HY_WEAK void HyHex(const void *_buf, hy_u32_t len, hy_s32_t flag)
 {
+    hy_u8_t cnt = 0;
+    const unsigned char *buf = (const unsigned char *)_buf;
+
     if (len <= 0) {
         return;
     }
-    const unsigned char *buf = (const unsigned char *)_buf;
 
-    hy_u8_t cnt = 0;
-    printf("[%s:%d] len: %d \r\n", name, line, len);
     for (hy_u32_t i = 0; i < len; i++) {
         if (flag == 1) {
-            if (buf[i] == 0x0d || buf[i] == 0x0a
-                    || buf[i] < 32 || buf[i] >= 127) {
+            if (buf[i] == 0x0d || buf[i] == 0x0a || buf[i] < 32 || buf[i] >= 127) {
                 printf("%02x[ ]  ", buf[i]);
             } else {
                 printf("%02x[%c]  ", buf[i], buf[i]);
@@ -48,6 +47,7 @@ void HyHex(const char *name, hy_u32_t line,
         } else {
             printf("%02x ", buf[i]);
         }
+
         cnt++;
         if (cnt == 16) {
             cnt = 0;
