@@ -24,6 +24,14 @@
 extern "C" {
 #endif
 
+/*
+ * 1，去掉文件路径，只获取文件名
+ *  1.1，使用strrchr函数，包含头文件#include <string.h>
+ *      #define HY_STRRCHR_FILE (strrchr(__FILE__, '/'))
+ *      #define HY_FILENAME     (HY_STRRCHR_FILE ? (HY_STRRCHR_FILE + 1) : __FILE__)
+ *  1.2，使用basename函数，包含头文件#include <libgen.h>
+ *      basename(__FILE__)
+ */
 #define HY_STRRCHR_FILE (strrchr(__FILE__, '/'))
 #define HY_FILENAME     (HY_STRRCHR_FILE ? (HY_STRRCHR_FILE + 1) : __FILE__)
 
