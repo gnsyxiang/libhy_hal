@@ -30,45 +30,48 @@
 #include "hy_thread_cond.h"
 
 typedef struct {
-    pthread_cond_t cond;
+    pthread_cond_t      cond;
 } _cond_context_s;
 
 hy_s32_t HyThreadCondSignal(void *handle)
 {
     HY_ASSERT(handle);
+    _cond_context_s *context = handle;
 
-    return pthread_cond_signal(&((_cond_context_s *)handle)->cond);
+    return pthread_cond_signal(&context->cond) == 0 ? 0 : -1;
 }
 
 hy_s32_t HyThreadCondBroadcast(void *handle)
 {
     HY_ASSERT(handle);
-
-    return pthread_cond_broadcast(&((_cond_context_s *)handle)->cond);
-}
-
-hy_s32_t HyThreadCondWait(void *handle, void *thread_mutex_h, hy_u32_t timeout_ms)
-{
-    HY_ASSERT(handle);
-    HY_ASSERT(thread_mutex_h);
-
     _cond_context_s *context = handle;
 
+    return pthread_cond_broadcast(&context->cond) == 0 ? 0 : -1;
+}
+
+hy_s32_t HyThreadCondWait(void *handle, void *mutex_h, hy_u32_t timeout_ms)
+{
+    HY_ASSERT(handle);
+    HY_ASSERT(mutex_h);
+
+    _cond_context_s *context = handle;
+    hy_s32_t ret = 0;
+    pthread_mutex_t *mutex = HyThreadMutexGetLock(mutex_h);
+
     if (timeout_ms == 0) {
-        return pthread_cond_wait(&context->cond,
-                (pthread_mutex_t *)HyThreadMutexGetLock(thread_mutex_h));
+        ret = pthread_cond_wait(&context->cond, mutex);
     } else {
         struct timespec ts = HyTimeGetTimespec(timeout_ms);
-        return pthread_cond_timedwait(&context->cond,
-                (pthread_mutex_t *)HyThreadMutexGetLock(thread_mutex_h), &ts);
+        ret = pthread_cond_timedwait(&context->cond, mutex, &ts);
     }
+
+    return ret == 0 ? 0 : -1;
 }
 
 void HyThreadCondDestroy(void **handle)
 {
-    LOGT("&context: %p, context: %p \n", handle, *handle);
+    LOGT("&handle: %p, handle: %p \n", handle, *handle);
     HY_ASSERT_RET(!handle || !*handle);
-
     _cond_context_s *context = *handle;
 
     if (0 != pthread_cond_destroy(&context->cond)) {
@@ -83,7 +86,6 @@ void *HyThreadCondCreate(HyThreadCondConfig_s *cond_c)
 {
     LOGT("cond_c: %p \n", cond_c);
     HY_ASSERT_RET_VAL(!cond_c, NULL);
-
     _cond_context_s *context = NULL;
 
     do {
