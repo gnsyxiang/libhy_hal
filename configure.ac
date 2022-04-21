@@ -75,7 +75,7 @@ AC_TYPE_UINT8_T
 # Checks for library functions.
 AC_FUNC_MALLOC
 AC_FUNC_MKTIME
-AC_CHECK_FUNCS([atexit gettimeofday inet_ntoa localtime_r memset mkfifo select socket])
+AC_CHECK_FUNCS([atexit gettimeofday inet_ntoa localtime_r memset mkfifo select socket strerror strstr])
 
 AC_CONFIG_FILES([Makefile
                  $project_name.pc
@@ -98,6 +98,7 @@ AC_CONFIG_FILES([Makefile
                  include/hy_hal/Makefile
                  include/linux/Makefile
                  include/linux/audio/Makefile
+                 include/linux/log/Makefile
                  include/linux/thread/Makefile
                  include/mcu/Makefile
                  include/mcu/arterytek/Makefile
@@ -106,6 +107,7 @@ AC_CONFIG_FILES([Makefile
                  src/Makefile
                  src/linux/Makefile
                  src/linux/audio/Makefile
+                 src/linux/log/Makefile
                  src/linux/thread/Makefile
                  src/mcu/Makefile
                  src/mcu/arterytek/Makefile

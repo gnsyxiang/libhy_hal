@@ -20,6 +20,7 @@
 
 SUBDIRS = \
           audio     \
+          log       \
           thread
 
 noinst_LTLIBRARIES = libhy_hal_os.la
@@ -45,6 +46,8 @@ _no_error_com   +=
 _define_com     += -D_GNU_SOURCE
 
 _include_com    += \
+                   -I$(top_srcdir)/include/$(run_os)/audio      \
+                   -I$(top_srcdir)/include/$(run_os)/log        \
                    -I$(top_srcdir)/include/$(run_os)/thread     \
                    -I$(top_srcdir)/include/$(run_os)            \
                    -I$(top_srcdir)/include/hy_hal               \
@@ -57,7 +60,6 @@ _sources_com    += \
                    hy_gpio.c        \
                    hy_hal_fifo.c    \
                    hy_hotplug.c     \
-                   hy_log.c         \
                    hy_pipe.c        \
                    hy_sd.c          \
                    hy_signal.c      \
@@ -78,8 +80,9 @@ _cxxflags_com   +=
 _ldflags_com    +=
 
 _ldadd_com      += \
-                   $(top_builddir)/src/$(run_os)/thread/libhy_hal_os_thread.la  \
                    $(top_builddir)/src/$(run_os)/audio/libhy_hal_os_audio.la    \
+                   $(top_builddir)/src/$(run_os)/log/libhy_hal_os_log.la        \
+                   $(top_builddir)/src/$(run_os)/thread/libhy_hal_os_thread.la  \
                    $(lib_com)
 
 libhy_hal_os_la_SOURCES    = $(_sources_com)

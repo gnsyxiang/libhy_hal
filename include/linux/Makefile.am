@@ -20,6 +20,7 @@
 
 SUBDIRS = \
           audio     \
+          log       \
           thread
 
 # ------------------
@@ -42,7 +43,6 @@ _install_headers_com    += \
                            hy_gpio.h        \
                            hy_hal_fifo.h    \
                            hy_hotplug.h     \
-                           hy_log.h         \
                            hy_pipe.h        \
                            hy_sd.h          \
                            hy_signal.h      \
