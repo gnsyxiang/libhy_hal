@@ -35,7 +35,6 @@
 #define _APP_NAME "hy_log_demo"
 
 typedef struct {
-    void        *log_h;
     void        *signal_h;
 
     void        *thread_h[_DEMO_THREAD_CNT];
@@ -66,7 +65,6 @@ static void _module_destroy(_main_context_t **context_pp)
     // note: 增加或删除要同步到module_create_t中
     module_destroy_t module[] = {
         {"signal",  &context->signal_h,    HySignalDestroy},
-        {"log",     &context->log_h,       HyLogDestroy},
     };
 
     RUN_DESTROY(module);
@@ -77,14 +75,6 @@ static void _module_destroy(_main_context_t **context_pp)
 static _main_context_t *_module_create(void)
 {
     _main_context_t *context = HY_MEM_MALLOC_RET_VAL(_main_context_t *, sizeof(*context), NULL);
-
-    HyLogConfig_s log_c;
-#if 0
-    log_c.save_c.buf_len_min  = 512;
-    log_c.save_c.buf_len_max  = 512;
-    log_c.save_c.level        = HY_LOG_LEVEL_TRACE;
-    log_c.save_c.color_enable = HY_TYPE_FLAG_ENABLE;
-#endif
 
     int8_t signal_error_num[HY_SIGNAL_NUM_MAX_32] = {
         SIGQUIT, SIGILL, SIGTRAP, SIGABRT, SIGFPE,
@@ -107,7 +97,6 @@ static _main_context_t *_module_create(void)
 
     // note: 增加或删除要同步到module_destroy_t中
     module_create_t module[] = {
-        {"log",     &context->log_h,       &log_c,          (create_t)HyLogCreate,      HyLogDestroy},
         {"signal",  &context->signal_h,    &signal_c,       (create_t)HySignalCreate,   HySignalDestroy},
     };
 
@@ -137,6 +126,12 @@ static hy_s32_t _demo_loop_cb(void *args)
 
 int main(int argc, char *argv[])
 {
+    if (0 != HyLogInit_m(10 * 1024, HY_LOG_MODE_PROCESS_SINGLE,
+            HY_LOG_LEVEL_DEBUG, 1, 1, 1, 1)) {
+        printf("log init failed \n");
+        return -1;
+    }
+
     _main_context_t *context = _module_create();
     if (!context) {
         LOGE("_module_create faild \n");
@@ -167,6 +162,8 @@ int main(int argc, char *argv[])
     }
 
     _module_destroy(&context);
+
+    HyLogDeInit();
 
     return 0;
 }

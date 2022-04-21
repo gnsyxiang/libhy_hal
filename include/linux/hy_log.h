@@ -35,6 +35,18 @@ extern "C" {
 #include "hy_hal/hy_hal_misc.h"
 
 /**
+ * @brief log模式
+ */
+typedef enum {
+    HY_LOG_MODE_PROCESS_SINGLE,             ///< 单进程
+
+    HY_LOG_MODE_PROCESS_CLIENT,             ///< 多进程客户端
+    HY_LOG_MODE_PROCESS_SERVER,             ///< 多进程服务端
+
+    HY_LOG_MODE_PROCESS_MAX = 0xffffffff,
+} HyLogMode_e;
+
+/**
  * @brief 打印等级定义
  *
  * @note 数字越小越紧急
@@ -47,19 +59,30 @@ typedef enum {
     HY_LOG_LEVEL_DEBUG,                     ///< 调试程序相关打印
     HY_LOG_LEVEL_TRACE,                     ///< 程序打点调试
 
-    HY_LOG_LEVEL_MAX
+    HY_LOG_LEVEL_MAX = 0xffffffff,
 } HyLogLevel_e;
+
+/**
+ * @brief log相关信息
+ */
+typedef struct {
+    char                *err_str;           ///< 错误信息，由strerror(errno)提供
+    char                *file;              ///< 文件名，去掉了路径
+    hy_u32_t            line;               ///< 行号
+    pthread_t           tid;                ///< 线程id
+    long                pid;                ///< 进程id
+} HyLogAddiInfo_s;
 
 /**
  * @brief 配置参数
  */
 typedef struct {
-    hy_u32_t            buf_len_min;        ///< 单条日志的最短长度
-    hy_u32_t            buf_len_max;        ///< 单条日志的最大长度，超过该长度会被截断
+    HyLogLevel_e        level;              ///< 打印等级
 
-    HyLogLevel_e        level:4;            ///< 打印等级
-    hy_s32_t            color_enable:1;     ///< 是否颜色输出
-    hy_s32_t            reserved;           ///< 预留
+    hy_s32_t            enable_color:1;     ///< 颜色输出
+    hy_s32_t            enable_time:1;      ///< 时间输出
+    hy_s32_t            enable_pid_id:1;    ///< 进程线程id输出
+    hy_s32_t            enable_func_line:1; ///< 函数行号输出
 } HyLogSaveConfig_s;
 
 /**
@@ -67,43 +90,66 @@ typedef struct {
  */
 typedef struct {
     HyLogSaveConfig_s   save_c;             ///< 配置参数
+
+    hy_u32_t            fifo_len;           ///< fifo大小，异步方式用于保存log
+    HyLogMode_e         mode;               ///< 模式
 } HyLogConfig_s;
 
 /**
- * @brief 创建log模块
+ * @brief 初始化log模块
  *
- * @param log_c配置参数
+ * @param log_c 配置参数
  *
- * @return 成功返回句柄，失败返回NULL
+ * @return 成功返回0，失败返回-1
  */
-void *HyLogCreate(HyLogConfig_s *log_c);
+hy_s32_t HyLogInit(HyLogConfig_s *log_c);
 
 /**
- * @brief 创建log模块
+ * @brief 初始化log模块
  *
- * @param _buf_len_min 单条日志的最短长度
- * @param _buf_len_max 单条日志的最大长度，超过该长度会被截断
- * @param _level 打印等级
- * @param _color_enable 是否颜色输出
+ * @param _fifo_len fifo大小
+ * @param _mode 模式
+ * @param _level 等级
+ * @param _enable_color 是否颜色输出
+ * @param _enable_time 是否时间输出
+ * @param _enable_pid_id 是否进程线程id输出
+ * @param _enable_func_line 是否函数行号输出
  *
- * @return 成功返回句柄，失败返回NULL
+ * @return 成功返回0，失败返回-1
  */
-#define HyLogCreate_m(_buf_len_min, _buf_len_max, _level, _color_enable)    \
-    ({                                                                      \
-        HyLogConfig_s log_c;                                                \
-        log_c.save_c.buf_len_min  = _buf_len_min;                           \
-        log_c.save_c.buf_len_max  = _buf_len_max;                           \
-        log_c.save_c.level        = _level;                                 \
-        log_c.save_c.color_enable = _color_enable;                          \
-        HyLogCreate(&log_c);                                                \
+#define HyLogInit_m(_fifo_len, _mode, _level, _enable_color,    \
+        _enable_time, _enable_pid_id, _enable_func_line)        \
+    ({                                                          \
+        HyLogConfig_s log_c;                                    \
+        HY_MEMSET(&log_c, sizeof(log_c));                       \
+        log_c.fifo_len                  = _fifo_len;            \
+        log_c.mode                      = _mode;                \
+        log_c.save_c.level              = _level;               \
+        log_c.save_c.enable_color       = _enable_color;        \
+        log_c.save_c.enable_time        = _enable_time;         \
+        log_c.save_c.enable_pid_id      = _enable_pid_id;       \
+        log_c.save_c.enable_func_line   = _enable_func_line;    \
+        HyLogInit(&log_c);                                      \
      })
 
 /**
  * @brief 销毁log模块
- *
- * @param handle 模块句柄的地址
  */
-void HyLogDestroy(void **handle);
+void HyLogDeInit(void);
+
+/**
+ * @brief 获取打印等级
+ *
+ * @return 当前的打印等级
+ */
+HyLogLevel_e HyLogLevelGet(void);
+
+/**
+ * @brief 设置打印等级
+ *
+ * @param level 新的打印等级
+ */
+void HyLogLevelSet(HyLogLevel_e level);
 
 /**
  * @brief log函数
@@ -115,13 +161,20 @@ void HyLogDestroy(void **handle);
  * @param fmt 格式
  * @param ... 参数
  */
-void HyLogWrite(HyLogLevel_e level, const char *err_str,
-        const char *file, hy_u32_t line, pthread_t tid, long pid,
-        char *fmt, ...) HY_CHECK_FMT_WITH_PRINTF(7, 8);
+void HyLogWrite(HyLogAddiInfo_s *addi_info, char *fmt, ...) HY_CHECK_PRINTF(2, 3);
 
-#define LOG(level, err_str, fmt, ...) \
-    HyLogWrite(level, err_str, HY_FILENAME, __LINE__, \
-            pthread_self(), syscall(SYS_gettid), fmt, ##__VA_ARGS__)
+#define LOG(_level, _err_str, fmt, ...)                     \
+    do {                                                    \
+        if (HyLogLevelGet() >= _level) {                    \
+            HyLogAddiInfo_s addi_info;                      \
+            addi_info.err_str    = _err_str;                \
+            addi_info.file       = HY_FILENAME;             \
+            addi_info.line       = __LINE__;                \
+            addi_info.tid        = pthread_self();          \
+            addi_info.pid        = syscall(SYS_gettid);     \
+            HyLogWrite(&addi_info, fmt, ##__VA_ARGS__);     \
+        }                                                   \
+    } while (0)
 
 #if defined __STDC_VERSION__ && __STDC_VERSION__ >= 199901L
 #   define LOGF(fmt, ...)  LOG(HY_LOG_LEVEL_FATAL, strerror(errno), fmt, ##__VA_ARGS__)
