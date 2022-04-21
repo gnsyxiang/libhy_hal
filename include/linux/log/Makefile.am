@@ -29,7 +29,7 @@ install_includedir      = $(includedir)/@project_name@
 # ---------------------
 # add necessary content
 # ---------------------
-_no_install_headers_com +=
+_no_install_headers_com += fifo.h
 
 _install_headers_com    += hy_log.h
 
