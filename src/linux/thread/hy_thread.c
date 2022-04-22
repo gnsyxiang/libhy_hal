@@ -33,10 +33,43 @@
 
 typedef struct {
     HyThreadSaveConfig_s    save_c;
+    pthread_key_t           key;
+    hy_s32_t                is_init_key;
 
     pthread_t               id;
     hy_u32_t                is_exit;
 } _thread_context_t;
+
+hy_s32_t HyThreadKeySet(void *handle,
+        void *key, HyThreadKeyDestroyCb_t destroy_cb)
+{
+    HY_ASSERT(handle);
+    HY_ASSERT(key);
+    _thread_context_t *context = handle;
+
+    if (!context->is_init_key) {
+        if (0 != pthread_key_create(&context->key, destroy_cb)) {
+            LOGES("pthread_key_create failed \n");
+            return -1;
+        }
+        context->is_init_key = 1;
+    }
+
+    if (0 != pthread_setspecific(context->key, key)) {
+        LOGES("pthread_setspecific failed \n");
+        return -1;
+    }
+
+    return 0;
+}
+
+void *HyThreadKeyGet(void *handle)
+{
+    HY_ASSERT(handle);
+    _thread_context_t *context = handle;
+
+    return pthread_getspecific(context->key);
+}
 
 const char *HyThreadGetName(void *handle)
 {

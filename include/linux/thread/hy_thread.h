@@ -63,6 +63,13 @@ typedef enum {
 typedef hy_s32_t (*HyThreadLoopCb_t)(void *args);
 
 /**
+ * @brief 线程私有数据销毁函数回调
+ *
+ * @param args 私有数据
+ */
+typedef void (*HyThreadKeyDestroyCb_t)(void *args);
+
+/**
  * @brief 模块配置参数
  */
 typedef struct {
@@ -108,6 +115,29 @@ void *HyThreadCreate(HyThreadConfig_s *thread_c);
  * @param handle 线程句柄的地址(二级指针)
  */
 void HyThreadDestroy(void **handle);
+
+/**
+ * @brief 设置线程私有数据
+ *
+ * @param handle 句柄
+ * @param key 私有数据
+ * @destroy_cb 私有数据销毁函数
+ *
+ * @return 成功返回0，失败返回-1
+ *
+ * @note 使用线程私有数据的好处是，多个线程同时使用同一个名字，但是内容不一样
+ */
+hy_s32_t HyThreadKeySet(void *handle,
+        void *key, HyThreadKeyDestroyCb_t destroy_cb);
+
+/**
+ * @brief 获取线程的私有数据
+ *
+ * @param handle 句柄
+ *
+ * @return 成功返回私有数据的地址，失败返回NULL
+ */
+void *HyThreadKeyGet(void *handle);
 
 /**
  * @brief 获取线程名字
