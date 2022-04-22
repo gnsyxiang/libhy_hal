@@ -37,6 +37,7 @@
 
 typedef struct {
     HyLogSaveConfig_s   save_c;
+
     pthread_key_t       thread_key;
 } _log_context_s;
 
@@ -141,6 +142,10 @@ void HyLogWrite(HyLogAddiInfo_s *addi_info, char *fmt, ...)
     HyLogSaveConfig_s *save_c = &context->save_c;
     va_list args;
     _thread_private_data_s *thread_private_data;
+
+    if (!_is_init) {
+        return;
+    }
 
     thread_private_data = _thread_private_data_featch(addi_info);
     if (!thread_private_data) {
