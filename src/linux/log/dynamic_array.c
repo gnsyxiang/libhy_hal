@@ -89,8 +89,6 @@ hy_s32_t dynamic_array_write(dynamic_array_s *dynamic_array,
 
 void dynamic_array_destroy(dynamic_array_s **dynamic_array_pp)
 {
-    LOGT("&dynamic_array: %p, dynamic_array: %p \n",
-            dynamic_array_pp, *dynamic_array_pp);
     dynamic_array_s *dynamic_array = *dynamic_array_pp;
 
     HY_MEM_FREE_PP(&dynamic_array->buf);
@@ -101,7 +99,6 @@ void dynamic_array_destroy(dynamic_array_s **dynamic_array_pp)
 
 dynamic_array_s *dynamic_array_create(hy_u32_t min_len, hy_u32_t max_len)
 {
-    LOGT("min_len: %d, max_len: %d \n", min_len, max_len);
     HY_ASSERT_RET_VAL(min_len == 0 || max_len == 0 || min_len > max_len, NULL);
     dynamic_array_s *dynamic_array = NULL;
 
@@ -114,11 +111,9 @@ dynamic_array_s *dynamic_array_create(hy_u32_t min_len, hy_u32_t max_len)
 
         dynamic_array->buf = HY_MEM_MALLOC_BREAK(char *, dynamic_array->len);
 
-        LOGI("dynamic array create, dynamic_array: %p \n", dynamic_array);
         return dynamic_array;
     } while (0);
 
-    LOGE("dynamic array create failed \n");
     dynamic_array_destroy(&dynamic_array);
     return NULL;
 }
