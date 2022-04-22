@@ -45,7 +45,7 @@ static _log_context_s _context;
 
 HyLogLevel_e HyLogLevelGet(void)
 {
-    return HY_LOG_LEVEL_DEBUG;
+    return _context.save_c.level;
 }
 
 void HyLogLevelSet(HyLogLevel_e level)
