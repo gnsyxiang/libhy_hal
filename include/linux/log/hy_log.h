@@ -77,6 +77,7 @@ typedef struct {
  * @brief 配置参数
  */
 typedef struct {
+    HyLogMode_e         mode;               ///< 模式
     HyLogLevel_e        level;              ///< 打印等级
 
     hy_s32_t            enable_color:1;     ///< 颜色输出
@@ -92,7 +93,6 @@ typedef struct {
     HyLogSaveConfig_s   save_c;             ///< 配置参数
 
     hy_u32_t            fifo_len;           ///< fifo大小，异步方式用于保存log
-    HyLogMode_e         mode;               ///< 模式
 } HyLogConfig_s;
 
 /**
@@ -123,7 +123,7 @@ hy_s32_t HyLogInit(HyLogConfig_s *log_c);
         HyLogConfig_s log_c;                                    \
         HY_MEMSET(&log_c, sizeof(log_c));                       \
         log_c.fifo_len                  = _fifo_len;            \
-        log_c.mode                      = _mode;                \
+        log_c.save_c.mode               = _mode;                \
         log_c.save_c.level              = _level;               \
         log_c.save_c.enable_color       = _enable_color;        \
         log_c.save_c.enable_time        = _enable_time;         \

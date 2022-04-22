@@ -48,8 +48,9 @@ _include_com    += \
                    -I$(top_srcdir)/include
 
 _sources_com    += \
-                   fifo.c       \
-                   hy_log.c
+                   fifo.c               \
+                   hy_log.c             \
+                   process_single.c
 
 _cppflags_com   += \
                    $(_no_error_com)     \

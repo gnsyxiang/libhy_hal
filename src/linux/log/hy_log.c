@@ -31,17 +31,14 @@
 #include "hy_thread_mutex.h"
 
 #include "hy_log.h"
+#include "process_single.h"
+
+typedef struct {
+    HyLogAddiInfo_s     *addi_info;
+} _thread_private_s;
 
 typedef struct {
     HyLogSaveConfig_s   save_c;
-
-    char                *buf;
-    hy_u32_t            read_pos;
-    hy_u32_t            write_pos;
-
-    hy_s32_t            is_exit;
-    void                *async_thread_h;
-    void                *async_mutex_h;
 } _log_context_s;
 
 static hy_s32_t _is_init = 0;
@@ -60,39 +57,20 @@ void HyLogWrite(HyLogAddiInfo_s *addi_info, char *fmt, ...)
 {
     _log_context_s *context = &_context;
     HyLogSaveConfig_s *save_c = &context->save_c;
+    va_list args;
 
-    char *pos = NULL;
-    hy_char_t *color[][2] = {
-        {"F", PRINT_FONT_RED},
-        {"E", PRINT_FONT_RED},
-        {"W", PRINT_FONT_YEL},
-        {"I", ""},
-        {"D", PRINT_FONT_GRE},
-        {"T", ""},
-    };
-}
+    va_start(args, fmt);
 
-static hy_s32_t _async_thread_cb(void *args)
-{
-    _log_context_s *context = (_log_context_s *)args;
-
-    while (!context->is_exit) {
+    if (HY_LOG_MODE_PROCESS_SINGLE == save_c->mode) {
+        process_single_write(addi_info, fmt, args);
     }
 
-    return -1;
+    va_end(args);
 }
 
 void HyLogDeInit(void)
 {
-    _log_context_s *context = &_context;
-
-    HyThreadDestroy(&context->async_thread_h);
-
-    HyThreadMutexDestroy(&context->async_mutex_h);
-
-    HY_MEM_FREE_PP(&context->buf);
-
-    printf("log destroy, context: %p \n", context);
+    process_single_destroy();
 }
 
 hy_s32_t HyLogInit(HyLogConfig_s *log_c)
@@ -105,32 +83,23 @@ hy_s32_t HyLogInit(HyLogConfig_s *log_c)
     }
 
     _log_context_s *context = &_context;
+    hy_s32_t ret = 0;
     do {
         HY_MEMSET(context, sizeof(*context));
         HY_MEMCPY(&context->save_c, &log_c->save_c, sizeof(context->save_c));
 
-        context->buf = HY_MEM_MALLOC_BREAK(char *, log_c->fifo_len);
-        context->read_pos = context->write_pos = 0;
-
-        context->async_mutex_h = HyThreadMutexCreate_m();
-        if (!context->async_mutex_h) {
-            printf("HyThreadMutexCreate_m failed \n");
-            break;
+        if (HY_LOG_MODE_PROCESS_SINGLE == log_c->save_c.mode) {
+            ret = process_single_create(log_c->fifo_len);
         }
-
-        context->async_thread_h = HyThreadCreate_m("HY_async_log",
-                _async_thread_cb, context);
-        if (!context->async_thread_h) {
-            printf("HyThreadCreate_m failed \n");
+        if (0 != ret) {
+            printf("process single create failed \n");
             break;
         }
 
         _is_init = 1;
-        printf("log init \n");
         return 0;
     } while (0);
 
-    printf("log init failed \n");
     HyLogDeInit();
     return -1;
 }
