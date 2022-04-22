@@ -25,10 +25,11 @@ extern "C" {
 #endif
 
 #include "hy_log.h"
+#include "dynamic_array.h"
 
 typedef struct {
     HyLogAddiInfo_s     *addi_info;
-    void                *dynamic_array_h;
+    dynamic_array_s     *dynamic_array;
 } _thread_private_data_s;
 
 #ifdef __cplusplus

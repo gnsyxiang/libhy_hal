@@ -24,7 +24,21 @@
 extern "C" {
 #endif
 
-#include "hy_hal/hy_type.h"
+#include "hy_type.h"
+
+/**
+ * @brief 动态数组
+ *
+ * @note 空间不够时，自动开辟空间，直到开辟到最大的空间
+ */
+typedef struct {
+    char        *buf;       ///< 存放数据的地方
+    hy_u32_t    len;        ///< 开辟空间的大小
+    hy_u32_t    cur_len;    ///< 已经存储数据的大小
+
+    hy_u32_t    min_len;    ///< 开辟空间的最小长度
+    hy_u32_t    max_len;    ///< 开辟空间的最大长度
+} dynamic_array_s;
 
 /**
  * @brief 创建动态数组
@@ -34,52 +48,49 @@ extern "C" {
  *
  * @return 成功返回句柄，失败返回NULL
  */
-void *dynamic_array_create(hy_u32_t min_len, hy_u32_t max_len);
+dynamic_array_s *dynamic_array_create(hy_u32_t min_len, hy_u32_t max_len);
 
 /**
  * @brief 销毁动态数组
  *
- * @param handle 句柄的地址（二级指针）
+ * @param dynamic_array_pp 句柄的地址（二级指针）
  */
-void dynamic_array_destroy(void **handle);
-
-/**
- * @brief 重置动态数组
- *
- * @param handle 句柄
- */
-void dynamic_array_reset(void *handle);
-
-/**
- * @brief 获取动态数组的长度
- *
- * @param handle 句柄
- *
- * @return 长度 
- */
-hy_s32_t dynamic_array_get_len(void *handle);
+void dynamic_array_destroy(dynamic_array_s **dynamic_array_pp);
 
 /**
  * @brief 从动态数组中读取
  *
- * @param handle 句柄
+ * @param dynamic_array 句柄
  * @param buf 数组
  * @param len 长度
  *
- * @return 实际返回的长度
+ * @return 返回实际读取到的长度
  */
-hy_s32_t dynamic_array_read(void *handle, void *buf, hy_u32_t len);
+hy_s32_t dynamic_array_read(dynamic_array_s *dynamic_array,
+        void *buf, hy_u32_t len);
 
 /**
  * @brief 向动态数组中写入
  *
- * @param handle 句柄
+ * @param dynamic_array 句柄
  * @param buf 数组
  * @param len 长度
  *
  * @return 成功返回写入的长度，失败返回-1
  */
-hy_s32_t dynamic_array_write(void *handle, const void *buf, hy_u32_t len);
+hy_s32_t dynamic_array_write(dynamic_array_s *dynamic_array,
+        const void *buf, hy_u32_t len);
+
+/**
+ * @brief 复位动态数据，清空里面的数据
+ *
+ * @param _dynamic_array 句柄
+ */
+#define DYNAMIC_ARRAY_RESET(_dynamic_array)                         \
+    do {                                                            \
+        HY_MEMSET((_dynamic_array)->buf, (_dynamic_array)->len);    \
+        (_dynamic_array)->cur_len = 0;                              \
+    } while (0);
 
 #ifdef __cplusplus
 }
