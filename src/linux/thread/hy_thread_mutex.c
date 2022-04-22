@@ -34,22 +34,25 @@ typedef struct {
 hy_s32_t HyThreadMutexTryLock(void *handle)
 {
     HY_ASSERT(handle);
+    _mutex_context_s *context = handle;
 
-    return pthread_mutex_trylock(&((_mutex_context_s *)handle)->mutex);
+    return pthread_mutex_trylock(&context->mutex) == 0 ? 0 : -1;
 }
 
 hy_s32_t HyThreadMutexLock(void *handle)
 {
     HY_ASSERT(handle);
+    _mutex_context_s *context = handle;
 
-    return pthread_mutex_lock(&((_mutex_context_s *)handle)->mutex);
+    return pthread_mutex_lock(&context->mutex) == 0 ? 0 : -1;
 }
 
 hy_s32_t HyThreadMutexUnLock(void *handle)
 {
     HY_ASSERT(handle);
+    _mutex_context_s *context = handle;
 
-    return pthread_mutex_unlock(&((_mutex_context_s *)handle)->mutex);
+    return pthread_mutex_unlock(&context->mutex) == 0 ? 0 : -1;
 }
 
 void *HyThreadMutexGetLock(void *handle)
@@ -61,9 +64,8 @@ void *HyThreadMutexGetLock(void *handle)
 
 void HyThreadMutexDestroy(void **handle)
 {
-    LOGT("&context: %p, context: %p \n", handle, *handle);
+    LOGT("&handle: %p, handle: %p \n", handle, *handle);
     HY_ASSERT_RET(!handle || !*handle);
-
     _mutex_context_s *context = *handle;
 
     if (0 != pthread_mutex_destroy(&context->mutex)) {
@@ -78,8 +80,8 @@ void *HyThreadMutexCreate(HyThreadMutexConfig_s *mutex_c)
 {
     LOGT("mutex_c: %p \n", mutex_c);
     HY_ASSERT_RET_VAL(!mutex_c, NULL);
-
     _mutex_context_s *context = NULL;
+
     do {
         context = HY_MEM_MALLOC_BREAK(_mutex_context_s *, sizeof(*context));
 
