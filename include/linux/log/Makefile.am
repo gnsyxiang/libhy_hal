@@ -30,6 +30,7 @@ install_includedir      = $(includedir)/@project_name@
 # add necessary content
 # ---------------------
 _no_install_headers_com += \
+                           dynamic_array.h      \
                            fifo.h               \
                            process_single.h
 

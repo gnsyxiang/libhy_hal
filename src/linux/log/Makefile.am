@@ -48,6 +48,7 @@ _include_com    += \
                    -I$(top_srcdir)/include
 
 _sources_com    += \
+                   dynamic_array.c      \
                    fifo.c               \
                    hy_log.c             \
                    process_single.c
