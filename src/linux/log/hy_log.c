@@ -29,6 +29,7 @@
 #include "hy_printf.h"
 #include "hy_thread.h"
 #include "hy_thread_mutex.h"
+#include "hy_hal_utils.h"
 
 #include "hy_log.h"
 #include "log_private.h"
@@ -39,6 +40,7 @@ typedef struct {
     HyLogSaveConfig_s   save_c;
 
     pthread_key_t       thread_key;
+    format_log_cb_t    format_log_cb[5];
 } _log_context_s;
 
 static hy_s32_t _is_init = 0;
@@ -51,6 +53,57 @@ HyLogLevel_e HyLogLevelGet(void)
 
 void HyLogLevelSet(HyLogLevel_e level)
 {
+}
+
+static hy_s32_t _format_log_color_cb(_thread_private_data_s *thread_private_data)
+{
+    HyLogAddiInfo_s *addi_info = thread_private_data->addi_info;
+    dynamic_array_s *dynamic_array = thread_private_data->dynamic_array;
+    HyLogLevel_e level = addi_info->level;
+    hy_char_t *color[][2] = {
+        {"F", PRINT_FONT_RED},
+        {"E", PRINT_FONT_RED},
+        {"W", PRINT_FONT_YEL},
+        {"I", ""},
+        {"D", PRINT_FONT_GRE},
+        {"T", ""},
+    };
+    char buf[16] = {0};
+    hy_s32_t ret = 0;
+
+    ret = snprintf(buf, sizeof(buf), "%s[%s]", color[level][1], color[level][0]);
+
+    return dynamic_array_write(dynamic_array, buf, ret);
+}
+
+static hy_s32_t _format_log_time_cb(_thread_private_data_s *thread_private_data)
+{
+    return 0;
+}
+
+static hy_s32_t _format_log_pid_id_cb(_thread_private_data_s *thread_private_data)
+{
+    return 0;
+}
+
+static hy_s32_t _format_log_func_line_cb(_thread_private_data_s *thread_private_data)
+{
+    HyLogAddiInfo_s *addi_info = thread_private_data->addi_info;
+    dynamic_array_s *dynamic_array = thread_private_data->dynamic_array;
+    char buf[64] = {0};
+    hy_s32_t ret = 0;
+
+    ret = snprintf(buf, sizeof(buf),
+            "[%s:%"PRId32"]", addi_info->func, addi_info->line);
+
+    return dynamic_array_write(dynamic_array, buf, ret);
+}
+
+static hy_s32_t _format_log_color_reset_cb(_thread_private_data_s *thread_private_data)
+{
+    dynamic_array_s *dynamic_array = thread_private_data->dynamic_array;
+
+    return dynamic_array_write(dynamic_array, PRINT_ATTR_RESET, HY_STRLEN(PRINT_ATTR_RESET));
 }
 
 static void
@@ -152,10 +205,13 @@ void HyLogWrite(HyLogAddiInfo_s *addi_info, char *fmt, ...)
         printf("_thread_private_data_featch failed \n");
         return;
     }
+    thread_private_data->addi_info = addi_info;
 
     va_start(args, fmt);
     if (HY_LOG_MODE_PROCESS_SINGLE == save_c->mode) {
-        process_single_write(thread_private_data, fmt, args);
+        process_single_write(_context.format_log_cb,
+                HyHalUtilsArrayCnt(_context.format_log_cb),
+                thread_private_data, fmt, args);
     }
     va_end(args);
 }
@@ -184,6 +240,12 @@ hy_s32_t HyLogInit(HyLogConfig_s *log_c)
     do {
         HY_MEMSET(context, sizeof(*context));
         HY_MEMCPY(&context->save_c, &log_c->save_c, sizeof(context->save_c));
+
+        context->format_log_cb[0] = _format_log_color_cb;
+        context->format_log_cb[1] = _format_log_time_cb;
+        context->format_log_cb[2] = _format_log_pid_id_cb;
+        context->format_log_cb[3] = _format_log_func_line_cb;
+        context->format_log_cb[4] = _format_log_color_reset_cb;
 
         if (0 != pthread_key_create(&context->thread_key,
                     _thread_private_data_destroy)) {

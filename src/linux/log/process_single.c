@@ -41,20 +41,22 @@ typedef struct {
 
 static _process_single_context_s _process_context;
 
-void process_single_write(_thread_private_data_s *thread_private_data,
-        char *fmt, va_list str_args)
+void process_single_write(format_log_cb_t *format_log_cb, hy_u32_t log_cb_cnt,
+        _thread_private_data_s *thread_private_data, char *fmt, va_list str_args)
 {
     _process_single_context_s *context = &_process_context;
     HyLogAddiInfo_s *addi_info = thread_private_data->addi_info;
     dynamic_array_s *dynamic_array = thread_private_data->dynamic_array;
 
-    dynamic_array_write(dynamic_array, addi_info->file, HY_STRLEN(addi_info->file));
-    dynamic_array_write(dynamic_array, "\n", 1);
+    for (hy_u32_t i = 0; i < log_cb_cnt; ++i) {
+        format_log_cb[i](thread_private_data);
+    }
 
     HyThreadMutexLock_m(context->mutex_h);
     fifo_write(context->fifo, dynamic_array->buf, dynamic_array->cur_len);
     DYNAMIC_ARRAY_RESET(dynamic_array);
     HyThreadMutexUnLock_m(context->mutex_h);
+    HyThreadCondSignal_m(context->cond_h);
 }
 
 static hy_s32_t _thread_cb(void *args)
@@ -74,7 +76,7 @@ static hy_s32_t _thread_cb(void *args)
         len = fifo_read(context->fifo, buf, sizeof(buf));
 
         /* @fixme: <22-04-22, uos> 多种方式处理数据 */
-        printf("------------------buf-------%s", buf);
+        printf("------------------buf-------%s \n", buf);
     }
 
     return -1;

@@ -32,6 +32,8 @@ typedef struct {
     dynamic_array_s     *dynamic_array;
 } _thread_private_data_s;
 
+typedef hy_s32_t (*format_log_cb_t)(_thread_private_data_s *thread_private_data);
+
 #ifdef __cplusplus
 }
 #endif
