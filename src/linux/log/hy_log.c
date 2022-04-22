@@ -72,11 +72,11 @@ static _thread_private_data_s *_thread_private_data_get(void)
     }
 }
 
-static hy_s32_t _thread_private_data_set(void *data)
+static hy_s32_t _thread_private_data_set(_thread_private_data_s *thread_private_data)
 {
-    HY_ASSERT_RET_VAL(!data, -1);
+    HY_ASSERT_RET_VAL(!thread_private_data, -1);
 
-    if (0 != pthread_setspecific(_context.thread_key, data)) {
+    if (0 != pthread_setspecific(_context.thread_key, thread_private_data)) {
         printf("pthread_setspecific fail \n");
         return -1;
     } else {
@@ -111,6 +111,8 @@ _thread_private_data_create(HyLogAddiInfo_s *addi_info)
     }
 
     thread_private_data->addi_info = addi_info;
+
+    _thread_private_data_set(thread_private_data);
 
     return thread_private_data;
 }
