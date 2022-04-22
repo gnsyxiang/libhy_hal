@@ -55,10 +55,9 @@ void HyLogLevelSet(HyLogLevel_e level)
 {
 }
 
-static hy_s32_t _format_log_color_cb(_thread_private_data_s *thread_private_data)
+static hy_s32_t _format_log_color_cb(dynamic_array_s *dynamic_array,
+        HyLogAddiInfo_s *addi_info)
 {
-    HyLogAddiInfo_s *addi_info = thread_private_data->addi_info;
-    dynamic_array_s *dynamic_array = thread_private_data->dynamic_array;
     HyLogLevel_e level = addi_info->level;
     hy_char_t *color[][2] = {
         {"F", PRINT_FONT_RED},
@@ -76,20 +75,21 @@ static hy_s32_t _format_log_color_cb(_thread_private_data_s *thread_private_data
     return dynamic_array_write(dynamic_array, buf, ret);
 }
 
-static hy_s32_t _format_log_time_cb(_thread_private_data_s *thread_private_data)
+static hy_s32_t _format_log_time_cb(dynamic_array_s *dynamic_array,
+        HyLogAddiInfo_s *addi_info)
 {
     return 0;
 }
 
-static hy_s32_t _format_log_pid_id_cb(_thread_private_data_s *thread_private_data)
+static hy_s32_t _format_log_pid_id_cb(dynamic_array_s *dynamic_array,
+        HyLogAddiInfo_s *addi_info)
 {
     return 0;
 }
 
-static hy_s32_t _format_log_func_line_cb(_thread_private_data_s *thread_private_data)
+static hy_s32_t _format_log_func_line_cb(dynamic_array_s *dynamic_array,
+        HyLogAddiInfo_s *addi_info)
 {
-    HyLogAddiInfo_s *addi_info = thread_private_data->addi_info;
-    dynamic_array_s *dynamic_array = thread_private_data->dynamic_array;
     char buf[64] = {0};
     hy_s32_t ret = 0;
 
@@ -99,38 +99,36 @@ static hy_s32_t _format_log_func_line_cb(_thread_private_data_s *thread_private_
     return dynamic_array_write(dynamic_array, buf, ret);
 }
 
-static hy_s32_t _format_log_color_reset_cb(_thread_private_data_s *thread_private_data)
+static hy_s32_t _format_log_color_reset_cb(dynamic_array_s *dynamic_array,
+        HyLogAddiInfo_s *addi_info)
 {
-    dynamic_array_s *dynamic_array = thread_private_data->dynamic_array;
-
-    return dynamic_array_write(dynamic_array, PRINT_ATTR_RESET, HY_STRLEN(PRINT_ATTR_RESET));
+    return dynamic_array_write(dynamic_array,
+            PRINT_ATTR_RESET, HY_STRLEN(PRINT_ATTR_RESET));
 }
 
-static void
-_thread_private_data_reset(_thread_private_data_s *thread_private_data)
+static void _thread_private_data_reset(dynamic_array_s *dynamic_array)
 {
-    thread_private_data->addi_info = NULL;
-    DYNAMIC_ARRAY_RESET(thread_private_data->dynamic_array);
+    DYNAMIC_ARRAY_RESET(dynamic_array);
 }
 
-static _thread_private_data_s *_thread_private_data_get(void)
+static dynamic_array_s *_thread_private_data_get(void)
 {
-    _thread_private_data_s *thread_private_data = NULL;
+    dynamic_array_s *dynamic_array = NULL;
 
-    thread_private_data = pthread_getspecific(_context.thread_key);
-    if (!thread_private_data) {
+    dynamic_array = pthread_getspecific(_context.thread_key);
+    if (!dynamic_array) {
         printf("pthread_getspecific failed \n");
         return NULL;
     } else {
-        return thread_private_data;
+        return dynamic_array;
     }
 }
 
-static hy_s32_t _thread_private_data_set(_thread_private_data_s *thread_private_data)
+static hy_s32_t _thread_private_data_set(dynamic_array_s *dynamic_array)
 {
-    HY_ASSERT_RET_VAL(!thread_private_data, -1);
+    HY_ASSERT_RET_VAL(!dynamic_array, -1);
 
-    if (0 != pthread_setspecific(_context.thread_key, thread_private_data)) {
+    if (0 != pthread_setspecific(_context.thread_key, dynamic_array)) {
         printf("pthread_setspecific fail \n");
         return -1;
     } else {
@@ -141,77 +139,70 @@ static hy_s32_t _thread_private_data_set(_thread_private_data_s *thread_private_
 static void _thread_private_data_destroy(void *args)
 {
     HY_ASSERT_RET(!args);
+    dynamic_array_s *dynamic_array = args;
 
-    _thread_private_data_s *thread_private_data = args;
-    dynamic_array_destroy(&thread_private_data->dynamic_array);
-
-    thread_private_data->addi_info = NULL;
-
-    HY_MEM_FREE_PP(&thread_private_data);
+    dynamic_array_destroy(&dynamic_array);
 }
 
-static _thread_private_data_s *
-_thread_private_data_create(HyLogAddiInfo_s *addi_info)
+static dynamic_array_s *_thread_private_data_create(void)
 {
-    _thread_private_data_s *thread_private_data = NULL;
+    dynamic_array_s *dynamic_array = NULL;
 
-    thread_private_data =  HY_MEM_MALLOC_RET_VAL(_thread_private_data_s *,
-            sizeof(thread_private_data), NULL);
-
-    thread_private_data->dynamic_array = dynamic_array_create(128, 4 * 1024);
-    if (!thread_private_data->dynamic_array) {
+    dynamic_array = dynamic_array_create(128, 4 * 1024);
+    if (!dynamic_array) {
         printf("dynamic_array_create failed \n");
         return NULL;
     }
 
-    thread_private_data->addi_info = addi_info;
+    _thread_private_data_set(dynamic_array);
 
-    _thread_private_data_set(thread_private_data);
-
-    return thread_private_data;
+    return dynamic_array;
 }
 
-static _thread_private_data_s *
-_thread_private_data_featch(HyLogAddiInfo_s *addi_info)
+static dynamic_array_s* _thread_private_data_featch(void)
 {
-    _thread_private_data_s *thread_private_data = NULL;
+    dynamic_array_s *dynamic_array = NULL;
 
-    thread_private_data = _thread_private_data_get();
-    if (!thread_private_data) {
-        thread_private_data = _thread_private_data_create(addi_info);
-        if (!thread_private_data) {
+    dynamic_array = _thread_private_data_get();
+    if (!dynamic_array) {
+        dynamic_array = _thread_private_data_create();
+        if (!dynamic_array) {
             printf("_thread_private_data_create failed \n");
         }
     } else {
-        _thread_private_data_reset(thread_private_data);
+        _thread_private_data_reset(dynamic_array);
     }
 
-    return thread_private_data;
+    return dynamic_array;
 }
 
 void HyLogWrite(HyLogAddiInfo_s *addi_info, char *fmt, ...)
 {
     _log_context_s *context = &_context;
     HyLogSaveConfig_s *save_c = &context->save_c;
+    dynamic_array_s *dynamic_array = NULL;
+    log_write_info_s log_write_info;
     va_list args;
-    _thread_private_data_s *thread_private_data;
 
     if (!_is_init) {
         return;
     }
 
-    thread_private_data = _thread_private_data_featch(addi_info);
-    if (!thread_private_data) {
+    dynamic_array = _thread_private_data_featch();
+    if (!dynamic_array) {
         printf("_thread_private_data_featch failed \n");
         return;
     }
-    thread_private_data->addi_info = addi_info;
 
     va_start(args, fmt);
     if (HY_LOG_MODE_PROCESS_SINGLE == save_c->mode) {
-        process_single_write(_context.format_log_cb,
-                HyHalUtilsArrayCnt(_context.format_log_cb),
-                thread_private_data, fmt, args);
+        log_write_info.format_log_cb        = context->format_log_cb;
+        log_write_info.format_log_cb_cnt    = HyHalUtilsArrayCnt(context->format_log_cb);
+        log_write_info.dynamic_array        = dynamic_array;
+        log_write_info.addi_info            = addi_info;
+        log_write_info.fmt                  = fmt;
+        log_write_info.str_args             = &args;
+        process_single_write(&log_write_info);
     }
     va_end(args);
 }

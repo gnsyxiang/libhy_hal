@@ -30,8 +30,7 @@ extern "C" {
 hy_s32_t process_single_create(hy_u32_t fifo_len);
 void process_single_destroy(void);
 
-void process_single_write(format_log_cb_t *format_log_cb, hy_u32_t log_cb_cnt,
-        _thread_private_data_s *thread_private_data, char *fmt, va_list str_args);
+void process_single_write(log_write_info_s *log_write_info);
 
 #ifdef __cplusplus
 }

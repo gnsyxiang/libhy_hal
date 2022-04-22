@@ -24,15 +24,24 @@
 extern "C" {
 #endif
 
+#include <stdarg.h>
+
 #include "hy_log.h"
 #include "dynamic_array.h"
 
-typedef struct {
-    HyLogAddiInfo_s     *addi_info;
-    dynamic_array_s     *dynamic_array;
-} _thread_private_data_s;
+typedef hy_s32_t (*format_log_cb_t)(dynamic_array_s *dynamic_array,
+        HyLogAddiInfo_s *addi_info);
 
-typedef hy_s32_t (*format_log_cb_t)(_thread_private_data_s *thread_private_data);
+typedef struct {
+    format_log_cb_t     *format_log_cb;
+    hy_u32_t            format_log_cb_cnt;
+
+    dynamic_array_s     *dynamic_array;
+    HyLogAddiInfo_s     *addi_info;
+
+    char                *fmt;
+    va_list             *str_args;
+} log_write_info_s;
 
 #ifdef __cplusplus
 }

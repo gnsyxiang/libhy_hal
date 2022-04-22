@@ -41,20 +41,18 @@ typedef struct {
 
 static _process_single_context_s _process_context;
 
-void process_single_write(format_log_cb_t *format_log_cb, hy_u32_t log_cb_cnt,
-        _thread_private_data_s *thread_private_data, char *fmt, va_list str_args)
+void process_single_write(log_write_info_s *log_write_info)
 {
     _process_single_context_s *context = &_process_context;
-    HyLogAddiInfo_s *addi_info = thread_private_data->addi_info;
-    dynamic_array_s *dynamic_array = thread_private_data->dynamic_array;
+    HyLogAddiInfo_s *addi_info = log_write_info->addi_info;
+    dynamic_array_s *dynamic_array = log_write_info->dynamic_array;
 
-    for (hy_u32_t i = 0; i < log_cb_cnt; ++i) {
-        format_log_cb[i](thread_private_data);
+    for (hy_u32_t i = 0; i < log_write_info->format_log_cb_cnt; ++i) {
+        log_write_info->format_log_cb[i](dynamic_array, addi_info);
     }
 
     HyThreadMutexLock_m(context->mutex_h);
     fifo_write(context->fifo, dynamic_array->buf, dynamic_array->cur_len);
-    DYNAMIC_ARRAY_RESET(dynamic_array);
     HyThreadMutexUnLock_m(context->mutex_h);
     HyThreadCondSignal_m(context->cond_h);
 }
