@@ -34,7 +34,7 @@ typedef struct {
     hy_s32_t            is_exit;
     void                *thread_h;
 
-    fifo_context_s      *fifo_h;
+    fifo_context_s      *fifo;
     void                *mutex_h;
     void                *cond_h;
 } _process_single_context_s;
@@ -55,13 +55,13 @@ static hy_s32_t _thread_cb(void *args)
 
     while (!context->is_exit) {
         HyThreadMutexLock_m(context->mutex_h);
-        if (FIFO_IS_EMPTY(context->fifo_h)) {
+        if (FIFO_IS_EMPTY(context->fifo)) {
             HyThreadCondWait_m(context->cond_h, context->mutex_h, 0);
         }
         HyThreadMutexUnLock_m(context->mutex_h);
 
         HY_MEMSET(buf, sizeof(buf));
-        len = fifo_read(context->fifo_h, buf, sizeof(buf));
+        len = fifo_read(context->fifo, buf, sizeof(buf));
 
         /* @fixme: <22-04-22, uos> 多种方式处理数据 */
         printf("%s", buf);
@@ -80,7 +80,7 @@ void process_single_destroy(void)
     HyThreadMutexDestroy(&context->mutex_h);
     HyThreadCondDestroy(&context->cond_h);
 
-    fifo_destroy(&context->fifo_h);
+    fifo_destroy(&context->fifo);
 }
 
 hy_s32_t process_single_create(hy_u32_t fifo_len)
@@ -102,8 +102,8 @@ hy_s32_t process_single_create(hy_u32_t fifo_len)
             break;
         }
 
-        context->fifo_h = fifo_create(fifo_len);
-        if (!context->fifo_h) {
+        context->fifo = fifo_create(fifo_len);
+        if (!context->fifo) {
             printf("fifo_create failed \n");
             break;
         }
