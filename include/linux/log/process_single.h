@@ -25,11 +25,13 @@ extern "C" {
 #endif
 
 #include "hy_log.h"
+#include "log_private.h"
 
 hy_s32_t process_single_create(hy_u32_t fifo_len);
 void process_single_destroy(void);
 
-void process_single_write(HyLogAddiInfo_s *addi_info, char *fmt, va_list str_args);
+void process_single_write(_thread_private_data_s *thread_private_data,
+        char *fmt, va_list str_args);
 
 #ifdef __cplusplus
 }

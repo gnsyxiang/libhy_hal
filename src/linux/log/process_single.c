@@ -28,6 +28,7 @@
 
 #include "process_single.h"
 #include "fifo.h"
+#include "dynamic_array.h"
 
 typedef struct {
     hy_s32_t            is_exit;
@@ -40,7 +41,7 @@ typedef struct {
 
 static _process_single_context_s _process_context;
 
-void process_single_write(HyLogAddiInfo_s *addi_info,
+void process_single_write(_thread_private_data_s *thread_private_data,
         char *fmt, va_list str_args)
 {
 
