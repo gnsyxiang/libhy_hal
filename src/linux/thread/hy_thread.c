@@ -35,13 +35,12 @@ typedef struct {
     HyThreadSaveConfig_s    save_c;
 
     pthread_t               id;
-    hy_u32_t                exit_flag;
+    hy_u32_t                is_exit;
 } _thread_context_t;
 
 const char *HyThreadGetName(void *handle)
 {
     HY_ASSERT_RET_VAL(!handle, NULL);
-
     _thread_context_t *context = handle;
 
     return context->save_c.name;
@@ -50,7 +49,6 @@ const char *HyThreadGetName(void *handle)
 pthread_t HyThreadGetId(void *handle)
 {
     HY_ASSERT_RET_VAL(!handle, -1);
-
     _thread_context_t *context = handle;
 
     return context->id;
@@ -74,10 +72,10 @@ static void *_thread_cb(void *args)
         // pthread_testcancel();
     }
 
-    context->exit_flag = 1;
+    context->is_exit = 1;
     LOGI("%s thread loop stop \n", save_c->name);
 
-    if (save_c->detach_flag) {
+    if (HY_THREAD_DETACH_MODE_YES == save_c->detach_mode) {
         HyThreadDestroy((void **)&context);
     }
 
@@ -88,12 +86,11 @@ void HyThreadDestroy(void **handle)
 {
     LOGT("&handle: %p, handle: %p \n", handle, *handle);
     HY_ASSERT_RET(!handle || !*handle);
-
     _thread_context_t *context = *handle;
     hy_u32_t cnt = 0;
 
-    if (context->save_c.destroy_flag == HY_THREAD_DESTROY_FORCE) {
-        if (!context->exit_flag) {
+    if (context->save_c.destroy_mode == HY_THREAD_DESTROY_MODE_FORCE) {
+        if (!context->is_exit) {
             while (++cnt <= 9) {
                 usleep(200 * 1000);
             }
@@ -105,9 +102,7 @@ void HyThreadDestroy(void **handle)
 
     pthread_join(context->id, NULL);
 
-    LOGI("%s thread destroy, handle: %p \n",
-            context->save_c.name, context);
-
+    LOGI("%s thread destroy, handle: %p \n", context->save_c.name, context);
     HY_MEM_FREE_PP(handle);
 }
 
@@ -115,17 +110,15 @@ void *HyThreadCreate(HyThreadConfig_s *thread_c)
 {
     LOGT("thread_c: %p \n", thread_c);
     HY_ASSERT_RET_VAL(!thread_c, NULL);
-
     _thread_context_t *context = NULL;
     pthread_attr_t attr;
 
     do {
         context = HY_MEM_MALLOC_BREAK(_thread_context_t *, sizeof(*context));
 
-        HY_MEMCPY(&context->save_c,
-                &thread_c->save_c, sizeof(context->save_c));
+        HY_MEMCPY(&context->save_c, &thread_c->save_c, sizeof(context->save_c));
 
-        if (context->save_c.detach_flag) {
+        if (HY_THREAD_DETACH_MODE_YES == context->save_c.detach_mode) {
             if (0 != pthread_attr_init(&attr)) {
                 LOGES("pthread init fail \n");
                 break;

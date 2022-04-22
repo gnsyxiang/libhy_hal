@@ -34,26 +34,26 @@ extern "C" {
  * @brief 线程退出方式
  */
 typedef enum {
-    HY_THREAD_DESTROY_GRACE,    ///< 优雅退出，等待线程执行完
-    HY_THREAD_DESTROY_FORCE,    ///< 强制退出，等待一定时间(2s)后强制退出
+    HY_THREAD_DESTROY_MODE_GRACE,               ///< 优雅退出，等待线程执行完
+    HY_THREAD_DESTROY_MODE_FORCE,               ///< 强制退出，等待一定时间(2s)后强制退出
 
-    HY_THREAD_DESTROY_MAX,
-} HyThreadDestroyFlag_e;
+    HY_THREAD_DESTROY_MODE_MAX = 0xffffffff,
+} HyThreadDestroyMode_e;
 
 /**
  * @brief 线程是否分离
  */
 typedef enum {
-    HY_THREAD_DETACH_NO,        ///< 非分离属性
-    HY_THREAD_DETACH_YES,       ///< 分离属性
+    HY_THREAD_DETACH_MODE_NO,                   ///< 非分离属性
+    HY_THREAD_DETACH_MODE_YES,                  ///< 分离属性
 
-    HY_THREAD_DETACH_MAX,
-} HyThreadDetachFlag_e;
+    HY_THREAD_DETACH_MAX = 0xffffffff,
+} HyThreadDetachMode_e;
 
 /**
  * @brief 线程回调函数
  *
- * @param 上层传递参数
+ * @param args 上层传递参数
  *
  * @return 返回0，线程继续运行，否则线程退出
  *
@@ -71,9 +71,8 @@ typedef struct {
     HyThreadLoopCb_t        thread_loop_cb;                 ///< 线程执行函数
     void                    *args;                          ///< 上层传递参数
 
-    HyThreadDestroyFlag_e   destroy_flag:2;                 ///< 线程退出方式
-    HyThreadDetachFlag_e    detach_flag:2;                  ///< 线程是否分离
-    hy_s32_t                reserved;                       ///< 预留
+    HyThreadDestroyMode_e   destroy_mode;                   ///< 线程退出方式
+    HyThreadDetachMode_e    detach_mode;                    ///< 线程是否分离
 } HyThreadSaveConfig_s;
 
 /**
@@ -86,11 +85,22 @@ typedef struct {
 /**
  * @brief 创建线程
  *
- * @param config 配置参数
+ * @param thread_c 配置参数
  *
- * @return 线程句柄
+ * @return 成功返回句柄，失败返回NULL
  */
 void *HyThreadCreate(HyThreadConfig_s *thread_c);
+
+#define HyThreadCreate_m(_name, _thread_loop_cb, _args)                 \
+    ({                                                                  \
+        HyThreadConfig_s thread_c;                                      \
+        HY_MEMSET(&thread_c, sizeof(thread_c));                         \
+        thread_c.save_c.thread_loop_cb      = _thread_loop_cb;          \
+        thread_c.save_c.args                = _args;                    \
+        HY_STRNCPY(thread_c.save_c.name, sizeof(thread_c.save_c.name),  \
+                _name, HY_STRLEN(_name));                               \
+        HyThreadCreate(&thread_c);                                      \
+     })
 
 /**
  * @brief 销毁线程
@@ -102,6 +112,8 @@ void HyThreadDestroy(void **handle);
 /**
  * @brief 获取线程名字
  *
+ * @param handle 句柄
+ *
  * @return 返回线程名字
  */
 const char *HyThreadGetName(void *handle);
@@ -109,29 +121,11 @@ const char *HyThreadGetName(void *handle);
 /**
  * @brief 获取线程id
  *
+ * @param handle 句柄
+ *
  * @return 返回id(pthread线程库维护的, 进程级别)
  */
 pthread_t HyThreadGetId(void *handle);
-
-/**
- * @brief 创建线程宏
- *
- * @param _name 名字
- * @param _thread_loop_cb 回调函数，详见HyThreadLoopCb_t
- * @param _args 上层传递参数
- *
- * @return 线程句柄
- */
-#define HyThreadCreate_m(_name, _thread_loop_cb, _args)                 \
-    ({                                                                  \
-        HyThreadConfig_s thread_c;                                      \
-        HY_MEMSET(&thread_c, sizeof(thread_c));                         \
-        thread_c.save_c.thread_loop_cb     = _thread_loop_cb;           \
-        thread_c.save_c.args               = _args;                     \
-        HY_STRNCPY(thread_c.save_c.name,                                \
-                HY_THREAD_NAME_LEN_MAX, _name, HY_STRLEN(_name));       \
-        HyThreadCreate(&thread_c);                                      \
-     })
 
 #ifdef __cplusplus
 }
