@@ -68,6 +68,7 @@ typedef enum {
 typedef struct {
     char                *err_str;           ///< 错误信息，由strerror(errno)提供
     char                *file;              ///< 文件名，去掉了路径
+    const char          *func;              ///< 函数名
     hy_u32_t            line;               ///< 行号
     pthread_t           tid;                ///< 线程id
     long                pid;                ///< 进程id
@@ -167,11 +168,12 @@ void HyLogWrite(HyLogAddiInfo_s *addi_info, char *fmt, ...) HY_CHECK_PRINTF(2, 3
     do {                                                    \
         if (HyLogLevelGet() >= _level) {                    \
             HyLogAddiInfo_s addi_info;                      \
-            addi_info.err_str    = _err_str;                \
-            addi_info.file       = HY_FILENAME;             \
-            addi_info.line       = __LINE__;                \
-            addi_info.tid        = pthread_self();          \
-            addi_info.pid        = syscall(SYS_gettid);     \
+            addi_info.err_str   = _err_str;                \
+            addi_info.file      = HY_FILENAME;             \
+            addi_info.func      = __func__;                \
+            addi_info.line      = __LINE__;                \
+            addi_info.tid       = pthread_self();          \
+            addi_info.pid       = syscall(SYS_gettid);     \
             HyLogWrite(&addi_info, fmt, ##__VA_ARGS__);     \
         }                                                   \
     } while (0)
