@@ -102,7 +102,7 @@ void dynamic_array_destroy(dynamic_array_s **dynamic_array_pp)
 dynamic_array_s *dynamic_array_create(hy_u32_t min_len, hy_u32_t max_len)
 {
     LOGT("min_len: %d, max_len: %d \n", min_len, max_len);
-    HY_ASSERT_RET_VAL(min_len == 0 || max_len == 0 || min_len < max_len, NULL);
+    HY_ASSERT_RET_VAL(min_len == 0 || max_len == 0 || min_len > max_len, NULL);
     dynamic_array_s *dynamic_array = NULL;
 
     do {
