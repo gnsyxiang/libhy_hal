@@ -99,6 +99,7 @@ hy_s32_t dynamic_array_write_vprintf(dynamic_array_s *dynamic_array,
                 printf("dynamic_array_extend failed \n");
             } else if (ret >= 0) {
                 free_len = dynamic_array->len - dynamic_array->cur_len - 1;
+                ptr = dynamic_array->buf + dynamic_array->write_pos;
                 ret = vsnprintf(ptr, free_len, format, ap);
                 dynamic_array->cur_len += ret;
                 dynamic_array->write_pos += ret;
