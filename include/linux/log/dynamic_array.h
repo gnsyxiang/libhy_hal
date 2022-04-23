@@ -85,6 +85,18 @@ hy_s32_t dynamic_array_write(dynamic_array_s *dynamic_array,
         const void *buf, hy_u32_t len);
 
 /**
+ * @brief 向动态数组中写入
+ *
+ * @param dynamic_array 句柄
+ * @param format 用户格式
+ * @param args 用户数据
+ *
+ * @return 成功返回写入的长度，失败返回-1
+ */
+hy_s32_t dynamic_array_write_vprintf(dynamic_array_s *dynamic_array,
+        const char *format, va_list *args);
+
+/**
  * @brief 复位动态数据，清空里面的数据
  *
  * @param _dynamic_array 句柄

@@ -73,6 +73,9 @@ typedef struct {
     hy_u32_t            line;               ///< 行号
     pthread_t           tid;                ///< 线程id
     long                pid;                ///< 进程id
+
+    char                *fmt;               ///< 用户格式
+    va_list             *str_args;          ///< 用户信息
 } HyLogAddiInfo_s;
 
 /**
@@ -84,7 +87,8 @@ typedef enum {
     HY_LOG_OUTPUT_FORMAT_TIME           = (0x1 << 2),   ///< 时间输出
     HY_LOG_OUTPUT_FORMAT_PID_ID         = (0x1 << 3),   ///< 进程线程id输出
     HY_LOG_OUTPUT_FORMAT_FUNC_LINE      = (0x1 << 4),   ///< 函数行号输出
-    HY_LOG_OUTPUT_FORMAT_COLOR_RESET    = (0x1 << 5),   ///< 颜色输出恢复
+    HY_LOG_OUTPUT_FORMAT_USR_MSG        = (0x1 << 5),   ///< 函数行号输出
+    HY_LOG_OUTPUT_FORMAT_COLOR_RESET    = (0x1 << 6),   ///< 颜色输出恢复
 
     HY_LOG_OUTPUT_FORMAT_MAX            = 0xffffffff,
 } HyLogOutputFormat_e;
@@ -98,6 +102,7 @@ typedef enum {
      | HY_LOG_OUTPUT_FORMAT_TIME            \
      | HY_LOG_OUTPUT_FORMAT_PID_ID          \
      | HY_LOG_OUTPUT_FORMAT_FUNC_LINE       \
+     | HY_LOG_OUTPUT_FORMAT_USR_MSG         \
      | HY_LOG_OUTPUT_FORMAT_COLOR_RESET)
 
 /**
@@ -107,7 +112,8 @@ typedef enum {
     (HY_LOG_OUTPUT_FORMAT_LEVEL_INFO        \
      | HY_LOG_OUTPUT_FORMAT_TIME            \
      | HY_LOG_OUTPUT_FORMAT_PID_ID          \
-     | HY_LOG_OUTPUT_FORMAT_FUNC_LINE)
+     | HY_LOG_OUTPUT_FORMAT_FUNC_LINE       \
+     | HY_LOG_OUTPUT_FORMAT_USR_MSG)
 
 /**
  * @brief 配置参数

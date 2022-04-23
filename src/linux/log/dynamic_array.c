@@ -18,6 +18,7 @@
  *     last modified: 22/04 2022 09:06
  */
 #include <stdio.h>
+#include <stdarg.h>
 
 #include "hy_type.h"
 #include "hy_assert.h"
@@ -42,46 +43,105 @@ hy_s32_t dynamic_array_read(dynamic_array_s *dynamic_array,
     return len;
 }
 
+static hy_s32_t dynamic_array_extend(dynamic_array_s *dynamic_array,
+        hy_u32_t increment)
+{
+    hy_u32_t extend_len = 0;
+    hy_s32_t ret = 0;
+    void *ptr = NULL;
+
+    if (dynamic_array->len >= dynamic_array->max_len) {
+        printf("can't extend size \n");
+        return -1;
+    }
+
+    if (dynamic_array->len + increment <= dynamic_array->max_len) {
+        extend_len = HY_MEM_ALIGN4_UP(dynamic_array->len + increment + 1);
+    } else {
+        extend_len = dynamic_array->max_len;
+        ret = 1;
+    }
+
+    ptr = realloc(dynamic_array->buf, extend_len);
+    if (!ptr) {
+        LOGES("realloc failed \n");
+        return -1;
+    }
+
+    dynamic_array->buf = ptr;
+    dynamic_array->len = extend_len;
+
+    return ret;
+}
+
+hy_s32_t dynamic_array_write_vprintf(dynamic_array_s *dynamic_array,
+        const char *format, va_list *args)
+{
+    va_list ap;
+    hy_s32_t free_len;
+    hy_s32_t ret;
+    char *ptr = dynamic_array->buf + dynamic_array->write_pos;
+
+    va_copy(ap, *args);
+    free_len = dynamic_array->len - dynamic_array->cur_len - 1;
+    ret = vsnprintf(ptr, free_len, format, ap);
+    if (ret < 0) {
+        printf("vsnprintf failed \n");
+        ret = -1;
+    } else if (ret >= 0) {
+        if (ret < free_len) {
+            dynamic_array->cur_len += ret;
+            dynamic_array->write_pos += ret;
+        } else {
+            ret = dynamic_array_extend(dynamic_array,
+                    ret - (dynamic_array->len - dynamic_array->cur_len));
+            if (-1 == ret) {
+                printf("dynamic_array_extend failed \n");
+            } else if (ret >= 0) {
+                free_len = dynamic_array->len - dynamic_array->cur_len - 1;
+                ret = vsnprintf(ptr, free_len, format, ap);
+                dynamic_array->cur_len += ret;
+                dynamic_array->write_pos += ret;
+
+                /* @fixme: <22-04-23, uos> 做进一步判断 */
+            }
+        }
+    }
+
+    return ret;
+}
+
 hy_s32_t dynamic_array_write(dynamic_array_s *dynamic_array,
         const void *buf, hy_u32_t len)
 {
+    #define _write_data(_buf, _len)                                 \
+        do {                                                        \
+            char *ptr = NULL;                                       \
+            ptr = dynamic_array->buf + dynamic_array->write_pos;    \
+            HY_MEMCPY(ptr, _buf, _len);                             \
+            dynamic_array->cur_len      += _len;                    \
+            dynamic_array->write_pos    += _len;                    \
+        } while (0)
+
     HY_ASSERT(dynamic_array);
-    hy_u32_t extend_len = 0;
-    void *ptr = NULL;
+    hy_s32_t ret = 0;
 
     if (dynamic_array->len - dynamic_array->cur_len > len) {
-        HY_MEMCPY(dynamic_array->buf + dynamic_array->cur_len, buf, len);
-        dynamic_array->cur_len += len;
+        _write_data(buf, len);
     } else {
-        while (extend_len != dynamic_array->max_len) {
-            extend_len = 2 * dynamic_array->len;
-            if (extend_len > dynamic_array->max_len) {
-                extend_len = dynamic_array->max_len;
-            }
-
-            ptr = realloc(dynamic_array->buf, extend_len);
-            if (!ptr) {
-                LOGES("realloc failed \n");
-                len = -1;
-                break;
-            }
-
-            dynamic_array->buf = ptr;
-            dynamic_array->len = extend_len;
-
-            if (dynamic_array->len - dynamic_array->cur_len > len) {
-                HY_MEMCPY(dynamic_array->buf + dynamic_array->cur_len, buf, len);
-                dynamic_array->cur_len += len;
-                break;
-            }
-        }
-
-        if (extend_len == dynamic_array->max_len) {
+        ret = dynamic_array_extend(dynamic_array,
+                len - (dynamic_array->len - dynamic_array->cur_len));
+        if (-1 == ret) {
+            printf("dynamic_array_extend failed \n");
+            len = -1;
+        } else if (0 == ret) {
+            _write_data(buf, len);
+        } else {
             len = dynamic_array->len - dynamic_array->cur_len - 3 - 1; // 3 for "..." 1 for "\0"
-            HY_MEMCPY(dynamic_array->buf + dynamic_array->cur_len, buf, len);
-            dynamic_array->cur_len += len;
+            _write_data(buf, len);
 
-            HY_MEMCPY(dynamic_array->buf + dynamic_array->cur_len, "...", 3);
+            _write_data("...", 3);
+            len += 3;
         }
     }
 

@@ -106,7 +106,7 @@ static hy_s32_t _format_log_time_cb(dynamic_array_s *dynamic_array,
     localtime_r(&t, &tm);
     gettimeofday(&tv, NULL);
 
-    ret = snprintf(buf, sizeof(buf), "%04d-%02d-%02d_%02d:%02d:%02d.%03d",
+    ret = snprintf(buf, sizeof(buf), "[%04d-%02d-%02d_%02d:%02d:%02d.%03d]",
             tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday,
             tm.tm_hour, tm.tm_min, tm.tm_sec, (hy_u32_t)tv.tv_usec / 1000);
 
@@ -135,6 +135,13 @@ static hy_s32_t _format_log_func_line_cb(dynamic_array_s *dynamic_array,
             "[%s:%"PRId32"]", addi_info->func, addi_info->line);
 
     return dynamic_array_write(dynamic_array, buf, ret);
+}
+
+static hy_s32_t _format_log_usr_msg_cb(dynamic_array_s *dynamic_array,
+        HyLogAddiInfo_s *addi_info)
+{
+    return dynamic_array_write_vprintf(dynamic_array,
+            addi_info->fmt, addi_info->str_args);
 }
 
 static hy_s32_t _format_log_color_reset_cb(dynamic_array_s *dynamic_array,
@@ -233,13 +240,13 @@ void HyLogWrite(HyLogAddiInfo_s *addi_info, char *fmt, ...)
     }
 
     va_start(args, fmt);
+    addi_info->fmt = fmt;
+    addi_info->str_args = &args;
     if (HY_LOG_MODE_PROCESS_SINGLE == save_c->mode) {
         log_write_info.format_log_cb        = context->format_log_cb;
         log_write_info.format_log_cb_cnt    = HyHalUtilsArrayCnt(context->format_log_cb);
         log_write_info.dynamic_array        = dynamic_array;
         log_write_info.addi_info            = addi_info;
-        log_write_info.fmt                  = fmt;
-        log_write_info.str_args             = &args;
         process_single_write(&log_write_info);
     }
     va_end(args);
@@ -276,12 +283,13 @@ hy_s32_t HyLogInit(HyLogConfig_s *log_c)
             HyLogOutputFormat_e     format;
             format_log_cb_t         format_log_cb;
         } log_format_cb[] = {
-            {HY_LOG_OUTPUT_FORMAT_COLOR,        {_format_log_color_cb,       NULL,                       }},
-            {HY_LOG_OUTPUT_FORMAT_LEVEL_INFO,   {_format_log_level_info_cb,  _format_log_level_info_cb,  }},
-            {HY_LOG_OUTPUT_FORMAT_TIME,         {_format_log_time_cb,        _format_log_time_cb,        }},
-            {HY_LOG_OUTPUT_FORMAT_PID_ID,       {_format_log_pid_id_cb,      _format_log_pid_id_cb,      }},
-            {HY_LOG_OUTPUT_FORMAT_FUNC_LINE,    {_format_log_func_line_cb,   _format_log_func_line_cb,   }},
-            {HY_LOG_OUTPUT_FORMAT_COLOR_RESET,  {_format_log_color_reset_cb, NULL,                       }},
+            {HY_LOG_OUTPUT_FORMAT_COLOR,        {_format_log_color_cb,          NULL,                       }},
+            {HY_LOG_OUTPUT_FORMAT_LEVEL_INFO,   {_format_log_level_info_cb,     _format_log_level_info_cb,  }},
+            {HY_LOG_OUTPUT_FORMAT_TIME,         {_format_log_time_cb,           _format_log_time_cb,        }},
+            {HY_LOG_OUTPUT_FORMAT_PID_ID,       {_format_log_pid_id_cb,         _format_log_pid_id_cb,      }},
+            {HY_LOG_OUTPUT_FORMAT_FUNC_LINE,    {_format_log_func_line_cb,      _format_log_func_line_cb,   }},
+            {HY_LOG_OUTPUT_FORMAT_USR_MSG,      {_format_log_usr_msg_cb,        _format_log_usr_msg_cb,     }},
+            {HY_LOG_OUTPUT_FORMAT_COLOR_RESET,  {_format_log_color_reset_cb,    NULL,                       }},
         };
 
         for (hy_u32_t i = 0; i < HyHalUtilsArrayCnt(log_format_cb); ++i) {
