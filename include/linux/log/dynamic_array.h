@@ -36,6 +36,9 @@ typedef struct {
     hy_u32_t    len;        ///< 开辟空间的大小
     hy_u32_t    cur_len;    ///< 已经存储数据的大小
 
+    hy_u32_t    write_pos;  ///< 写位置
+    hy_u32_t    read_pos;   ///< 读位置
+
     hy_u32_t    min_len;    ///< 开辟空间的最小长度
     hy_u32_t    max_len;    ///< 开辟空间的最大长度
 } dynamic_array_s;
@@ -90,6 +93,8 @@ hy_s32_t dynamic_array_write(dynamic_array_s *dynamic_array,
     do {                                                            \
         HY_MEMSET((_dynamic_array)->buf, (_dynamic_array)->len);    \
         (_dynamic_array)->cur_len = 0;                              \
+        (_dynamic_array)->write_pos = 0;                            \
+        (_dynamic_array)->read_pos = 0;                             \
     } while (0);
 
 #ifdef __cplusplus

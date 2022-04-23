@@ -37,6 +37,7 @@ hy_s32_t dynamic_array_read(dynamic_array_s *dynamic_array,
     }
 
     HY_MEMCPY(buf, dynamic_array->buf, len);
+    dynamic_array->read_pos += len;
 
     return len;
 }
@@ -108,6 +109,7 @@ dynamic_array_s *dynamic_array_create(hy_u32_t min_len, hy_u32_t max_len)
         dynamic_array->max_len    = max_len;
         dynamic_array->min_len    = min_len;
         dynamic_array->len        = dynamic_array->min_len;
+        dynamic_array->write_pos  = dynamic_array->read_pos = 0;
 
         dynamic_array->buf = HY_MEM_MALLOC_BREAK(char *, dynamic_array->len);
 
