@@ -24,7 +24,7 @@
 extern "C" {
 #endif
 
-#include "hy_hal/hy_type.h"
+#include "hy_type.h"
 
 /**
  * @brief 打印FIFO相关信息
