@@ -50,11 +50,15 @@ typedef struct {
         printf(fmt, ##__VA_ARGS__);                             \
     } while (0)
 
+#if 0
 #define log_info(fmt, ...)                                      \
     do {                                                        \
         printf("[%s:%d]", __func__, __LINE__);                  \
         printf(fmt, ##__VA_ARGS__);                             \
     } while (0)
+#else
+#define log_info(fmt, ...)
+#endif
 
 #ifdef __cplusplus
 }

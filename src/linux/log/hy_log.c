@@ -23,18 +23,12 @@
 #include <inttypes.h>
 #include <sys/time.h>
 
-#include "hy_assert.h"
-#include "hy_mem.h"
-#include "hy_string.h"
 #include "hy_printf.h"
-#include "hy_thread.h"
-#include "hy_thread_mutex.h"
-#include "hy_hal_utils.h"
-
-#include "hy_log.h"
 #include "log_private.h"
 #include "process_single.h"
 #include "dynamic_array.h"
+
+#include "hy_log.h"
 
 /* @fixme: <22-04-23, uos>
  * 两者大小不能相隔太近，
@@ -43,6 +37,8 @@
  */
 #define _DYNAMIC_ARRAY_MIN_LEN  (256)
 #define _DYNAMIC_ARRAY_MAX_LEN  (4 * 1024)
+
+#define _ARRAY_CNT(array) (hy_u32_t)(sizeof((array)) / sizeof((array)[0]))
 
 typedef struct {
     HyLogSaveConfig_s   save_c;
@@ -156,7 +152,7 @@ static hy_s32_t _format_log_color_reset_cb(dynamic_array_s *dynamic_array,
         HyLogAddiInfo_s *addi_info)
 {
     return dynamic_array_write(dynamic_array,
-            PRINT_ATTR_RESET, HY_STRLEN(PRINT_ATTR_RESET));
+            PRINT_ATTR_RESET, strlen(PRINT_ATTR_RESET));
 }
 
 static void _thread_private_data_reset(dynamic_array_s *dynamic_array)
@@ -170,7 +166,7 @@ static dynamic_array_s *_thread_private_data_get(void)
 
     dynamic_array = pthread_getspecific(_context.thread_key);
     if (!dynamic_array) {
-        printf("pthread_getspecific failed \n");
+        log_info("pthread_getspecific failed \n");
         return NULL;
     } else {
         return dynamic_array;
@@ -179,10 +175,13 @@ static dynamic_array_s *_thread_private_data_get(void)
 
 static hy_s32_t _thread_private_data_set(dynamic_array_s *dynamic_array)
 {
-    HY_ASSERT_RET_VAL(!dynamic_array, -1);
+    if (!dynamic_array) {
+        log_error("the param is error \n");
+        return -1;
+    }
 
     if (0 != pthread_setspecific(_context.thread_key, dynamic_array)) {
-        printf("pthread_setspecific fail \n");
+        log_error("pthread_setspecific fail \n");
         return -1;
     } else {
         return 0;
@@ -191,7 +190,10 @@ static hy_s32_t _thread_private_data_set(dynamic_array_s *dynamic_array)
 
 static void _thread_private_data_destroy(void *args)
 {
-    HY_ASSERT_RET(!args);
+    if (!args) {
+        log_error("the param is error \n");
+        return ;
+    }
     dynamic_array_s *dynamic_array = args;
 
     dynamic_array_destroy(&dynamic_array);
@@ -203,7 +205,7 @@ static dynamic_array_s *_thread_private_data_create(void)
 
     dynamic_array = dynamic_array_create(_DYNAMIC_ARRAY_MIN_LEN, _DYNAMIC_ARRAY_MAX_LEN);
     if (!dynamic_array) {
-        printf("dynamic_array_create failed \n");
+        log_error("dynamic_array_create failed \n");
         return NULL;
     }
 
@@ -220,7 +222,7 @@ static dynamic_array_s* _thread_private_data_featch(void)
     if (!dynamic_array) {
         dynamic_array = _thread_private_data_create();
         if (!dynamic_array) {
-            printf("_thread_private_data_create failed \n");
+            log_error("_thread_private_data_create failed \n");
         }
     } else {
         _thread_private_data_reset(dynamic_array);
@@ -243,7 +245,7 @@ void HyLogWrite(HyLogAddiInfo_s *addi_info, char *fmt, ...)
 
     dynamic_array = _thread_private_data_featch();
     if (!dynamic_array) {
-        printf("_thread_private_data_featch failed \n");
+        log_info("_thread_private_data_featch failed \n");
         return;
     }
 
@@ -252,7 +254,7 @@ void HyLogWrite(HyLogAddiInfo_s *addi_info, char *fmt, ...)
     addi_info->str_args = &args;
     if (HY_LOG_MODE_PROCESS_SINGLE == save_c->mode) {
         log_write_info.format_log_cb        = context->format_log_cb;
-        log_write_info.format_log_cb_cnt    = HyHalUtilsArrayCnt(context->format_log_cb);
+        log_write_info.format_log_cb_cnt    = _ARRAY_CNT(context->format_log_cb);
         log_write_info.dynamic_array        = dynamic_array;
         log_write_info.addi_info            = addi_info;
         process_single_write(&log_write_info);
@@ -272,10 +274,13 @@ void HyLogDeInit(void)
 
 hy_s32_t HyLogInit(HyLogConfig_s *log_c)
 {
-    HY_ASSERT_RET_VAL(!log_c, -1);
+    if (!log_c) {
+        log_error("the param is error \n");
+        return -1;
+    }
 
     if (_is_init) {
-        printf("The logging system has been initialized \n");
+        log_error("The logging system has been initialized \n");
         return -1;
     }
 
@@ -284,8 +289,8 @@ hy_s32_t HyLogInit(HyLogConfig_s *log_c)
     hy_s32_t ret = 0;
 
     do {
-        HY_MEMSET(context, sizeof(*context));
-        HY_MEMCPY(&context->save_c, &log_c->save_c, sizeof(context->save_c));
+        memset(context, '\0', sizeof(*context));
+        memcpy(&context->save_c, &log_c->save_c, sizeof(context->save_c));
 
         struct {
             HyLogOutputFormat_e     format;
@@ -300,9 +305,9 @@ hy_s32_t HyLogInit(HyLogConfig_s *log_c)
             {HY_LOG_OUTPUT_FORMAT_COLOR_RESET,  {_format_log_color_reset_cb,    NULL,                       }},
         };
 
-        for (hy_u32_t i = 0; i < HyHalUtilsArrayCnt(log_format_cb); ++i) {
+        for (hy_u32_t i = 0; i < _ARRAY_CNT(log_format_cb); ++i) {
             if (log_format_cb[i].format == (save_c->output_format & 0x1 << i)) {
-                HY_MEMCPY(context->format_log_cb[i],
+                memcpy(context->format_log_cb[i],
                         log_format_cb[i].format_log_cb,
                         sizeof(log_format_cb[i].format_log_cb));
             }
@@ -310,12 +315,12 @@ hy_s32_t HyLogInit(HyLogConfig_s *log_c)
 
         if (0 != pthread_key_create(&context->thread_key,
                     _thread_private_data_destroy)) {
-            printf("pthread_key_create failed \n");
+            log_error("pthread_key_create failed \n");
             break;
         }
 
         if (0 != atexit(_log_thread_private_data_destroy)) {
-            printf("atexit fail \n");
+            log_error("atexit fail \n");
             break;
         }
 
@@ -323,7 +328,7 @@ hy_s32_t HyLogInit(HyLogConfig_s *log_c)
             ret = process_single_create(log_c->fifo_len);
         }
         if (0 != ret) {
-            printf("process single create failed \n");
+            log_error("process single create failed \n");
             break;
         }
 
