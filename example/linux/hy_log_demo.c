@@ -69,12 +69,31 @@ static void _module_destroy(_main_context_t **context_pp)
 
     HY_MODULE_RUN_DESTROY_HANDLE(module);
 
+    HyModuleDestroyBool_s bool_module[] = {
+        {"log",     HyLogDeInit},
+    };
+
+    HY_MODULE_RUN_DESTROY_BOOL(bool_module);
+
     HY_MEM_FREE_PP(context_pp);
 }
 
 static _main_context_t *_module_create(void)
 {
     _main_context_t *context = HY_MEM_MALLOC_RET_VAL(_main_context_t *, sizeof(*context), NULL);
+
+    HyLogConfig_s log_c;
+    HY_MEMSET(&log_c, sizeof(log_c));
+    log_c.fifo_len                  = 10 * 1024;
+    log_c.save_c.mode               = HY_LOG_MODE_PROCESS_SINGLE;
+    log_c.save_c.level              = HY_LOG_LEVEL_TRACE;
+    log_c.save_c.output_format      = HY_LOG_OUTFORMAT_ALL;
+
+    HyModuleCreateBool_s bool_module[] = {
+        {"log",     &log_c,     (HyModuleCreateBoolCb_t)HyLogInit,  HyLogDeInit},
+    };
+
+    HY_MODULE_RUN_CREATE_BOOL(bool_module);
 
     int8_t signal_error_num[HY_SIGNAL_NUM_MAX_32] = {
         SIGQUIT, SIGILL, SIGTRAP, SIGABRT, SIGFPE,
@@ -126,12 +145,6 @@ static hy_s32_t _demo_loop_cb(void *args)
 
 int main(int argc, char *argv[])
 {
-    if (0 != HyLogInit_m(10 * 1024, HY_LOG_MODE_PROCESS_SINGLE,
-            HY_LOG_LEVEL_DEBUG, HY_LOG_OUTFORMAT_ALL)) {
-        printf("log init failed \n");
-        return -1;
-    }
-
     _main_context_t *context = _module_create();
     if (!context) {
         LOGE("_module_create faild \n");
@@ -163,8 +176,7 @@ int main(int argc, char *argv[])
 
     _module_destroy(&context);
 
-    HyLogDeInit();
-
+    sleep(1);
     return 0;
 }
 

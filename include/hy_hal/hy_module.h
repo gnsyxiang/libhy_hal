@@ -102,12 +102,71 @@ typedef struct {
         }                                                                       \
     } while(0)
 
+/**
+ * @brief 创建bool模块
+ *
+ * @param 配置参数
+ *
+ * @return 成功返回0，失败返回-1
+ */
+typedef hy_s32_t *(*HyModuleCreateBoolCb_t)(void *config);
+
+/**
+ * @brief 销毁bool模块
+ */
+typedef void (*HyModuleDestroyBoolCb_t)(void);
+
+/**
+ * @brief bool模块创建结构体
+ */
+typedef struct {
+    const char                  *name;                  ///< 模块名称
+    void                        *config;                ///< 模块配置参数
+    HyModuleCreateBoolCb_t      create_bool_cb;         ///< 模块创建函数
+    HyModuleDestroyBoolCb_t     destroy_bool_cb;        ///< 模块销毁函数
+} HyModuleCreateBool_s;
+
+/**
+ * @brief bool模块销毁结构体
+ */
+typedef struct {
+    const char                  *name;                  ///< 模块名称
+    HyModuleDestroyBoolCb_t     destroy_bool_cb;        ///< 模块销毁函数
+} HyModuleDestroyBool_s;
+
+#define HY_MODULE_RUN_CREATE_BOOL(module)                                       \
+    do {                                                                        \
+        hy_u32_t i;                                                             \
+        hy_u32_t len = _MODULE_ARRAY_CNT(module);                               \
+        for (i = 0; i < len; ++i) {                                             \
+            HyModuleCreateBool_s *_create = &module[i];                         \
+            if (_create->create_bool_cb) {                                      \
+                if (0 != _create->create_bool_cb(_create->config)) {            \
+                    LOGE("%s create error \n", _create->name);                  \
+                    break;                                                      \
+                }                                                               \
+            }                                                                   \
+        }                                                                       \
+                                                                                \
+        if (i < len) {                                                          \
+            hy_s32_t j;                                                         \
+            for (j = i - 1; j >= 0; j--) {                                      \
+                HyModuleCreateBool_s *_create = &module[j];                     \
+                if (_create->destroy_bool_cb) {                                 \
+                    _create->destroy_bool_cb();                                 \
+                }                                                               \
+            }                                                                   \
+            return NULL;                                                        \
+        }                                                                       \
+    } while(0)
+
+#define HY_MODULE_RUN_DESTROY_BOOL(module)                                      \
     do {                                                                        \
         hy_u32_t i;                                                             \
         for (i = 0; i < _MODULE_ARRAY_CNT(module); ++i) {                       \
-            HyModuleDestroyHandle_s *_destroy = &module[i];                     \
-            if (_destroy->destroy_handle_cb) {                                  \
-                _destroy->destroy_handle_cb(_destroy->handle);                  \
+            HyModuleDestroyBool_s *_destroy = &module[i];                       \
+            if (_destroy->destroy_bool_cb) {                                    \
+                _destroy->destroy_bool_cb();                                    \
             }                                                                   \
         }                                                                       \
     } while(0)
