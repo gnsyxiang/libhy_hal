@@ -76,16 +76,47 @@ typedef struct {
 } HyLogAddiInfo_s;
 
 /**
+ * @brief 配置log输出的格式
+ */
+typedef enum {
+    HY_LOG_OUTPUT_FORMAT_COLOR          = (0x1 << 0),   ///< 颜色输出
+    HY_LOG_OUTPUT_FORMAT_LEVEL_INFO     = (0x1 << 1),   ///< 等级提示字母
+    HY_LOG_OUTPUT_FORMAT_TIME           = (0x1 << 2),   ///< 时间输出
+    HY_LOG_OUTPUT_FORMAT_PID_ID         = (0x1 << 3),   ///< 进程线程id输出
+    HY_LOG_OUTPUT_FORMAT_FUNC_LINE      = (0x1 << 4),   ///< 函数行号输出
+    HY_LOG_OUTPUT_FORMAT_COLOR_RESET    = (0x1 << 5),   ///< 颜色输出恢复
+
+    HY_LOG_OUTPUT_FORMAT_MAX            = 0xffffffff,
+} HyLogOutputFormat_e;
+
+/**
+ * @brief 默认配置，输出所有格式
+ */
+#define HY_LOG_OUTFORMAT_ALL                \
+    (HY_LOG_OUTPUT_FORMAT_COLOR             \
+     | HY_LOG_OUTPUT_FORMAT_LEVEL_INFO      \
+     | HY_LOG_OUTPUT_FORMAT_TIME            \
+     | HY_LOG_OUTPUT_FORMAT_PID_ID          \
+     | HY_LOG_OUTPUT_FORMAT_FUNC_LINE       \
+     | HY_LOG_OUTPUT_FORMAT_COLOR_RESET)
+
+/**
+ * @brief 默认配置中去除颜色格式
+ */
+#define HY_LOG_OUTFORMAT_NO_COLOR           \
+    (HY_LOG_OUTPUT_FORMAT_LEVEL_INFO        \
+     | HY_LOG_OUTPUT_FORMAT_TIME            \
+     | HY_LOG_OUTPUT_FORMAT_PID_ID          \
+     | HY_LOG_OUTPUT_FORMAT_FUNC_LINE)
+
+/**
  * @brief 配置参数
  */
 typedef struct {
     HyLogMode_e         mode;               ///< 模式
     HyLogLevel_e        level;              ///< 打印等级
 
-    hy_s32_t            enable_color:1;     ///< 颜色输出
-    hy_s32_t            enable_time:1;      ///< 时间输出
-    hy_s32_t            enable_pid_id:1;    ///< 进程线程id输出
-    hy_s32_t            enable_func_line:1; ///< 函数行号输出
+    hy_u32_t            output_format;      ///< log输出格式
 } HyLogSaveConfig_s;
 
 /**
@@ -119,18 +150,14 @@ hy_s32_t HyLogInit(HyLogConfig_s *log_c);
  *
  * @return 成功返回0，失败返回-1
  */
-#define HyLogInit_m(_fifo_len, _mode, _level, _enable_color,    \
-        _enable_time, _enable_pid_id, _enable_func_line)        \
+#define HyLogInit_m(_fifo_len, _mode, _level, _output_format)   \
     ({                                                          \
         HyLogConfig_s log_c;                                    \
         HY_MEMSET(&log_c, sizeof(log_c));                       \
         log_c.fifo_len                  = _fifo_len;            \
         log_c.save_c.mode               = _mode;                \
         log_c.save_c.level              = _level;               \
-        log_c.save_c.enable_color       = _enable_color;        \
-        log_c.save_c.enable_time        = _enable_time;         \
-        log_c.save_c.enable_pid_id      = _enable_pid_id;       \
-        log_c.save_c.enable_func_line   = _enable_func_line;    \
+        log_c.save_c.output_format      = _output_format;       \
         HyLogInit(&log_c);                                      \
      })
 

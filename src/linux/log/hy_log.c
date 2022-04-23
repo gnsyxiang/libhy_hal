@@ -36,11 +36,19 @@
 #include "process_single.h"
 #include "dynamic_array.h"
 
+#define _FORMAT_LOG_CB_CNT  (6)
+
+typedef struct {
+    HyLogOutputFormat_e format;
+    format_log_cb_t     format_log_cb;
+} _log_format_cb_s;
+
 typedef struct {
     HyLogSaveConfig_s   save_c;
 
     pthread_key_t       thread_key;
-    format_log_cb_t    format_log_cb[5];
+    format_log_cb_t     format_log_cb[_FORMAT_LOG_CB_CNT];
+    format_log_cb_t     format_log_no_color_cb[_FORMAT_LOG_CB_CNT - 2]; // 2 for color func
 } _log_context_s;
 
 static hy_s32_t _is_init = 0;
@@ -58,7 +66,8 @@ void HyLogLevelSet(HyLogLevel_e level)
 static hy_s32_t _format_log_color_cb(dynamic_array_s *dynamic_array,
         HyLogAddiInfo_s *addi_info)
 {
-    HyLogLevel_e level = addi_info->level;
+    char buf[16] = {0};
+    hy_s32_t ret = 0;
     hy_char_t *color[][2] = {
         {"F", PRINT_FONT_RED},
         {"E", PRINT_FONT_RED},
@@ -67,10 +76,27 @@ static hy_s32_t _format_log_color_cb(dynamic_array_s *dynamic_array,
         {"D", PRINT_FONT_GRE},
         {"T", ""},
     };
-    char buf[16] = {0};
-    hy_s32_t ret = 0;
 
-    ret = snprintf(buf, sizeof(buf), "%s[%s]", color[level][1], color[level][0]);
+    ret = snprintf(buf, sizeof(buf), "%s", color[addi_info->level][1]);
+
+    return dynamic_array_write(dynamic_array, buf, ret);
+}
+
+static hy_s32_t _format_log_level_info_cb(dynamic_array_s *dynamic_array,
+        HyLogAddiInfo_s *addi_info)
+{
+    char buf[4] = {0};
+    hy_s32_t ret = 0;
+    hy_char_t *color[][2] = {
+        {"F", PRINT_FONT_RED},
+        {"E", PRINT_FONT_RED},
+        {"W", PRINT_FONT_YEL},
+        {"I", ""},
+        {"D", PRINT_FONT_GRE},
+        {"T", ""},
+    };
+
+    ret = snprintf(buf, sizeof(buf), "[%s]", color[addi_info->level][0]);
 
     return dynamic_array_write(dynamic_array, buf, ret);
 }
@@ -78,13 +104,33 @@ static hy_s32_t _format_log_color_cb(dynamic_array_s *dynamic_array,
 static hy_s32_t _format_log_time_cb(dynamic_array_s *dynamic_array,
         HyLogAddiInfo_s *addi_info)
 {
-    return 0;
+    char buf[32] = {0};
+    hy_s32_t ret = 0;
+    time_t t = 0;
+    struct tm tm;
+    struct timeval tv;
+
+    t = time(NULL);
+    localtime_r(&t, &tm);
+    gettimeofday(&tv, NULL);
+
+    ret = snprintf(buf, sizeof(buf), "%04d-%02d-%02d_%02d:%02d:%02d.%03d",
+            tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday,
+            tm.tm_hour, tm.tm_min, tm.tm_sec, (hy_u32_t)tv.tv_usec / 1000);
+
+    return dynamic_array_write(dynamic_array, buf, ret);
 }
 
 static hy_s32_t _format_log_pid_id_cb(dynamic_array_s *dynamic_array,
         HyLogAddiInfo_s *addi_info)
 {
-    return 0;
+    char buf[32] = {0};
+    hy_s32_t ret = 0;
+
+    ret = snprintf(buf, sizeof(buf),
+            "[%ld-0x%lx]", addi_info->pid, addi_info->tid);
+
+    return dynamic_array_write(dynamic_array, buf, ret);
 }
 
 static hy_s32_t _format_log_func_line_cb(dynamic_array_s *dynamic_array,
@@ -227,16 +273,26 @@ hy_s32_t HyLogInit(HyLogConfig_s *log_c)
     }
 
     _log_context_s *context = &_context;
+    HyLogSaveConfig_s *save_c = &log_c->save_c;
     hy_s32_t ret = 0;
     do {
         HY_MEMSET(context, sizeof(*context));
         HY_MEMCPY(&context->save_c, &log_c->save_c, sizeof(context->save_c));
 
-        context->format_log_cb[0] = _format_log_color_cb;
-        context->format_log_cb[1] = _format_log_time_cb;
-        context->format_log_cb[2] = _format_log_pid_id_cb;
-        context->format_log_cb[3] = _format_log_func_line_cb;
-        context->format_log_cb[4] = _format_log_color_reset_cb;
+        _log_format_cb_s log_format_cb[] = {
+            {HY_LOG_OUTPUT_FORMAT_COLOR,        _format_log_color_cb},
+            {HY_LOG_OUTPUT_FORMAT_LEVEL_INFO,   _format_log_level_info_cb},
+            {HY_LOG_OUTPUT_FORMAT_TIME,         _format_log_time_cb},
+            {HY_LOG_OUTPUT_FORMAT_PID_ID,       _format_log_pid_id_cb},
+            {HY_LOG_OUTPUT_FORMAT_FUNC_LINE,    _format_log_func_line_cb},
+            {HY_LOG_OUTPUT_FORMAT_COLOR_RESET,  _format_log_color_reset_cb},
+        };
+
+        for (hy_u32_t i = 0; i < HyHalUtilsArrayCnt(log_format_cb); ++i) {
+            if (log_format_cb[i].format == (save_c->output_format & 0x1 << i)) {
+                context->format_log_cb[i] = log_format_cb[i].format_log_cb;
+            }
+        }
 
         if (0 != pthread_key_create(&context->thread_key,
                     _thread_private_data_destroy)) {
