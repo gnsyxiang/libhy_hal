@@ -36,19 +36,11 @@
 #include "process_single.h"
 #include "dynamic_array.h"
 
-#define _FORMAT_LOG_CB_CNT  (6)
-
-typedef struct {
-    HyLogOutputFormat_e format;
-    format_log_cb_t     format_log_cb;
-} _log_format_cb_s;
-
 typedef struct {
     HyLogSaveConfig_s   save_c;
 
     pthread_key_t       thread_key;
-    format_log_cb_t     format_log_cb[_FORMAT_LOG_CB_CNT];
-    format_log_cb_t     format_log_no_color_cb[_FORMAT_LOG_CB_CNT - 2]; // 2 for color func
+    format_log_cb_t     format_log_cb[FORMAT_LOG_CB_CNT];
 } _log_context_s;
 
 static hy_s32_t _is_init = 0;
@@ -275,22 +267,28 @@ hy_s32_t HyLogInit(HyLogConfig_s *log_c)
     _log_context_s *context = &_context;
     HyLogSaveConfig_s *save_c = &log_c->save_c;
     hy_s32_t ret = 0;
+
     do {
         HY_MEMSET(context, sizeof(*context));
         HY_MEMCPY(&context->save_c, &log_c->save_c, sizeof(context->save_c));
 
-        _log_format_cb_s log_format_cb[] = {
-            {HY_LOG_OUTPUT_FORMAT_COLOR,        _format_log_color_cb},
-            {HY_LOG_OUTPUT_FORMAT_LEVEL_INFO,   _format_log_level_info_cb},
-            {HY_LOG_OUTPUT_FORMAT_TIME,         _format_log_time_cb},
-            {HY_LOG_OUTPUT_FORMAT_PID_ID,       _format_log_pid_id_cb},
-            {HY_LOG_OUTPUT_FORMAT_FUNC_LINE,    _format_log_func_line_cb},
-            {HY_LOG_OUTPUT_FORMAT_COLOR_RESET,  _format_log_color_reset_cb},
+        struct {
+            HyLogOutputFormat_e     format;
+            format_log_cb_t         format_log_cb;
+        } log_format_cb[] = {
+            {HY_LOG_OUTPUT_FORMAT_COLOR,        {_format_log_color_cb,       NULL,                       }},
+            {HY_LOG_OUTPUT_FORMAT_LEVEL_INFO,   {_format_log_level_info_cb,  _format_log_level_info_cb,  }},
+            {HY_LOG_OUTPUT_FORMAT_TIME,         {_format_log_time_cb,        _format_log_time_cb,        }},
+            {HY_LOG_OUTPUT_FORMAT_PID_ID,       {_format_log_pid_id_cb,      _format_log_pid_id_cb,      }},
+            {HY_LOG_OUTPUT_FORMAT_FUNC_LINE,    {_format_log_func_line_cb,   _format_log_func_line_cb,   }},
+            {HY_LOG_OUTPUT_FORMAT_COLOR_RESET,  {_format_log_color_reset_cb, NULL,                       }},
         };
 
         for (hy_u32_t i = 0; i < HyHalUtilsArrayCnt(log_format_cb); ++i) {
             if (log_format_cb[i].format == (save_c->output_format & 0x1 << i)) {
-                context->format_log_cb[i] = log_format_cb[i].format_log_cb;
+                HY_MEMCPY(context->format_log_cb[i],
+                        log_format_cb[i].format_log_cb,
+                        sizeof(log_format_cb[i].format_log_cb));
             }
         }
 

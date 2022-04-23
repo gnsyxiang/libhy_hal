@@ -29,8 +29,11 @@ extern "C" {
 #include "hy_log.h"
 #include "dynamic_array.h"
 
-typedef hy_s32_t (*format_log_cb_t)(dynamic_array_s *dynamic_array,
-        HyLogAddiInfo_s *addi_info);
+#define FORMAT_LOG_CB_CNT       (6)
+#define FORMAT_LOG_CB_TYPE      (2)
+
+typedef hy_s32_t (*(format_log_cb_t[FORMAT_LOG_CB_TYPE]))
+    (dynamic_array_s *dynamic_array, HyLogAddiInfo_s *addi_info);
 
 typedef struct {
     format_log_cb_t     *format_log_cb;
