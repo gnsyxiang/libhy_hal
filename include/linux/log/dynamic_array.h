@@ -97,16 +97,16 @@ hy_s32_t dynamic_array_write_vprintf(dynamic_array_s *dynamic_array,
         const char *format, va_list *args);
 
 /**
- * @brief 复位动态数据，清空里面的数据
+ * @brief 复位动态数组，清空里面的数据
  *
  * @param _dynamic_array 句柄
  */
-#define DYNAMIC_ARRAY_RESET(_dynamic_array)                         \
-    do {                                                            \
-        HY_MEMSET((_dynamic_array)->buf, (_dynamic_array)->len);    \
-        (_dynamic_array)->cur_len = 0;                              \
-        (_dynamic_array)->write_pos = 0;                            \
-        (_dynamic_array)->read_pos = 0;                             \
+#define DYNAMIC_ARRAY_RESET(_dynamic_array)                             \
+    do {                                                                \
+        memset((_dynamic_array)->buf, '\0', (_dynamic_array)->len);     \
+        (_dynamic_array)->cur_len   = 0;                                \
+        (_dynamic_array)->write_pos = 0;                                \
+        (_dynamic_array)->read_pos  = 0;                                \
     } while (0);
 
 #ifdef __cplusplus
