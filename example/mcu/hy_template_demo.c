@@ -43,13 +43,13 @@ static void _module_destroy(_main_context_t **context_pp)
 {
     _main_context_t *context = *context_pp;
 
-    // note: 增加或删除要同步到module_create_t中
-    module_destroy_t module[] = {
+    // note: 增加或删除要同步到HyModuleCreateHandle_s中
+    HyModuleDestroyHandle_s module[] = {
         {"log",         &context->log_h,           HyLogDestroy},
         {"debug_uart",  &context->debug_uart_h,    HyUartDestroy},
     };
 
-    RUN_DESTROY(module);
+    HY_MODULE_RUN_DESTROY_HANDLE(module);
 
     HY_MEM_FREE_PP(context_pp);
 }
@@ -73,13 +73,13 @@ static _main_context_t *_module_create(void)
     log_c.save_c.level        = HY_LOG_LEVEL_TRACE;
     log_c.save_c.color_enable = HY_TYPE_FLAG_ENABLE;
 
-    // note: 增加或删除要同步到module_destroy_t中
-    module_create_t module[] = {
-        {"debug_uart",  &context->debug_uart_h,    &debug_uart_config,     (create_t)HyUartCreate,     HyUartDestroy},
-        {"log",         &context->log_h,           &log_config,            (create_t)HyLogCreate,      HyLogDestroy},
+    // note: 增加或删除要同步到HyModuleDestroyHandle_s中
+    HyModuleCreateHandle_s module[] = {
+        {"debug_uart",  &context->debug_uart_h,    &debug_uart_config,     (HyModuleCreateHandleCb_t)HyUartCreate,     HyUartDestroy},
+        {"log",         &context->log_h,           &log_config,            (HyModuleCreateHandleCb_t)HyLogCreate,      HyLogDestroy},
     };
 
-    RUN_CREATE(module);
+    HY_MODULE_RUN_CREATE_HANDLE(module);
 
     return context;
 }

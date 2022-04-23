@@ -63,14 +63,14 @@ static void _module_destroy(_main_context_t **context_pp)
 {
     _main_context_t *context = *context_pp;
 
-    // note: 增加或删除要同步到module_create_t中
-    module_destroy_t module[] = {
+    // note: 增加或删除要同步到HyModuleCreateHandle_s中
+    HyModuleDestroyHandle_s module[] = {
         {"hal fifo",    &context->hal_fifo_h,   HyHalFifoDestroy},
         {"signal",      &context->signal_h,     HySignalDestroy},
         {"log",         &context->log_h,        HyLogDestroy},
     };
 
-    RUN_DESTROY(module);
+    HY_MODULE_RUN_DESTROY_HANDLE(module);
 
     HY_MEM_FREE_PP(context_pp);
 }
@@ -111,14 +111,14 @@ static _main_context_t *_module_create(void)
     fifo_c.name = "fifo_demo";
     fifo_c.flag = HY_HAL_FIFO_FLAG_NOBLOCK_READ;
 
-    // note: 增加或删除要同步到module_destroy_t中
-    module_create_t module[] = {
-        {"log",         &context->log_h,        &log_c,         (create_t)HyLogCreate,      HyLogDestroy},
-        {"signal",      &context->signal_h,     &signal_c,      (create_t)HySignalCreate,   HySignalDestroy},
-        {"hal fifo",    &context->hal_fifo_h,   &fifo_c,        (create_t)HyHalFifoCreate,  HyHalFifoDestroy},
+    // note: 增加或删除要同步到HyModuleDestroyHandle_s中
+    HyModuleCreateHandle_s module[] = {
+        {"log",         &context->log_h,        &log_c,         (HyModuleCreateHandleCb_t)HyLogCreate,      HyLogDestroy},
+        {"signal",      &context->signal_h,     &signal_c,      (HyModuleCreateHandleCb_t)HySignalCreate,   HySignalDestroy},
+        {"hal fifo",    &context->hal_fifo_h,   &fifo_c,        (HyModuleCreateHandleCb_t)HyHalFifoCreate,  HyHalFifoDestroy},
     };
 
-    RUN_CREATE(module);
+    HY_MODULE_RUN_CREATE_HANDLE(module);
 
     return context;
 }

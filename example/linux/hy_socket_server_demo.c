@@ -81,14 +81,14 @@ static void _module_destroy(_main_context_s **context_pp)
 {
     _main_context_s *context = *context_pp;
 
-    // note: 增加或删除要同步到module_create_t中
-    module_destroy_t module[] = {
+    // note: 增加或删除要同步到HyModuleCreateHandle_s中
+    HyModuleDestroyHandle_s module[] = {
         {"client server",   &context->socket_h,     HySocketDestroy},
         {"signal",          &context->signal_h,     HySignalDestroy},
         {"log",             &context->log_h,        HyLogDestroy},
     };
 
-    RUN_DESTROY(module);
+    HY_MODULE_RUN_DESTROY_HANDLE(module);
 
     HY_MEM_FREE_PP(context_pp);
 }
@@ -128,14 +128,14 @@ static _main_context_s *_module_create(void)
     HY_MEMSET(&socket_c, sizeof(socket_c));
     socket_c.type = HY_SOCKET_TYPE_SERVER;
 
-    // note: 增加或删除要同步到module_destroy_t中
-    module_create_t module[] = {
-        {"log",             &context->log_h,        &log_c,         (create_t)HyLogCreate,          HyLogDestroy},
-        {"signal",          &context->signal_h,     &signal_c,      (create_t)HySignalCreate,       HySignalDestroy},
-        {"client server",   &context->socket_h,     &socket_c,      (create_t)HySocketCreate,       HySocketDestroy},
+    // note: 增加或删除要同步到HyModuleDestroyHandle_s中
+    HyModuleCreateHandle_s module[] = {
+        {"log",             &context->log_h,        &log_c,         (HyModuleCreateHandleCb_t)HyLogCreate,          HyLogDestroy},
+        {"signal",          &context->signal_h,     &signal_c,      (HyModuleCreateHandleCb_t)HySignalCreate,       HySignalDestroy},
+        {"client server",   &context->socket_h,     &socket_c,      (HyModuleCreateHandleCb_t)HySocketCreate,       HySocketDestroy},
     };
 
-    RUN_CREATE(module);
+    HY_MODULE_RUN_CREATE_HANDLE(module);
 
     return context;
 }

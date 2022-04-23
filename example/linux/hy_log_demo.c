@@ -62,12 +62,12 @@ static void _module_destroy(_main_context_t **context_pp)
 {
     _main_context_t *context = *context_pp;
 
-    // note: 增加或删除要同步到module_create_t中
-    module_destroy_t module[] = {
+    // note: 增加或删除要同步到HyModuleCreateHandle_s中
+    HyModuleDestroyHandle_s module[] = {
         {"signal",  &context->signal_h,    HySignalDestroy},
     };
 
-    RUN_DESTROY(module);
+    HY_MODULE_RUN_DESTROY_HANDLE(module);
 
     HY_MEM_FREE_PP(context_pp);
 }
@@ -95,12 +95,12 @@ static _main_context_t *_module_create(void)
     signal_c.save_c.user_cb       = _signal_user_cb;
     signal_c.save_c.args          = context;
 
-    // note: 增加或删除要同步到module_destroy_t中
-    module_create_t module[] = {
-        {"signal",  &context->signal_h,    &signal_c,       (create_t)HySignalCreate,   HySignalDestroy},
+    // note: 增加或删除要同步到HyModuleDestroyHandle_s中
+    HyModuleCreateHandle_s module[] = {
+        {"signal",  &context->signal_h,    &signal_c,       (HyModuleCreateHandleCb_t)HySignalCreate,   HySignalDestroy},
     };
 
-    RUN_CREATE(module);
+    HY_MODULE_RUN_CREATE_HANDLE(module);
 
     return context;
 }
@@ -127,7 +127,7 @@ static hy_s32_t _demo_loop_cb(void *args)
 int main(int argc, char *argv[])
 {
     if (0 != HyLogInit_m(10 * 1024, HY_LOG_MODE_PROCESS_SINGLE,
-            HY_LOG_LEVEL_DEBUG, 1, 1, 1, 1)) {
+            HY_LOG_LEVEL_DEBUG, HY_LOG_OUTFORMAT_ALL)) {
         printf("log init failed \n");
         return -1;
     }

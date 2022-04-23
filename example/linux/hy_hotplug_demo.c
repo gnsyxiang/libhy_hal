@@ -69,14 +69,14 @@ static void _module_destroy(_main_context_t **context_pp)
 {
     _main_context_t *context = *context_pp;
 
-    // note: 增加或删除要同步到module_create_t中
-    module_destroy_t module[] = {
+    // note: 增加或删除要同步到HyModuleCreateHandle_s中
+    HyModuleDestroyHandle_s module[] = {
         {"hotplug",     &context->hotplug_h,    HyHotplugDestroy},
         {"signal",      &context->signal_h,     HySignalDestroy},
         {"log",         &context->log_h,        HyLogDestroy},
     };
 
-    RUN_DESTROY(module);
+    HY_MODULE_RUN_DESTROY_HANDLE(module);
 
     HY_MEM_FREE_PP(context_pp);
 }
@@ -116,14 +116,14 @@ static _main_context_t *_module_create(void)
     hotplug_c.save_c.hotplug_cb     = _hotplug_cb;
     hotplug_c.save_c.args           = context;
 
-    // note: 增加或删除要同步到module_destroy_t中
-    module_create_t module[] = {
-        {"log",         &context->log_h,        &log_c,         (create_t)HyLogCreate,          HyLogDestroy},
-        {"signal",      &context->signal_h,     &signal_c,      (create_t)HySignalCreate,       HySignalDestroy},
-        {"hotplug",     &context->hotplug_h,    &hotplug_c,     (create_t)HyHotplugCreate,      HyHotplugDestroy},
+    // note: 增加或删除要同步到HyModuleDestroyHandle_s中
+    HyModuleCreateHandle_s module[] = {
+        {"log",         &context->log_h,        &log_c,         (HyModuleCreateHandleCb_t)HyLogCreate,          HyLogDestroy},
+        {"signal",      &context->signal_h,     &signal_c,      (HyModuleCreateHandleCb_t)HySignalCreate,       HySignalDestroy},
+        {"hotplug",     &context->hotplug_h,    &hotplug_c,     (HyModuleCreateHandleCb_t)HyHotplugCreate,      HyHotplugDestroy},
     };
 
-    RUN_CREATE(module);
+    HY_MODULE_RUN_CREATE_HANDLE(module);
 
     return context;
 }

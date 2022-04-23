@@ -96,8 +96,8 @@ static void _module_destroy(_main_context_t **context_pp)
 {
     _main_context_t *context = *context_pp;
 
-    // note: 增加或删除要同步到module_create_t中
-    module_destroy_t module[] = {
+    // note: 增加或删除要同步到HyModuleCreateHandle_s中
+    HyModuleDestroyHandle_s module[] = {
         {"pipe write thread",   &context->pipe_write_thread_h,  HyThreadDestroy},
         {"pipe read thread",    &context->pipe_read_thread_h,   HyThreadDestroy},
         {"pipe",                &context->pipe_h,               HyPipeDestroy},
@@ -105,7 +105,7 @@ static void _module_destroy(_main_context_t **context_pp)
         {"log",                 &context->log_h,                HyLogDestroy},
     };
 
-    RUN_DESTROY(module);
+    HY_MODULE_RUN_DESTROY_HANDLE(module);
 
     HY_MEM_FREE_PP(context_pp);
 }
@@ -159,16 +159,16 @@ static _main_context_t *_module_create(void)
     HY_STRNCPY(pipe_write_thread_c.save_c.name, HY_THREAD_NAME_LEN_MAX,
             "hy_pipe_write", HY_STRLEN("hy_pipe_write"));
 
-    // note: 增加或删除要同步到module_destroy_t中
-    module_create_t module[] = {
-        {"log",                 &context->log_h,                &log_c,                 (create_t)HyLogCreate,      HyLogDestroy},
-        {"signal",              &context->signal_h,             &signal_c,              (create_t)HySignalCreate,   HySignalDestroy},
-        {"pipe",                &context->pipe_h,               &pipe_c,                (create_t)HyPipeCreate,     HyPipeDestroy},
-        {"pipe read thread",    &context->pipe_read_thread_h,   &pipe_read_thread_c,    (create_t)HyThreadCreate,   HyThreadDestroy},
-        {"pipe write thread",   &context->pipe_write_thread_h,  &pipe_write_thread_c,   (create_t)HyThreadCreate,   HyThreadDestroy},
+    // note: 增加或删除要同步到HyModuleDestroyHandle_s中
+    HyModuleCreateHandle_s module[] = {
+        {"log",                 &context->log_h,                &log_c,                 (HyModuleCreateHandleCb_t)HyLogCreate,      HyLogDestroy},
+        {"signal",              &context->signal_h,             &signal_c,              (HyModuleCreateHandleCb_t)HySignalCreate,   HySignalDestroy},
+        {"pipe",                &context->pipe_h,               &pipe_c,                (HyModuleCreateHandleCb_t)HyPipeCreate,     HyPipeDestroy},
+        {"pipe read thread",    &context->pipe_read_thread_h,   &pipe_read_thread_c,    (HyModuleCreateHandleCb_t)HyThreadCreate,   HyThreadDestroy},
+        {"pipe write thread",   &context->pipe_write_thread_h,  &pipe_write_thread_c,   (HyModuleCreateHandleCb_t)HyThreadCreate,   HyThreadDestroy},
     };
 
-    RUN_CREATE(module);
+    HY_MODULE_RUN_CREATE_HANDLE(module);
 
     return context;
 }
