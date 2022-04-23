@@ -19,24 +19,18 @@
  */
 #include <stdio.h>
 
-#include "hy_assert.h"
-#include "hy_mem.h"
-#include "hy_string.h"
-#include "hy_thread.h"
-#include "hy_thread_mutex.h"
-#include "hy_thread_cond.h"
-
-#include "process_single.h"
 #include "fifo.h"
 #include "dynamic_array.h"
 
+#include "process_single.h"
+
 typedef struct {
     hy_s32_t            is_exit;
-    void                *thread_h;
+    pthread_t           thread;
 
     fifo_context_s      *fifo;
-    void                *mutex_h;
-    void                *cond_h;
+    pthread_mutex_t     mutex;
+    pthread_cond_t      cond;
 } _process_single_context_s;
 
 static _process_single_context_s _process_context;
@@ -53,33 +47,38 @@ void process_single_write(log_write_info_s *log_write_info)
         }
     }
 
-    HyThreadMutexLock_m(context->mutex_h);
+    pthread_mutex_lock(&context->mutex);
     fifo_write(context->fifo, dynamic_array->buf, dynamic_array->cur_len);
-    HyThreadMutexUnLock_m(context->mutex_h);
-    HyThreadCondSignal_m(context->cond_h);
+    pthread_mutex_unlock(&context->mutex);
+
+    pthread_cond_signal(&context->cond);
 }
 
-static hy_s32_t _thread_cb(void *args)
+static void *_thread_cb(void *args)
 {
     _process_single_context_s *context = args;
     hy_u32_t len = 0;
     char buf[1024] = {0};
 
-    while (!context->is_exit) {
-        HyThreadMutexLock_m(context->mutex_h);
-        if (FIFO_IS_EMPTY(context->fifo)) {
-            HyThreadCondWait_m(context->cond_h, context->mutex_h, 0);
-        }
-        HyThreadMutexUnLock_m(context->mutex_h);
+#ifdef _GNU_SOURCE
+    pthread_setname_np(context->thread, "HY_async_log");
+#endif
 
-        HY_MEMSET(buf, sizeof(buf));
+    while (!context->is_exit) {
+        pthread_mutex_lock(&context->mutex);
+        if (FIFO_IS_EMPTY(context->fifo)) {
+            pthread_cond_wait(&context->cond, &context->mutex);
+        }
+        pthread_mutex_unlock(&context->mutex);
+
+        memset(buf, '\0', sizeof(buf));
         len = fifo_read(context->fifo, buf, sizeof(buf));
 
         /* @fixme: <22-04-22, uos> 多种方式处理数据 */
-        printf("------------------buf-------%s \n", buf);
+        printf("%s", buf);
     }
 
-    return -1;
+    return NULL;
 }
 
 void process_single_destroy(void)
@@ -87,10 +86,10 @@ void process_single_destroy(void)
     _process_single_context_s *context = &_process_context;
 
     context->is_exit = 1;
-    HyThreadDestroy(&context->thread_h);
+    pthread_join(context->thread, NULL);
 
-    HyThreadMutexDestroy(&context->mutex_h);
-    HyThreadCondDestroy(&context->cond_h);
+    pthread_mutex_destroy(&context->mutex);
+    pthread_cond_destroy(&context->cond);
 
     fifo_destroy(&context->fifo);
 }
@@ -100,29 +99,26 @@ hy_s32_t process_single_create(hy_u32_t fifo_len)
     _process_single_context_s *context = &_process_context;
 
     do {
-        HY_MEMSET(context, sizeof(*context));
+        memset(context, '\0', sizeof(*context));
 
-        context->mutex_h = HyThreadMutexCreate_m();
-        if (!context->mutex_h) {
-            printf("HyThreadMutexCreate_m failed \n");
+        if (0 != pthread_mutex_init(&context->mutex, NULL)) {
+            log_error("pthread_mutex_init failed \n");
             break;
         }
 
-        context->cond_h = HyThreadCondCreate_m();
-        if (!context->cond_h) {
-            printf("HyThreadCondCreate_m failed \n");
+        if (0 != pthread_cond_init(&context->cond, NULL)) {
+            log_error("pthread_cond_init failed \n");
             break;
         }
 
         context->fifo = fifo_create(fifo_len);
         if (!context->fifo) {
-            printf("fifo_create failed \n");
+            log_info("fifo_create failed \n");
             break;
         }
 
-        context->thread_h = HyThreadCreate_m("HY_async_log", _thread_cb, context);
-        if (!context->thread_h) {
-            printf("HyThreadCreate_m failed \n");
+        if (0 != pthread_create(&context->thread, NULL, _thread_cb, context)) {
+            log_error("pthread_create failed \n");
             break;
         }
 
