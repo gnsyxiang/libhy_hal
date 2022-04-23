@@ -239,10 +239,6 @@ void HyLogWrite(HyLogAddiInfo_s *addi_info, char *fmt, ...)
     log_write_info_s log_write_info;
     va_list args;
 
-    if (!_is_init) {
-        return;
-    }
-
     dynamic_array = _thread_private_data_featch();
     if (!dynamic_array) {
         log_info("_thread_private_data_featch failed \n");

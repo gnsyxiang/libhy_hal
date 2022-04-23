@@ -158,7 +158,7 @@ hy_s32_t fifo_write(fifo_context_s *context, const void *buf, hy_u32_t len)
     hy_u32_t len_tmp = 0;
 
     if (!context || !buf || len == 0) {
-        log_error("the param is error \n");
+        log_info("the param is error \n");
         return -1;
     }
 
