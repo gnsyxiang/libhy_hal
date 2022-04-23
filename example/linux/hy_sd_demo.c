@@ -35,10 +35,9 @@
 #define _APP_NAME "hy_sd_demo"
 
 typedef struct {
-    void        *log_h;
     void        *signal_h;
 
-    hy_s32_t    exit_flag;
+    hy_s32_t    is_exit;
 } _main_context_t;
 
 static void _signal_error_cb(void *args)
@@ -46,7 +45,7 @@ static void _signal_error_cb(void *args)
     LOGE("------error cb\n");
 
     _main_context_t *context = args;
-    context->exit_flag = 1;
+    context->is_exit = 1;
 }
 
 static void _signal_user_cb(void *args)
@@ -54,7 +53,7 @@ static void _signal_user_cb(void *args)
     LOGW("------user cb\n");
 
     _main_context_t *context = args;
-    context->exit_flag = 1;
+    context->is_exit = 1;
 }
 
 static void _module_destroy(_main_context_t **context_pp)
@@ -64,10 +63,15 @@ static void _module_destroy(_main_context_t **context_pp)
     // note: 增加或删除要同步到HyModuleCreateHandle_s中
     HyModuleDestroyHandle_s module[] = {
         {"signal",      &context->signal_h,     HySignalDestroy},
-        {"log",         &context->log_h,        HyLogDestroy},
     };
 
     HY_MODULE_RUN_DESTROY_HANDLE(module);
+
+    HyModuleDestroyBool_s bool_module[] = {
+        {"log",     HyLogDeInit},
+    };
+
+    HY_MODULE_RUN_DESTROY_BOOL(bool_module);
 
     HY_MEM_FREE_PP(context_pp);
 }
@@ -77,12 +81,17 @@ static _main_context_t *_module_create(void)
     _main_context_t *context = HY_MEM_MALLOC_RET_VAL(_main_context_t *, sizeof(*context), NULL);
 
     HyLogConfig_s log_c;
-#if 0
-    log_c.save_c.buf_len_min  = 512;
-    log_c.save_c.buf_len_max  = 512;
-    log_c.save_c.level        = HY_LOG_LEVEL_TRACE;
-    log_c.save_c.color_enable = HY_TYPE_FLAG_ENABLE;
-#endif
+    HY_MEMSET(&log_c, sizeof(log_c));
+    log_c.fifo_len                  = 10 * 1024;
+    log_c.save_c.mode               = HY_LOG_MODE_PROCESS_SINGLE;
+    log_c.save_c.level              = HY_LOG_LEVEL_TRACE;
+    log_c.save_c.output_format      = HY_LOG_OUTFORMAT_ALL;
+
+    HyModuleCreateBool_s bool_module[] = {
+        {"log",     &log_c,     (HyModuleCreateBoolCb_t)HyLogInit,  HyLogDeInit},
+    };
+
+    HY_MODULE_RUN_CREATE_BOOL(bool_module);
 
     int8_t signal_error_num[HY_SIGNAL_NUM_MAX_32] = {
         SIGQUIT, SIGILL, SIGTRAP, SIGABRT, SIGFPE,
@@ -105,7 +114,6 @@ static _main_context_t *_module_create(void)
 
     // note: 增加或删除要同步到HyModuleDestroyHandle_s中
     HyModuleCreateHandle_s module[] = {
-        {"log",         &context->log_h,        &log_c,         (HyModuleCreateHandleCb_t)HyLogCreate,          HyLogDestroy},
         {"signal",      &context->signal_h,     &signal_c,      (HyModuleCreateHandleCb_t)HySignalCreate,       HySignalDestroy},
     };
 
@@ -128,7 +136,7 @@ int main(int argc, char *argv[])
     HySdGetPartitionsName(name, 128);
     LOGE("name: %s \n", name);
 
-    while (!context->exit_flag) {
+    while (!context->is_exit) {
         sleep(1);
     }
 

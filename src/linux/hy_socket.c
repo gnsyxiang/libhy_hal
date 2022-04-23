@@ -34,7 +34,7 @@
 typedef struct {
     hy_s32_t    fd;
 
-    hy_s32_t    exit_flag;
+    hy_s32_t    is_exit;
 } _socket_context_s;
 
 hy_s32_t HYSocketRead(void *handle, void *buf, hy_u32_t len)
@@ -112,7 +112,7 @@ hy_s32_t HySocketWaitConnect(void *handle, hy_u16_t port,
     }
 
     addrlen = sizeof(client);
-    while (!context->exit_flag) {
+    while (!context->is_exit) {
         new_fd = accept(context->fd, (struct sockaddr *)&client, &addrlen);
         if (new_fd == -1) {
             LOGES("accept failed \n");
@@ -170,7 +170,7 @@ void HySocketDestroy(void **handle)
     _socket_context_s *context = *handle;
     LOGI("socket destroy, context: %p, fd: %d \n", context, context->fd);
 
-    context->exit_flag = 1;
+    context->is_exit = 1;
     if (context->fd > 0) {
         close(context->fd);
     }

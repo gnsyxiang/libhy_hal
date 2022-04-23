@@ -57,7 +57,7 @@ typedef struct {
     void                        *wait_start_sem_h;
     void                        *wait_stop_sem_h;
     void                        *read_data_thread_h;
-    hy_s32_t                    exit_flag;
+    hy_s32_t                    is_exit;
 } _audio_recorder_context_t;
 
 static hy_s32_t _check_state(_audio_recorder_context_t *context,
@@ -74,7 +74,7 @@ static hy_s32_t _read_data_thread_cb(void *args)
 
     HyThreadSemWait(context->wait_start_sem_h);
 
-    while (!context->exit_flag) {
+    while (!context->is_exit) {
         if (_check_state(context, HY_AUDIO_RECORDER_STATE_STOP)) {
             _set_state_m(context, HY_AUDIO_RECORDER_STATE_IDEL);
 
@@ -130,7 +130,7 @@ hy_s32_t HyAudioRecorderStop(void *handle)
     }
 
     _set_state_m(context, HY_AUDIO_RECORDER_STATE_STOP);
-    if (!context->exit_flag) {
+    if (!context->is_exit) {
         HyThreadSemWait_m(context->wait_stop_sem_h);
     }
 
@@ -198,7 +198,7 @@ void HyAudioRecorderDestroy(void **handle)
 
     _audio_recorder_context_t *context = *handle;
 
-    context->exit_flag = 1;
+    context->is_exit = 1;
     HyThreadSemPost_m(context->wait_start_sem_h);
     HyThreadDestroy(&context->read_data_thread_h);
 

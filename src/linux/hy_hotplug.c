@@ -57,7 +57,7 @@ typedef struct {
     HyHotplugType_e         type;
 
     void                    *thread_h;
-    hy_s32_t                exit_flag;
+    hy_s32_t                is_exit;
 } _hotplug_context_s;
 
 static hy_s32_t _parse_data(_hotplug_context_s *context)
@@ -133,7 +133,7 @@ static hy_s32_t _hotplug_thread_cb(void *args)
     HY_MEMSET(&read_fs, sizeof(read_fs));
     HY_MEMSET(&timeout, sizeof(timeout));
 
-    while (!context->exit_flag) {
+    while (!context->is_exit) {
         FD_ZERO(&read_fs);
         FD_SET(context->fd, &read_fs);
 
@@ -205,7 +205,7 @@ void HyHotplugDestroy(void **handle)
 
     _hotplug_context_s *context = *handle;
 
-    context->exit_flag = 1;
+    context->is_exit = 1;
     HyThreadDestroy(&context->thread_h);
 
     _scoket_destroy(context);

@@ -36,7 +36,7 @@ typedef struct {
     void        *debug_uart_h;
     void        *log_h;
 
-    hy_s32_t    exit_flag;
+    hy_s32_t    is_exit;
 } _main_context_t;
 
 static void _module_destroy(_main_context_t **context_pp)
