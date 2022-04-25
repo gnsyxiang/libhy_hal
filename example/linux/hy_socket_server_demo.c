@@ -33,7 +33,6 @@
 #include "hy_socket.h"
 
 typedef struct {
-    void        *signal_h;
     void        *socket_h;
 
     hy_s32_t    is_exit;
@@ -83,13 +82,13 @@ static void _module_destroy(_main_context_s **context_pp)
     // note: 增加或删除要同步到HyModuleCreateHandle_s中
     HyModuleDestroyHandle_s module[] = {
         {"client server",   &context->socket_h,     HySocketDestroy},
-        {"signal",          &context->signal_h,     HySignalDestroy},
     };
 
     HY_MODULE_RUN_DESTROY_HANDLE(module);
 
     HyModuleDestroyBool_s bool_module[] = {
-        {"log",     HyLogDeInit},
+        {"signal",          HySignalDestroy },
+        {"log",             HyLogDeInit     },
     };
 
     HY_MODULE_RUN_DESTROY_BOOL(bool_module);
@@ -107,12 +106,6 @@ static _main_context_s *_module_create(void)
     log_c.save_c.mode               = HY_LOG_MODE_PROCESS_SINGLE;
     log_c.save_c.level              = HY_LOG_LEVEL_TRACE;
     log_c.save_c.output_format      = HY_LOG_OUTFORMAT_ALL;
-
-    HyModuleCreateBool_s bool_module[] = {
-        {"log",     &log_c,     (HyModuleCreateBoolCb_t)HyLogInit,  HyLogDeInit},
-    };
-
-    HY_MODULE_RUN_CREATE_BOOL(bool_module);
 
     int8_t signal_error_num[HY_SIGNAL_NUM_MAX_32] = {
         SIGQUIT, SIGILL, SIGTRAP, SIGABRT, SIGFPE,
@@ -133,13 +126,19 @@ static _main_context_s *_module_create(void)
     signal_c.save_c.user_cb       = _signal_user_cb;
     signal_c.save_c.args          = context;
 
+    HyModuleCreateBool_s bool_module[] = {
+        {"log",         &log_c,         (HyModuleCreateBoolCb_t)HyLogInit,          HyLogDeInit},
+        {"signal",      &signal_c,      (HyModuleCreateBoolCb_t)HySignalCreate,     HySignalDestroy},
+    };
+
+    HY_MODULE_RUN_CREATE_BOOL(bool_module);
+
     HySocketConfig_t socket_c;
     HY_MEMSET(&socket_c, sizeof(socket_c));
     socket_c.type = HY_SOCKET_TYPE_SERVER;
 
     // note: 增加或删除要同步到HyModuleDestroyHandle_s中
     HyModuleCreateHandle_s module[] = {
-        {"signal",          &context->signal_h,     &signal_c,      (HyModuleCreateHandleCb_t)HySignalCreate,       HySignalDestroy},
         {"client server",   &context->socket_h,     &socket_c,      (HyModuleCreateHandleCb_t)HySocketCreate,       HySocketDestroy},
     };
 

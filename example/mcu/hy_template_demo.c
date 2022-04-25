@@ -37,11 +37,11 @@ typedef struct {
     void        *log_h;
 
     hy_s32_t    is_exit;
-} _main_context_t;
+} _main_context_s;
 
-static void _module_destroy(_main_context_t **context_pp)
+static void _module_destroy(_main_context_s **context_pp)
 {
-    _main_context_t *context = *context_pp;
+    _main_context_s *context = *context_pp;
 
     // note: 增加或删除要同步到HyModuleCreateHandle_s中
     HyModuleDestroyHandle_s module[] = {
@@ -54,9 +54,9 @@ static void _module_destroy(_main_context_t **context_pp)
     HY_MEM_FREE_PP(context_pp);
 }
 
-static _main_context_t *_module_create(void)
+static _main_context_s *_module_create(void)
 {
-    _main_context_t *context = HY_MEM_MALLOC_RET_VAL(_main_context_t *, sizeof(*context), NULL);
+    _main_context_s *context = HY_MEM_MALLOC_RET_VAL(_main_context_s *, sizeof(*context), NULL);
 
     HyUartConfig_t debug_uart_config;
     debug_uart_config.config_save.num       = DEBUG_UART_NUM;
@@ -86,7 +86,7 @@ static _main_context_t *_module_create(void)
 
 int main(int argc, char *argv[])
 {
-    _main_context_t *context = _module_create();
+    _main_context_s *context = _module_create();
     if (!context) {
         LOGE("_module_create faild \n");
         return -1;

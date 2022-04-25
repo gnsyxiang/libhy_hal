@@ -36,18 +36,16 @@
 #define _APP_NAME "hy_pipe_demo"
 
 typedef struct {
-    void        *signal_h;
-
     void        *pipe_h;
     void        *pipe_read_thread_h;
     void        *pipe_write_thread_h;
 
     hy_s32_t    is_exit;
-} _main_context_t;
+} _main_context_s;
 
 static hy_s32_t _pipe_read_cb(void *args)
 {
-    _main_context_t *context = args;
+    _main_context_s *context = args;
     hy_s32_t id = 0;
     hy_s32_t cnt = 0;
     hy_s32_t ret = 0;
@@ -66,7 +64,7 @@ static hy_s32_t _pipe_read_cb(void *args)
 
 static hy_s32_t _pipe_write_cb(void *args)
 {
-    _main_context_t *context = args;
+    _main_context_s *context = args;
     hy_s32_t id = 4;
 
     sleep(3);
@@ -79,7 +77,7 @@ static void _signal_error_cb(void *args)
 {
     LOGE("------error cb\n");
 
-    _main_context_t *context = args;
+    _main_context_s *context = args;
     context->is_exit = 1;
 }
 
@@ -87,26 +85,26 @@ static void _signal_user_cb(void *args)
 {
     LOGW("------user cb\n");
 
-    _main_context_t *context = args;
+    _main_context_s *context = args;
     context->is_exit = 1;
 }
 
-static void _module_destroy(_main_context_t **context_pp)
+static void _module_destroy(_main_context_s **context_pp)
 {
-    _main_context_t *context = *context_pp;
+    _main_context_s *context = *context_pp;
 
     // note: 增加或删除要同步到HyModuleCreateHandle_s中
     HyModuleDestroyHandle_s module[] = {
         {"pipe write thread",   &context->pipe_write_thread_h,  HyThreadDestroy},
         {"pipe read thread",    &context->pipe_read_thread_h,   HyThreadDestroy},
         {"pipe",                &context->pipe_h,               HyPipeDestroy},
-        {"signal",              &context->signal_h,             HySignalDestroy},
     };
 
     HY_MODULE_RUN_DESTROY_HANDLE(module);
 
     HyModuleDestroyBool_s bool_module[] = {
-        {"log",     HyLogDeInit},
+        {"signal",          HySignalDestroy },
+        {"log",             HyLogDeInit     },
     };
 
     HY_MODULE_RUN_DESTROY_BOOL(bool_module);
@@ -114,9 +112,9 @@ static void _module_destroy(_main_context_t **context_pp)
     HY_MEM_FREE_PP(context_pp);
 }
 
-static _main_context_t *_module_create(void)
+static _main_context_s *_module_create(void)
 {
-    _main_context_t *context = HY_MEM_MALLOC_RET_VAL(_main_context_t *, sizeof(*context), NULL);
+    _main_context_s *context = HY_MEM_MALLOC_RET_VAL(_main_context_s *, sizeof(*context), NULL);
 
     HyLogConfig_s log_c;
     HY_MEMSET(&log_c, sizeof(log_c));
@@ -124,12 +122,6 @@ static _main_context_t *_module_create(void)
     log_c.save_c.mode               = HY_LOG_MODE_PROCESS_SINGLE;
     log_c.save_c.level              = HY_LOG_LEVEL_TRACE;
     log_c.save_c.output_format      = HY_LOG_OUTFORMAT_ALL;
-
-    HyModuleCreateBool_s bool_module[] = {
-        {"log",     &log_c,     (HyModuleCreateBoolCb_t)HyLogInit,  HyLogDeInit},
-    };
-
-    HY_MODULE_RUN_CREATE_BOOL(bool_module);
 
     int8_t signal_error_num[HY_SIGNAL_NUM_MAX_32] = {
         SIGQUIT, SIGILL, SIGTRAP, SIGABRT, SIGFPE,
@@ -149,6 +141,13 @@ static _main_context_t *_module_create(void)
     signal_c.save_c.error_cb      = _signal_error_cb;
     signal_c.save_c.user_cb       = _signal_user_cb;
     signal_c.save_c.args          = context;
+
+    HyModuleCreateBool_s bool_module[] = {
+        {"log",         &log_c,         (HyModuleCreateBoolCb_t)HyLogInit,          HyLogDeInit},
+        {"signal",      &signal_c,      (HyModuleCreateBoolCb_t)HySignalCreate,     HySignalDestroy},
+    };
+
+    HY_MODULE_RUN_CREATE_BOOL(bool_module);
 
     HyPipeConfig_s pipe_c;
     HY_MEMSET(&pipe_c, sizeof(pipe_c));
@@ -170,7 +169,6 @@ static _main_context_t *_module_create(void)
 
     // note: 增加或删除要同步到HyModuleDestroyHandle_s中
     HyModuleCreateHandle_s module[] = {
-        {"signal",              &context->signal_h,             &signal_c,              (HyModuleCreateHandleCb_t)HySignalCreate,   HySignalDestroy},
         {"pipe",                &context->pipe_h,               &pipe_c,                (HyModuleCreateHandleCb_t)HyPipeCreate,     HyPipeDestroy},
         {"pipe read thread",    &context->pipe_read_thread_h,   &pipe_read_thread_c,    (HyModuleCreateHandleCb_t)HyThreadCreate,   HyThreadDestroy},
         {"pipe write thread",   &context->pipe_write_thread_h,  &pipe_write_thread_c,   (HyModuleCreateHandleCb_t)HyThreadCreate,   HyThreadDestroy},
@@ -183,7 +181,7 @@ static _main_context_t *_module_create(void)
 
 int main(int argc, char *argv[])
 {
-    _main_context_t *context = _module_create();
+    _main_context_s *context = _module_create();
     if (!context) {
         LOGE("_module_create faild \n");
         return -1;
