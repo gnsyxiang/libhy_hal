@@ -52,7 +52,8 @@ _sources_com    += \
                    fifo.c               \
                    hy_log.c             \
                    process_ipc.c        \
-                   process_single.c
+                   process_single.c     \
+                   socket_ipc.c
 
 _cppflags_com   += \
                    $(_no_error_com)     \

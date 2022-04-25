@@ -34,7 +34,8 @@ _no_install_headers_com += \
                            fifo.h               \
                            log_private.h        \
                            process_ipc.h        \
-                           process_single.h
+                           process_single.h     \
+                           socket_ipc.h
 
 _install_headers_com    += hy_log.h
 
