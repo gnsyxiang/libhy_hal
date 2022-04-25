@@ -73,9 +73,10 @@ static void *_thread_cb(void *args)
 
         memset(buf, '\0', sizeof(buf));
         len = fifo_read(context->fifo, buf, sizeof(buf));
-
-        /* @fixme: <22-04-22, uos> 多种方式处理数据 */
-        printf("%s", buf);
+        if (len > 0) {
+            /* @fixme: <22-04-22, uos> 多种方式处理数据 */
+            printf("%s", buf);
+        }
     }
 
     return NULL;

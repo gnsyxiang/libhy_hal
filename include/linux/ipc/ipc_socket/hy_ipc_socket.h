@@ -63,8 +63,7 @@ typedef void (*HyIpcSocketAcceptCb_t)(void *handle, void *args);
  */
 typedef struct {
     const char                  *ipc_name;      ///< 服务器名字
-    HyIpcSocketType_e           type:2;         ///< ipc socket类型
-    hy_s32_t                    reserved;       ///< 预留
+    HyIpcSocketType_e           type;           ///< ipc socket类型
 } HyIpcSocketConfig_s;
 
 /**
@@ -75,6 +74,23 @@ typedef struct {
  * @return 成功返回句柄，失败返回NULL
  */
 void *HyIpcSocketCreate(HyIpcSocketConfig_s *config);
+
+/**
+ * @brief 创建ipc socket
+ *
+ * @param _ipc_name 服务器名字
+ * @param _type socket类型
+ *
+ * @return 成功返回句柄，失败返回NULL
+ */
+#define HyIpcSocketCreate_m(_ipc_name, _type)                   \
+    ({                                                          \
+        HyIpcSocketConfig_s socket_c;                           \
+        HY_MEMSET(&socket_c, sizeof(socket_c));                 \
+        socket_c.type       = _type;                            \
+        socket_c.ipc_name   = _ipc_name;                        \
+        HyIpcSocketCreate(&socket_c);                           \
+     })
 
 /**
  * @brief 销毁ipc socket
@@ -166,23 +182,6 @@ hy_s32_t HyIpcSocketAccept(void *handle,
  * @note 如果是阻塞执行，ctrl+c将不能完全释放资源
  */
 hy_s32_t HyIpcSocketConnect(void *handle, hy_u32_t timeout_s);
-
-/**
- * @brief 创建ipc socket
- *
- * @param _ipc_name 服务器名字
- * @param _type socket类型，详见HyIpcSocketType_e
- *
- * @return 成功返回句柄，失败返回NULL
- */
-#define HyIpcSocketCreate_m(_ipc_name, _type)                   \
-    ({                                                          \
-        HyIpcSocketConfig_s __config;                           \
-        HY_MEMSET(&__config, sizeof(__config));                 \
-        __config.type       = _type;                            \
-        __config.ipc_name   = _ipc_name;                        \
-        HyIpcSocketCreate(&__config);                           \
-     })
 
 #ifdef __cplusplus
 }
