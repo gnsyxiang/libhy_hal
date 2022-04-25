@@ -169,6 +169,7 @@ typedef struct {
                 _destroy->destroy_bool_cb();                                    \
             }                                                                   \
         }                                                                       \
+        sleep(1);                                                               \
     } while(0)
 
 #ifdef __cplusplus
