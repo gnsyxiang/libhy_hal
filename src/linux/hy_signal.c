@@ -49,9 +49,9 @@
 
 typedef struct {
     HySignalSaveConfig_t    save_c;
-} _signal_context_t;
+} _signal_context_s;
 
-static _signal_context_t *context = NULL;
+static _signal_context_s *context = NULL;
 
 static char *signal_str[] = {
     [1] =  "SIGHUP",      [2] =  "SIGINT",      [3] =  "SIGQUIT",     [4] =  "SIGILL",
@@ -135,23 +135,22 @@ static void _user_handler(int signo)
     }
 }
 
-void HySignalDestroy(void **handle)
+void HySignalDestroy(void)
 {
-    LOGT("handle: %p, *handle: %p \n", handle, *handle);
-    HY_MEM_FREE_PP(&context);
+    LOGI("signal context: %p destroy \n", context);
 
-    LOGI("signal destroy successful \n");
+    HY_MEM_FREE_PP(&context);
 }
 
-void *HySignalCreate(HySignalConfig_t *signal_c)
+hy_s32_t HySignalCreate(HySignalConfig_t *signal_c)
 {
     LOGT("signal_c: %p \n", signal_c);
-    HY_ASSERT_RET_VAL(!signal_c, NULL);
+    HY_ASSERT_RET_VAL(!signal_c, -1);
 
     struct sigaction act;
 
     do {
-        context = HY_MEM_MALLOC_BREAK(_signal_context_t *, sizeof(*context));
+        context = HY_MEM_MALLOC_BREAK(_signal_context_s *, sizeof(*context));
         HY_MEMCPY(&context->save_c, &signal_c->save_c, sizeof(signal_c->save_c));
 
         act.sa_flags = SA_RESETHAND;
@@ -166,12 +165,12 @@ void *HySignalCreate(HySignalConfig_t *signal_c)
 
         signal(SIGPIPE, SIG_IGN);
 
-        LOGI("signal create successful \n");
-        return context;
+        LOGI("signal context: %p create \n", context);
+        return 0;
     } while (0);
 
-    HySignalDestroy((void **)&context);
-    return NULL;
+    HySignalDestroy();
+    return -1;
 }
 #else
 void *HySignalCreate(HySignalConfig_t *signal_c) {return NULL;}
