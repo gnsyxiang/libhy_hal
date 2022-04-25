@@ -51,6 +51,7 @@ _sources_com    += \
                    dynamic_array.c      \
                    fifo.c               \
                    hy_log.c             \
+                   process_ipc.c        \
                    process_single.c
 
 _cppflags_com   += \

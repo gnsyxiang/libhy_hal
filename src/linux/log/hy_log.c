@@ -25,8 +25,9 @@
 
 #include "hy_printf.h"
 #include "log_private.h"
-#include "process_single.h"
 #include "dynamic_array.h"
+#include "process_single.h"
+#include "process_ipc.h"
 
 #include "hy_log.h"
 
@@ -320,8 +321,17 @@ hy_s32_t HyLogInit(HyLogConfig_s *log_c)
             break;
         }
 
-        if (HY_LOG_MODE_PROCESS_SINGLE == log_c->save_c.mode) {
-            ret = process_single_create(log_c->fifo_len);
+        switch (log_c->save_c.mode) {
+            case HY_LOG_MODE_PROCESS_SINGLE:
+                ret = process_single_create(log_c->fifo_len);
+                break;
+            case HY_LOG_MODE_PROCESS_CLIENT:
+                break;
+            case HY_LOG_MODE_PROCESS_SERVER:
+                ret = process_ipc_server_create(log_c->fifo_len);
+                break;
+            default:
+                break;
         }
         if (0 != ret) {
             log_error("process single create failed \n");

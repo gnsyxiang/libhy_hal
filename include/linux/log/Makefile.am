@@ -33,6 +33,7 @@ _no_install_headers_com += \
                            dynamic_array.h      \
                            fifo.h               \
                            log_private.h        \
+                           process_ipc.h        \
                            process_single.h
 
 _install_headers_com    += hy_log.h
