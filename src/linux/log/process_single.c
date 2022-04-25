@@ -86,6 +86,7 @@ void process_single_destroy(void)
     _process_single_context_s *context = &_process_context;
 
     context->is_exit = 1;
+    pthread_cond_signal(&context->cond);
     pthread_join(context->thread, NULL);
 
     pthread_mutex_destroy(&context->mutex);
