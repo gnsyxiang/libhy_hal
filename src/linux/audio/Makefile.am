@@ -18,7 +18,7 @@
 #     last modified: 31/03 2022 10:40
 # ===============================================================
 
-noinst_LTLIBRARIES = libhy_hal_os_audio.la
+noinst_LTLIBRARIES = libhy_hal_audio.la
 
 # ------------------
 # defining variables
@@ -67,10 +67,10 @@ _ldflags_com    +=
 
 _ldadd_com      += $(lib_com)
 
-libhy_hal_os_audio_la_SOURCES       = $(_sources_com)
-libhy_hal_os_audio_la_CPPFLAGS      = $(_cppflags_com)
-libhy_hal_os_audio_la_CFLAGS        = $(_cflags_com)
-libhy_hal_os_audio_la_CXXFLAGS      = $(_cxxflags_com)
-libhy_hal_os_audio_la_LDFLAGS       = $(_ldflags_com)
-libhy_hal_os_audio_la_LIBADD        = $(_ldadd_com)
+libhy_hal_audio_la_SOURCES      = $(_sources_com)
+libhy_hal_audio_la_CPPFLAGS     = $(_cppflags_com)
+libhy_hal_audio_la_CFLAGS       = $(_cflags_com)
+libhy_hal_audio_la_CXXFLAGS     = $(_cxxflags_com)
+libhy_hal_audio_la_LDFLAGS      = $(_ldflags_com)
+libhy_hal_audio_la_LIBADD       = $(_ldadd_com)
 

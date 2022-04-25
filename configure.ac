@@ -64,7 +64,7 @@ AC_CHECK_LIB([pthread], [pthread_create])
 AC_CHECK_LIB([dl], [dlopen])
 
 # Checks for header files.
-AC_CHECK_HEADERS([arpa/inet.h fcntl.h inttypes.h stdint.h stdlib.h string.h sys/socket.h sys/time.h sys/vfs.h termios.h unistd.h])
+AC_CHECK_HEADERS([arpa/inet.h fcntl.h inttypes.h stddef.h stdint.h stdlib.h string.h sys/socket.h sys/time.h sys/vfs.h termios.h unistd.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_INLINE
@@ -75,6 +75,7 @@ AC_TYPE_UINT8_T
 # Checks for library functions.
 AC_FUNC_MALLOC
 AC_FUNC_MKTIME
+AC_FUNC_REALLOC
 AC_CHECK_FUNCS([atexit gettimeofday inet_ntoa localtime_r memset mkfifo select socket strerror strstr])
 
 AC_CONFIG_FILES([Makefile
@@ -90,6 +91,8 @@ AC_CONFIG_FILES([Makefile
                  example/Makefile
                  example/linux/Makefile
                  example/linux/audio/Makefile
+                 example/linux/ipc/Makefile
+                 example/linux/ipc/ipc_socket/Makefile
                  example/linux/thread/Makefile
                  example/mcu/Makefile
                  example/mcu/arterytek/Makefile
@@ -98,6 +101,8 @@ AC_CONFIG_FILES([Makefile
                  include/hy_hal/Makefile
                  include/linux/Makefile
                  include/linux/audio/Makefile
+                 include/linux/ipc/Makefile
+                 include/linux/ipc/ipc_socket/Makefile
                  include/linux/log/Makefile
                  include/linux/thread/Makefile
                  include/mcu/Makefile
@@ -107,6 +112,8 @@ AC_CONFIG_FILES([Makefile
                  src/Makefile
                  src/linux/Makefile
                  src/linux/audio/Makefile
+                 src/linux/ipc/Makefile
+                 src/linux/ipc/ipc_socket/Makefile
                  src/linux/log/Makefile
                  src/linux/thread/Makefile
                  src/mcu/Makefile

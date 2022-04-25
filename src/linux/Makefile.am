@@ -20,6 +20,7 @@
 
 SUBDIRS = \
           audio     \
+          ipc       \
           log       \
           thread
 
@@ -80,9 +81,10 @@ _cxxflags_com   +=
 _ldflags_com    +=
 
 _ldadd_com      += \
-                   $(top_builddir)/src/$(run_os)/audio/libhy_hal_os_audio.la    \
-                   $(top_builddir)/src/$(run_os)/log/libhy_hal_os_log.la        \
-                   $(top_builddir)/src/$(run_os)/thread/libhy_hal_os_thread.la  \
+                   $(top_builddir)/src/$(run_os)/audio/libhy_hal_audio.la       \
+                   $(top_builddir)/src/$(run_os)/ipc/libhy_hal_ipc.la           \
+                   $(top_builddir)/src/$(run_os)/log/libhy_hal_log.la           \
+                   $(top_builddir)/src/$(run_os)/thread/libhy_hal_thread.la     \
                    $(lib_com)
 
 libhy_hal_os_la_SOURCES    = $(_sources_com)

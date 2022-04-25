@@ -20,6 +20,7 @@
 
 SUBDIRS = \
           audio     \
+          ipc       \
           thread
 
 # ------------------
