@@ -106,11 +106,11 @@ static _main_context_s *_module_create(void)
     memset(&signal_c, 0, sizeof(signal_c));
     HY_MEMCPY(signal_c.error_num, signal_error_num, sizeof(signal_error_num));
     HY_MEMCPY(signal_c.user_num, signal_user_num, sizeof(signal_user_num));
-    signal_c.save_c.app_name      = _APP_NAME;
-    signal_c.save_c.coredump_path = "./";
-    signal_c.save_c.error_cb      = _signal_error_cb;
-    signal_c.save_c.user_cb       = _signal_user_cb;
-    signal_c.save_c.args          = context;
+    signal_c.save_c.app_name        = _APP_NAME;
+    signal_c.save_c.coredump_path   = "./";
+    signal_c.save_c.error_cb        = _signal_error_cb;
+    signal_c.save_c.user_cb         = _signal_user_cb;
+    signal_c.save_c.args            = context;
 
     HyModuleCreateBool_s bool_module[] = {
         {"log",         &log_c,         (HyModuleCreateBoolCb_t)HyLogInit,          HyLogDeInit},

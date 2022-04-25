@@ -101,11 +101,11 @@ static _main_context_s *_module_create(void)
     memset(&signal_c, 0, sizeof(signal_c));
     HY_MEMCPY(signal_c.error_num, signal_error_num, sizeof(signal_error_num));
     HY_MEMCPY(signal_c.user_num, signal_user_num, sizeof(signal_user_num));
-    signal_c.save_c.app_name      = _APP_NAME;
-    signal_c.save_c.coredump_path = "./";
-    signal_c.save_c.error_cb      = _signal_error_cb;
-    signal_c.save_c.user_cb       = _signal_user_cb;
-    signal_c.save_c.args          = context;
+    signal_c.save_c.app_name        = _APP_NAME;
+    signal_c.save_c.coredump_path   = "./";
+    signal_c.save_c.error_cb        = _signal_error_cb;
+    signal_c.save_c.user_cb         = _signal_user_cb;
+    signal_c.save_c.args            = context;
 
     HyModuleCreateBool_s bool_module[] = {
         {"log",         &log_c,         (HyModuleCreateBoolCb_t)HyLogInit,          HyLogDeInit},
@@ -115,11 +115,11 @@ static _main_context_s *_module_create(void)
     HY_MODULE_RUN_CREATE_BOOL(bool_module);
 
     HyUartConfig_t uart_c;
-    uart_c.save_c.speed           = HY_UART_SPEED_115200;
-    uart_c.save_c.flow_control    = HY_UART_FLOW_CONTROL_NONE;
-    uart_c.save_c.data_bit        = HY_UART_DATA_BIT_8;
-    uart_c.save_c.parity_type     = HY_UART_PARITY_NONE;
-    uart_c.save_c.stop_bit        = HY_UART_STOP_BIT_1;
+    uart_c.save_c.speed             = HY_UART_SPEED_115200;
+    uart_c.save_c.flow_control      = HY_UART_FLOW_CONTROL_NONE;
+    uart_c.save_c.data_bit          = HY_UART_DATA_BIT_8;
+    uart_c.save_c.parity_type       = HY_UART_PARITY_NONE;
+    uart_c.save_c.stop_bit          = HY_UART_STOP_BIT_1;
     #define _DEV_PATH "/dev/ttyUSB0"
     HY_STRNCPY(uart_c.dev_path, sizeof(uart_c.dev_path),
             _DEV_PATH, HY_STRLEN(_DEV_PATH));
