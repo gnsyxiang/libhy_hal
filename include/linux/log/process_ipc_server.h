@@ -24,10 +24,7 @@
 extern "C" {
 #endif
 
-#include "hy_log.h"
 #include "log_private.h"
-
-#define LOG_IPC_NAME            "log_ipc_socket"
 
 void *process_ipc_server_create(hy_u32_t fifo_len);
 void process_ipc_server_destroy(void **handle);

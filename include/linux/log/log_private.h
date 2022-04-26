@@ -32,7 +32,8 @@ extern "C" {
 #define FORMAT_LOG_CB_CNT       (7)
 #define FORMAT_LOG_CB_TYPE      (2)
 
-#define SOCKET_IPC_SERVER_NAME_LEN_MAX     (64)
+#define SOCKET_IPC_SERVER_NAME_LEN_MAX      (64)
+#define LOG_IPC_NAME                        "log_ipc_socket"
 
 typedef hy_s32_t (*(format_log_cb_t[FORMAT_LOG_CB_TYPE]))
     (dynamic_array_s *dynamic_array, HyLogAddiInfo_s *addi_info);

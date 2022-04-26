@@ -63,9 +63,6 @@ socket_ipc_client_s *socket_ipc_client_create(const char *name)
 
         char ipc_path[SOCKET_IPC_SERVER_NAME_LEN_MAX] = {0};
         snprintf(ipc_path, sizeof(ipc_path), "%s/%s", "/tmp", name);
-        if (0 == access(ipc_path, F_OK)) {
-            remove(ipc_path);
-        }
 
         hy_u32_t addr_len;
         struct sockaddr_un addr;
@@ -73,7 +70,7 @@ socket_ipc_client_s *socket_ipc_client_create(const char *name)
         strcpy(addr.sun_path, ipc_path);
         addr_len = strlen(ipc_path) + offsetof(struct sockaddr_un, sun_path);
 
-        if (connect(context->fd, (const struct sockaddr *)&addr, addr_len)) {
+        if (connect(context->fd, (const struct sockaddr *)&addr, addr_len) < 0) {
             close(context->fd);
             context->fd = -1;
         }

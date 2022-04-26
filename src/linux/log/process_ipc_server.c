@@ -32,11 +32,11 @@ typedef struct {
 
     socket_ipc_server_s     *socket_ipc_server;
     fifo_async_s            *fifo_async;
-} _process_ipc_context_s;
+} _process_ipc_server_context_s;
 
 void process_ipc_server_write(void *handle, log_write_info_s *log_write_info)
 {
-    _process_ipc_context_s *context = handle;
+    _process_ipc_server_context_s *context = handle;
     HyLogAddiInfo_s *addi_info = log_write_info->addi_info;
     dynamic_array_s *dynamic_array = log_write_info->dynamic_array;
 
@@ -57,7 +57,7 @@ static void _accept_cb(hy_s32_t fd)
 
 static void *_thread_cb(void *args)
 {
-    _process_ipc_context_s *context = args;
+    _process_ipc_server_context_s *context = args;
     hy_s32_t len = 0;
     char buf[1024] = {0};
 
@@ -78,7 +78,7 @@ static void *_thread_cb(void *args)
 
 void process_ipc_server_destroy(void **handle)
 {
-    _process_ipc_context_s *context = *handle;
+    _process_ipc_server_context_s *context = *handle;
     log_info("process ipc server context: %p destroy \n", context);
 
     while (!fifo_async_is_empty(context->fifo_async)) {
@@ -100,7 +100,7 @@ void *process_ipc_server_create(hy_u32_t fifo_len)
         return NULL;
     }
 
-    _process_ipc_context_s *context = NULL;
+    _process_ipc_server_context_s *context = NULL;
     do {
         context = calloc(1, sizeof(*context));
         if (!context) {
@@ -119,8 +119,7 @@ void *process_ipc_server_create(hy_u32_t fifo_len)
             break;
         }
 
-        context->socket_ipc_server = socket_ipc_server_create("hy_ipc_server",
-                _accept_cb);
+        context->socket_ipc_server = socket_ipc_server_create(LOG_IPC_NAME, _accept_cb);
         if (!context->socket_ipc_server) {
             log_error("socket_ipc_server_create failed \n");
             break;
