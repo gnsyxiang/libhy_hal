@@ -23,8 +23,39 @@
 #include <sys/socket.h>
 #include <sys/un.h>
 #include <stddef.h>
+#include <assert.h>
 
 #include "socket_ipc_client.h"
+
+hy_s32_t socket_ipc_client_write(socket_ipc_client_s *socket_ipc_client,
+        const void *buf, hy_u32_t len)
+{
+    assert(socket_ipc_client);
+
+    hy_s32_t ret;
+    hy_u32_t nleft;
+    const void *ptr;
+
+    ptr   = buf;
+    nleft = len;
+
+    while (nleft > 0) {
+        ret = write(socket_ipc_client->fd, ptr, nleft);
+        if (ret <= 0) {
+            if (ret < 0 && errno == EINTR) {
+                ret = 0;
+            } else {
+                log_error("fd close, fd: %d \n", socket_ipc_client->fd);
+                return -1;
+            }
+        }
+
+        nleft -= ret;
+        ptr   += ret;
+    }
+
+    return len;
+}
 
 void socket_ipc_client_destroy(socket_ipc_client_s **socket_ipc_client_pp)
 {

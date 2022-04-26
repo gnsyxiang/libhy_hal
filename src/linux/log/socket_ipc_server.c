@@ -63,7 +63,7 @@ static void *_thread_cb(void *args)
             }
 
             if (context->accept_cb) {
-                context->accept_cb(fd);
+                context->accept_cb(fd, context->args);
             }
         }
     }
@@ -90,7 +90,7 @@ void socket_ipc_server_destroy(socket_ipc_server_s **socket_ipc_server_pp)
 }
 
 socket_ipc_server_s *socket_ipc_server_create(const char *name,
-        socket_ipc_server_accept_cb_t accept_cb)
+        socket_ipc_server_accept_cb_t accept_cb, void *args)
 {
     if (!name || strlen(name) <= 0 || !accept_cb) {
         log_error("the param is error \n");
@@ -137,7 +137,8 @@ socket_ipc_server_s *socket_ipc_server_create(const char *name,
             break;
         }
 
-        context->accept_cb = accept_cb;
+        context->accept_cb  = accept_cb;
+        context->args       = args;
 
         return context;
     } while (0);

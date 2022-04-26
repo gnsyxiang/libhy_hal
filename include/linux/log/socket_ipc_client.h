@@ -33,6 +33,9 @@ typedef struct {
 socket_ipc_client_s *socket_ipc_client_create(const char *name);
 void socket_ipc_client_destroy(socket_ipc_client_s **socket_ipc_client_pp);
 
+hy_s32_t socket_ipc_client_write(socket_ipc_client_s *socket_ipc_client,
+        const void *buf, hy_u32_t len);
+
 #ifdef __cplusplus
 }
 #endif

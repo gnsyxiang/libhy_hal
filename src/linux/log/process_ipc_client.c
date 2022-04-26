@@ -48,6 +48,17 @@ void process_ipc_client_write(void *handle, log_write_info_s *log_write_info)
 
     fifo_async_write(context->fifo_async,
             dynamic_array->buf, dynamic_array->cur_len);
+
+    DYNAMIC_ARRAY_RESET(dynamic_array);
+
+    for (hy_u32_t i = 0; i < log_write_info->format_log_cb_cnt; ++i) {
+        if (log_write_info->format_log_cb[i][1]) {
+            log_write_info->format_log_cb[i][1](dynamic_array, addi_info);
+        }
+    }
+
+    socket_ipc_client_write(context->socket_ipc_client,
+            dynamic_array->buf, dynamic_array->cur_len);
 }
 
 static void *_thread_cb(void *args)
