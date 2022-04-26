@@ -28,8 +28,8 @@ extern "C" {
 
 #define LOG_IPC_NAME            "log_ipc_socket"
 
-hy_s32_t process_ipc_server_create(hy_u32_t fifo_len);
-void process_ipc_server_destroy(void);
+void *process_ipc_server_create(hy_u32_t fifo_len);
+void process_ipc_server_destroy(void **handle);
 
 #ifdef __cplusplus
 }

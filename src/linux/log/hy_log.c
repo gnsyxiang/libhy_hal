@@ -28,6 +28,7 @@
 #include "dynamic_array.h"
 #include "process_single.h"
 #include "process_ipc.h"
+#include "socket_ipc_server.h"
 
 #include "hy_log.h"
 
@@ -46,6 +47,8 @@ typedef struct {
 
     pthread_key_t       thread_key;
     format_log_cb_t     format_log_cb[FORMAT_LOG_CB_CNT];
+
+    void                *write_h;
 } _log_context_s;
 
 static hy_s32_t _is_init = 0;
@@ -254,7 +257,7 @@ void HyLogWrite(HyLogAddiInfo_s *addi_info, char *fmt, ...)
         log_write_info.format_log_cb_cnt    = _ARRAY_CNT(context->format_log_cb);
         log_write_info.dynamic_array        = dynamic_array;
         log_write_info.addi_info            = addi_info;
-        process_single_write(&log_write_info);
+        process_single_write(context->write_h, &log_write_info);
     }
     va_end(args);
 }
@@ -266,7 +269,23 @@ static void _log_thread_private_data_destroy(void)
 
 void HyLogDeInit(void)
 {
-    process_single_destroy();
+    _log_context_s *context = &_context;
+    HyLogSaveConfig_s *save_c = &context->save_c;
+
+    switch (save_c->mode) {
+        case HY_LOG_MODE_PROCESS_SINGLE:
+            process_single_destroy(&context->write_h);
+            break;
+        case HY_LOG_MODE_PROCESS_CLIENT:
+            break;
+        case HY_LOG_MODE_PROCESS_SERVER:
+            process_ipc_server_destroy(&context->write_h);
+            break;
+        default:
+            break;
+    }
+
+    process_single_destroy(&context->write_h);
 }
 
 hy_s32_t HyLogInit(HyLogConfig_s *log_c)
@@ -283,7 +302,6 @@ hy_s32_t HyLogInit(HyLogConfig_s *log_c)
 
     _log_context_s *context = &_context;
     HyLogSaveConfig_s *save_c = &log_c->save_c;
-    hy_s32_t ret = 0;
 
     do {
         memset(context, '\0', sizeof(*context));
@@ -328,13 +346,13 @@ hy_s32_t HyLogInit(HyLogConfig_s *log_c)
             case HY_LOG_MODE_PROCESS_CLIENT:
                 break;
             case HY_LOG_MODE_PROCESS_SERVER:
-                ret = process_ipc_server_create(log_c->fifo_len);
+                context->write_h = process_ipc_server_create(log_c->fifo_len);
                 break;
             default:
                 break;
         }
-        if (0 != ret) {
-            log_error("process single create failed \n");
+        if (!context->write_h) {
+            log_error("create write handle failed \n");
             break;
         }
 
