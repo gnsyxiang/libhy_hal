@@ -110,11 +110,6 @@ socket_ipc_server_s *socket_ipc_server_create(const char *name,
             break;
         }
 
-        if (0 != pthread_create(&context->id, NULL, _thread_cb, context)) {
-            log_error("pthread_create failed \n");
-            break;
-        }
-
         context->fd = socket(AF_UNIX, SOCK_STREAM, 0);
         if (context->fd < 0) {
             log_error("socket failed \n");
@@ -134,6 +129,11 @@ socket_ipc_server_s *socket_ipc_server_create(const char *name,
         addr_len = strlen(ipc_path) + offsetof(struct sockaddr_un, sun_path);
         if (bind(context->fd, (const struct sockaddr *)&addr, addr_len) < 0) {
             log_error("bind failed, fd: %d \n", context->fd);
+            break;
+        }
+
+        if (0 != pthread_create(&context->id, NULL, _thread_cb, context)) {
+            log_error("pthread_create failed \n");
             break;
         }
 
