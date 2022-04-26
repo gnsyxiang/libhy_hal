@@ -97,7 +97,7 @@ void fifo_dump(fifo_context_s *context, fifo_dump_type_e type)
             _dump_content(context);
             break;
         default:
-            LOGE("error type: %d \n", type);
+            log_error("error type: %d \n", type);
     }
 
 }
@@ -163,7 +163,7 @@ hy_s32_t fifo_write(fifo_context_s *context, const void *buf, hy_u32_t len)
     }
 
     if (len > FIFO_FREE_LEN(context)) {
-        LOGE("write failed, len: %u, free_len: %u \n",
+        log_error("write failed, len: %u, free_len: %u \n",
                 len, FIFO_FREE_LEN(context));
         return -1;
     }
@@ -227,9 +227,9 @@ fifo_context_s *fifo_create(hy_u32_t len)
 
     do {
         if (!_IS_POWER_OF_2(len)) {
-            LOGW("old len: %d \n", len);
+            log_error("old len: %d \n", len);
             len = _num_to_2n(len);
-            LOGW("len must be power of 2, new len: %d \n", len);
+            log_error("len must be power of 2, new len: %d \n", len);
         }
 
         context = calloc(1, sizeof(*context));
@@ -247,11 +247,11 @@ fifo_context_s *fifo_create(hy_u32_t len)
         context->len        = len;
         context->read_pos   = context->write_pos = 0;
 
-        LOGI("fifo create, context: %p \n", context);
+        log_info("fifo create, context: %p \n", context);
         return context;
     } while (0);
 
-    LOGE("fifo create failed \n");
+    log_error("fifo create failed \n");
     return NULL;
 }
 
