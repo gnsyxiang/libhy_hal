@@ -284,8 +284,6 @@ void HyLogDeInit(void)
         default:
             break;
     }
-
-    process_single_destroy(&context->write_h);
 }
 
 hy_s32_t HyLogInit(HyLogConfig_s *log_c)
