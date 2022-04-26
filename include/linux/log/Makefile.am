@@ -34,6 +34,7 @@ _no_install_headers_com += \
                            fifo.h               \
                            fifo_async.h         \
                            log_private.h        \
+                           process_ipc_client.h \
                            process_ipc_server.h \
                            process_single.h     \
                            socket_ipc_client.h  \
