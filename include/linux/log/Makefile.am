@@ -32,6 +32,7 @@ install_includedir      = $(includedir)/@project_name@
 _no_install_headers_com += \
                            dynamic_array.h      \
                            fifo.h               \
+                           fifo_async.h         \
                            log_private.h        \
                            process_ipc.h        \
                            process_single.h     \

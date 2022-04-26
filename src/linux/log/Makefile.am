@@ -50,6 +50,7 @@ _include_com    += \
 _sources_com    += \
                    dynamic_array.c      \
                    fifo.c               \
+                   fifo_async.c         \
                    hy_log.c             \
                    process_ipc.c        \
                    process_single.c     \

@@ -160,7 +160,6 @@ int main(int argc, char *argv[])
 
     _module_destroy(&context);
 
-    sleep(1);
     return 0;
 }
 

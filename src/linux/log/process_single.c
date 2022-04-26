@@ -20,18 +20,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "fifo.h"
+#include "fifo_async.h"
 #include "dynamic_array.h"
 
 #include "process_single.h"
 
 typedef struct {
-    hy_s32_t            is_exit;
-    pthread_t           thread;
+    hy_s32_t        is_exit;
+    pthread_t       thread;
 
-    fifo_context_s      *fifo;
-    pthread_mutex_t     mutex;
-    pthread_cond_t      cond;
+    fifo_async_s    *fifo_async;
 } _process_single_context_s;
 
 void process_single_write(void *handle, log_write_info_s *log_write_info)
@@ -46,17 +44,14 @@ void process_single_write(void *handle, log_write_info_s *log_write_info)
         }
     }
 
-    pthread_mutex_lock(&context->mutex);
-    fifo_write(context->fifo, dynamic_array->buf, dynamic_array->cur_len);
-    pthread_mutex_unlock(&context->mutex);
-
-    pthread_cond_signal(&context->cond);
+    fifo_async_write(context->fifo_async,
+            dynamic_array->buf, dynamic_array->cur_len);
 }
 
 static void *_thread_cb(void *args)
 {
     _process_single_context_s *context = args;
-    hy_u32_t len = 0;
+    hy_s32_t len = 0;
     char buf[1024] = {0};
 
 #ifdef _GNU_SOURCE
@@ -64,14 +59,7 @@ static void *_thread_cb(void *args)
 #endif
 
     while (!context->is_exit) {
-        pthread_mutex_lock(&context->mutex);
-        if (FIFO_IS_EMPTY(context->fifo)) {
-            pthread_cond_wait(&context->cond, &context->mutex);
-        }
-        pthread_mutex_unlock(&context->mutex);
-
-        memset(buf, '\0', sizeof(buf));
-        len = fifo_read(context->fifo, buf, sizeof(buf));
+        len = fifo_async_read(context->fifo_async, buf, sizeof(buf));
         if (len > 0) {
             /* @fixme: <22-04-22, uos> 多种方式处理数据 */
             printf("%s", buf);
@@ -84,15 +72,15 @@ static void *_thread_cb(void *args)
 void process_single_destroy(void **handle)
 {
     _process_single_context_s *context = *handle;
+    log_info("process single context: %p destroy \n", context);
 
+    while (!fifo_async_is_empty(context->fifo_async)) {
+        usleep(100 * 1000);
+    }
     context->is_exit = 1;
-    pthread_cond_signal(&context->cond);
+
+    fifo_async_destroy(&context->fifo_async);
     pthread_join(context->thread, NULL);
-
-    pthread_mutex_destroy(&context->mutex);
-    pthread_cond_destroy(&context->cond);
-
-    fifo_destroy(&context->fifo);
 
     free(context);
     *handle = NULL;
@@ -114,19 +102,9 @@ void *process_single_create(hy_u32_t fifo_len)
             break;
         }
 
-        if (0 != pthread_mutex_init(&context->mutex, NULL)) {
-            log_error("pthread_mutex_init failed \n");
-            break;
-        }
-
-        if (0 != pthread_cond_init(&context->cond, NULL)) {
-            log_error("pthread_cond_init failed \n");
-            break;
-        }
-
-        context->fifo = fifo_create(fifo_len);
-        if (!context->fifo) {
-            log_info("fifo_create failed \n");
+        context->fifo_async = fifo_async_create(fifo_len);
+        if (!context->fifo_async) {
+            log_error("fifo_async_create failed \n");
             break;
         }
 
@@ -135,9 +113,11 @@ void *process_single_create(hy_u32_t fifo_len)
             break;
         }
 
+        log_info("process single context: %p create \n", context);
         return context;
     } while (0);
 
+    log_error("process single context: %p create failed \n", context);
     process_single_destroy((void **)&context);
     return NULL;
 }
