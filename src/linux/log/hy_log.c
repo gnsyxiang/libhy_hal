@@ -252,12 +252,21 @@ void HyLogWrite(HyLogAddiInfo_s *addi_info, char *fmt, ...)
     va_start(args, fmt);
     addi_info->fmt = fmt;
     addi_info->str_args = &args;
-    if (HY_LOG_MODE_PROCESS_SINGLE == save_c->mode) {
-        log_write_info.format_log_cb        = context->format_log_cb;
-        log_write_info.format_log_cb_cnt    = _ARRAY_CNT(context->format_log_cb);
-        log_write_info.dynamic_array        = dynamic_array;
-        log_write_info.addi_info            = addi_info;
-        process_single_write(context->write_h, &log_write_info);
+    log_write_info.format_log_cb        = context->format_log_cb;
+    log_write_info.format_log_cb_cnt    = _ARRAY_CNT(context->format_log_cb);
+    log_write_info.dynamic_array        = dynamic_array;
+    log_write_info.addi_info            = addi_info;
+    switch (save_c->mode) {
+        case HY_LOG_MODE_PROCESS_SINGLE:
+            process_single_write(context->write_h, &log_write_info);
+            break;
+        case HY_LOG_MODE_PROCESS_CLIENT:
+            break;
+        case HY_LOG_MODE_PROCESS_SERVER:
+            process_ipc_server_write(context->write_h, &log_write_info);
+            break;
+        default:
+            break;
     }
     va_end(args);
 }

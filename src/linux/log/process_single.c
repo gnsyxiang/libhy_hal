@@ -117,7 +117,7 @@ void *process_single_create(hy_u32_t fifo_len)
         return context;
     } while (0);
 
-    log_error("process single context: %p create failed \n", context);
+    log_error("process single create failed \n");
     process_single_destroy((void **)&context);
     return NULL;
 }
