@@ -93,6 +93,7 @@ AC_CONFIG_FILES([Makefile
                  example/linux/audio/Makefile
                  example/linux/ipc/Makefile
                  example/linux/ipc/ipc_socket/Makefile
+                 example/linux/log/Makefile
                  example/linux/thread/Makefile
                  example/mcu/Makefile
                  example/mcu/arterytek/Makefile
