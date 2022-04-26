@@ -27,10 +27,10 @@ extern "C" {
 #include "hy_log.h"
 #include "log_private.h"
 
-hy_s32_t process_single_create(hy_u32_t fifo_len);
-void process_single_destroy(void);
+void *process_single_create(hy_u32_t fifo_len);
+void process_single_destroy(void **handle);
 
-void process_single_write(log_write_info_s *log_write_info);
+void process_single_write(void *handle, log_write_info_s *log_write_info);
 
 #ifdef __cplusplus
 }

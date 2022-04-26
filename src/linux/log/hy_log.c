@@ -323,7 +323,7 @@ hy_s32_t HyLogInit(HyLogConfig_s *log_c)
 
         switch (log_c->save_c.mode) {
             case HY_LOG_MODE_PROCESS_SINGLE:
-                ret = process_single_create(log_c->fifo_len);
+                context->write_h = process_single_create(log_c->fifo_len);
                 break;
             case HY_LOG_MODE_PROCESS_CLIENT:
                 break;

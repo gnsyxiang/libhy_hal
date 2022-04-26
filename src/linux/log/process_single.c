@@ -18,6 +18,7 @@
  *     last modified: 21/04 2022 14:36
  */
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "fifo.h"
 #include "dynamic_array.h"
@@ -33,11 +34,9 @@ typedef struct {
     pthread_cond_t      cond;
 } _process_single_context_s;
 
-static _process_single_context_s _process_context;
-
-void process_single_write(log_write_info_s *log_write_info)
+void process_single_write(void *handle, log_write_info_s *log_write_info)
 {
-    _process_single_context_s *context = &_process_context;
+    _process_single_context_s *context = handle;
     HyLogAddiInfo_s *addi_info = log_write_info->addi_info;
     dynamic_array_s *dynamic_array = log_write_info->dynamic_array;
 
@@ -82,9 +81,9 @@ static void *_thread_cb(void *args)
     return NULL;
 }
 
-void process_single_destroy(void)
+void process_single_destroy(void **handle)
 {
-    _process_single_context_s *context = &_process_context;
+    _process_single_context_s *context = *handle;
 
     context->is_exit = 1;
     pthread_cond_signal(&context->cond);
@@ -94,14 +93,26 @@ void process_single_destroy(void)
     pthread_cond_destroy(&context->cond);
 
     fifo_destroy(&context->fifo);
+
+    free(context);
+    *handle = NULL;
 }
 
-hy_s32_t process_single_create(hy_u32_t fifo_len)
+void *process_single_create(hy_u32_t fifo_len)
 {
-    _process_single_context_s *context = &_process_context;
+    if (fifo_len <= 0) {
+        log_error("the param is error \n");
+        return NULL;
+    }
+
+    _process_single_context_s *context = NULL;
 
     do {
-        memset(context, '\0', sizeof(*context));
+        context = calloc(1, sizeof(*context));
+        if (!context) {
+            log_error("calloc failed \n");
+            break;
+        }
 
         if (0 != pthread_mutex_init(&context->mutex, NULL)) {
             log_error("pthread_mutex_init failed \n");
@@ -124,10 +135,10 @@ hy_s32_t process_single_create(hy_u32_t fifo_len)
             break;
         }
 
-        return 0;
+        return context;
     } while (0);
 
-    process_single_destroy();
-    return -1;
+    process_single_destroy((void **)&context);
+    return NULL;
 }
 
