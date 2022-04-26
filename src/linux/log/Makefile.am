@@ -54,6 +54,7 @@ _sources_com    += \
                    hy_log.c             \
                    process_ipc.c        \
                    process_single.c     \
+                   socket_ipc_client.c  \
                    socket_ipc_server.c
 
 _cppflags_com   += \

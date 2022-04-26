@@ -71,14 +71,14 @@ static void *_thread_cb(void *args)
     return NULL;
 }
 
-void socket_ipc_server_destroy(socket_ipc_server_s **socket_ipc_pp)
+void socket_ipc_server_destroy(socket_ipc_server_s **socket_ipc_server_pp)
 {
-    if (!socket_ipc_pp || !*socket_ipc_pp) {
+    if (!socket_ipc_server_pp || !*socket_ipc_server_pp) {
         log_error("the param is error \n");
         return;
     }
 
-    socket_ipc_server_s *context = *socket_ipc_pp;
+    socket_ipc_server_s *context = *socket_ipc_server_pp;
 
     close(context->fd);
 
@@ -86,7 +86,7 @@ void socket_ipc_server_destroy(socket_ipc_server_s **socket_ipc_pp)
     close(context->pipe_fd[1]);
 
     free(context);
-    *socket_ipc_pp = NULL;
+    *socket_ipc_server_pp = NULL;
 }
 
 socket_ipc_server_s *socket_ipc_server_create(const char *name,

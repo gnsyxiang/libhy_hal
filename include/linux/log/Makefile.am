@@ -36,6 +36,7 @@ _no_install_headers_com += \
                            log_private.h        \
                            process_ipc.h        \
                            process_single.h     \
+                           socket_ipc_client.h  \
                            socket_ipc_server.h
 
 _install_headers_com    += hy_log.h

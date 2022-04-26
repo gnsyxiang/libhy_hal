@@ -24,17 +24,12 @@
 extern "C" {
 #endif
 
-#include <pthread.h>
-
-#include "hy_type.h"
-
-#define SOCKET_IPC_SERVER_NAME_LEN_MAX     (64)
+#include "log_private.h"
 
 typedef void (*socket_ipc_server_accept_cb_t)(hy_s32_t fd);
 
 typedef struct {
     hy_s32_t        fd;
-    char            name[SOCKET_IPC_SERVER_NAME_LEN_MAX / 2];
 
     pthread_t       id;
     hy_s32_t        is_exit;
@@ -45,7 +40,7 @@ typedef struct {
 
 socket_ipc_server_s *socket_ipc_server_create(const char *name,
         socket_ipc_server_accept_cb_t accept_cb);
-void socket_ipc_server_destroy(socket_ipc_server_s **socket_ipc_pp);
+void socket_ipc_server_destroy(socket_ipc_server_s **socket_ipc_server_pp);
 
 #ifdef __cplusplus
 }
