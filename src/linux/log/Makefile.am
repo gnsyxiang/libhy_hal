@@ -53,7 +53,7 @@ _sources_com    += \
                    hy_log.c             \
                    process_ipc.c        \
                    process_single.c     \
-                   socket_ipc.c
+                   socket_ipc_server.c
 
 _cppflags_com   += \
                    $(_no_error_com)     \
