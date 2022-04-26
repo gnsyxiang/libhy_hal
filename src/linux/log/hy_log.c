@@ -27,7 +27,7 @@
 #include "log_private.h"
 #include "dynamic_array.h"
 #include "process_single.h"
-#include "process_ipc.h"
+#include "process_ipc_server.h"
 #include "socket_ipc_server.h"
 
 #include "hy_log.h"

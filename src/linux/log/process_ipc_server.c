@@ -2,7 +2,7 @@
  * 
  * Release under GPLv-3.0.
  * 
- * @file    process_ipc.c
+ * @file    process_ipc_server.c
  * @brief   
  * @author  gnsyxiang <gnsyxiang@163.com>
  * @date    25/04 2022 17:27
@@ -24,7 +24,7 @@
 #include "log_private.h"
 #include "socket_ipc_server.h"
 
-#include "process_ipc.h"
+#include "process_ipc_server.h"
 
 typedef struct {
     hy_s32_t                is_exit;

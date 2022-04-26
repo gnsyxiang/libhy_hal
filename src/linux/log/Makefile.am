@@ -52,7 +52,7 @@ _sources_com    += \
                    fifo.c               \
                    fifo_async.c         \
                    hy_log.c             \
-                   process_ipc.c        \
+                   process_ipc_server.c \
                    process_single.c     \
                    socket_ipc_client.c  \
                    socket_ipc_server.c

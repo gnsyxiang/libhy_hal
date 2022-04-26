@@ -2,7 +2,7 @@
  *
  * Release under GPLv-3.0.
  * 
- * @file    process_ipc.h
+ * @file    process_ipc_server.h
  * @brief   
  * @author  gnsyxiang <gnsyxiang@163.com>
  * @date    25/04 2022 17:25
@@ -17,8 +17,8 @@
  * 
  *     last modified: 25/04 2022 17:25
  */
-#ifndef __LIBHY_HAL_INCLUDE_PROCESS_IPC_H_
-#define __LIBHY_HAL_INCLUDE_PROCESS_IPC_H_
+#ifndef __LIBHY_HAL_INCLUDE_PROCESS_IPC_SERVER_H_
+#define __LIBHY_HAL_INCLUDE_PROCESS_IPC_SERVER_H_
 
 #ifdef __cplusplus
 extern "C" {
