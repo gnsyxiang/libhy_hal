@@ -30,19 +30,22 @@
 typedef struct {
     hy_s32_t                fd;
     pthread_t               id;
+    hy_s32_t                is_exit;
     void                    *args;
 
     struct hy_list_head     entry;
 } _socket_node_s;
 
 typedef struct {
-    hy_s32_t                is_exit;
+    hy_s32_t                is_terminal_exit;
     pthread_t               terminal_thread_id;
+    fifo_async_s            *terminal_fifo_async;
+
+    hy_s32_t                is_tcp_exit;
     pthread_t               tcp_thread_id;
+    fifo_async_s            *tcp_fifo_async;
 
     socket_ipc_server_s     *socket_ipc_server;
-    fifo_async_s            *fifo_async;
-    fifo_async_s            *fifo_async_no_color;
 
     struct hy_list_head     list;
 } _process_ipc_server_context_s;
@@ -59,7 +62,7 @@ void process_ipc_server_write(void *handle, log_write_info_s *log_write_info)
         }
     }
 
-    fifo_async_write(context->fifo_async,
+    fifo_async_write(context->terminal_fifo_async,
             dynamic_array->buf, dynamic_array->cur_len);
 
     DYNAMIC_ARRAY_RESET(dynamic_array);
@@ -70,7 +73,7 @@ void process_ipc_server_write(void *handle, log_write_info_s *log_write_info)
         }
     }
 
-    fifo_async_write(context->fifo_async_no_color,
+    fifo_async_write(context->tcp_fifo_async,
             dynamic_array->buf, dynamic_array->cur_len);
 }
 
@@ -81,7 +84,7 @@ static void *_read_socket_data_cb(void *args)
     _process_ipc_server_context_s *context = socket_node->args;
     char buf[1024] = {0};
 
-    while (!context->is_exit) {
+    while (!socket_node->is_exit) {
         memset(buf, '\0', sizeof(buf));
         ret = read(socket_node->fd, buf, sizeof(buf));
         if (ret < 0) {
@@ -94,7 +97,7 @@ static void *_read_socket_data_cb(void *args)
             log_error("fd close, fd: %d \n", socket_node->fd);
             break;
         } else {
-            fifo_async_write(context->fifo_async_no_color, buf, ret);
+            fifo_async_write(context->tcp_fifo_async, buf, ret);
         }
     }
 
@@ -133,8 +136,8 @@ static void *_tcp_msg_cb(void *args)
     pthread_setname_np(context->terminal_thread_id, "HY_async_log");
 #endif
 
-    while (!context->is_exit) {
-        len = fifo_async_read(context->fifo_async_no_color, buf, sizeof(buf));
+    while (!context->is_tcp_exit) {
+        len = fifo_async_read(context->tcp_fifo_async, buf, sizeof(buf));
         if (len > 0) {
             /* @fixme: <22-04-22, uos> 多种方式处理数据 */
             printf("%s", buf);
@@ -154,8 +157,8 @@ static void *_terminal_msg_cb(void *args)
     pthread_setname_np(context->terminal_thread_id, "HY_async_log");
 #endif
 
-    while (!context->is_exit) {
-        len = fifo_async_read(context->fifo_async, buf, sizeof(buf));
+    while (!context->is_terminal_exit) {
+        len = fifo_async_read(context->terminal_fifo_async, buf, sizeof(buf));
         if (len > 0) {
             /* @fixme: <22-04-22, uos> 多种方式处理数据 */
             // printf("%s", buf);
@@ -170,13 +173,32 @@ void process_ipc_server_destroy(void **handle)
     _process_ipc_server_context_s *context = *handle;
     log_info("process ipc server context: %p destroy \n", context);
 
-    while (!fifo_async_is_empty(context->fifo_async)) {
+    while (!fifo_async_is_empty(context->terminal_fifo_async)) {
         usleep(100 * 1000);
     }
-    context->is_exit = 1;
-
-    fifo_async_destroy(&context->fifo_async);
+    context->is_terminal_exit = 1;
+    fifo_async_destroy(&context->terminal_fifo_async);
     pthread_join(context->terminal_thread_id, NULL);
+
+    while (!fifo_async_is_empty(context->tcp_fifo_async)) {
+        usleep(100 * 1000);
+    }
+    context->is_tcp_exit = 1;
+    fifo_async_destroy(&context->tcp_fifo_async);
+    pthread_join(context->tcp_thread_id, NULL);
+
+    _socket_node_s *pos, *n;
+    hy_list_for_each_entry_safe(pos, n, &context->list, entry) {
+        hy_list_del(&pos->entry);
+
+        pos->is_exit = 1;
+        pthread_join(pos->id, NULL);
+
+        close(pos->fd);
+        free(pos);
+    }
+
+    socket_ipc_server_destroy(&context->socket_ipc_server);
 
     free(context);
     *handle = NULL;
@@ -199,14 +221,14 @@ void *process_ipc_server_create(hy_u32_t fifo_len)
 
         HY_INIT_LIST_HEAD(&context->list);
 
-        context->fifo_async = fifo_async_create(fifo_len);
-        if (!context->fifo_async) {
+        context->terminal_fifo_async = fifo_async_create(fifo_len);
+        if (!context->terminal_fifo_async) {
             log_error("fifo_async_create failed \n");
             break;
         }
 
-        context->fifo_async_no_color = fifo_async_create(fifo_len);
-        if (!context->fifo_async_no_color) {
+        context->tcp_fifo_async = fifo_async_create(fifo_len);
+        if (!context->tcp_fifo_async) {
             log_error("fifo_async_create failed \n");
             break;
         }

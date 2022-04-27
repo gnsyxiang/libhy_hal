@@ -28,10 +28,10 @@
 
 typedef struct {
     hy_s32_t                is_exit;
-    pthread_t               thread;
+    pthread_t               terminal_thread_id;
+    fifo_async_s            *terminal_fifo_async;
 
     socket_ipc_client_s     *socket_ipc_client;
-    fifo_async_s            *fifo_async;
 } _process_ipc_client_context_s;
 
 void process_ipc_client_write(void *handle, log_write_info_s *log_write_info)
@@ -46,7 +46,7 @@ void process_ipc_client_write(void *handle, log_write_info_s *log_write_info)
         }
     }
 
-    fifo_async_write(context->fifo_async,
+    fifo_async_write(context->terminal_fifo_async,
             dynamic_array->buf, dynamic_array->cur_len);
 
     DYNAMIC_ARRAY_RESET(dynamic_array);
@@ -68,11 +68,11 @@ static void *_thread_cb(void *args)
     char buf[1024] = {0};
 
 #ifdef _GNU_SOURCE
-    pthread_setname_np(context->thread, "HY_async_log");
+    pthread_setname_np(context->terminal_thread_id, "HY_async_log");
 #endif
 
     while (!context->is_exit) {
-        len = fifo_async_read(context->fifo_async, buf, sizeof(buf));
+        len = fifo_async_read(context->terminal_fifo_async, buf, sizeof(buf));
         if (len > 0) {
             /* @fixme: <22-04-22, uos> 多种方式处理数据 */
             printf("%s", buf);
@@ -91,13 +91,13 @@ void process_ipc_client_destroy(void **handle)
     }
     _process_ipc_client_context_s *context = *handle;
 
-    while (!fifo_async_is_empty(context->fifo_async)) {
+    while (!fifo_async_is_empty(context->terminal_fifo_async)) {
         usleep(100 * 1000);
     }
     context->is_exit = 1;
 
-    fifo_async_destroy(&context->fifo_async);
-    pthread_join(context->thread, NULL);
+    fifo_async_destroy(&context->terminal_fifo_async);
+    pthread_join(context->terminal_thread_id, NULL);
 
     free(context);
     *handle = NULL;
@@ -118,13 +118,14 @@ void *process_ipc_client_create(hy_u32_t fifo_len)
             break;
         }
 
-        context->fifo_async = fifo_async_create(fifo_len);
-        if (!context->fifo_async) {
+        context->terminal_fifo_async = fifo_async_create(fifo_len);
+        if (!context->terminal_fifo_async) {
             log_error("fifo_async_create failed \n");
             break;
         }
 
-        if (0 != pthread_create(&context->thread, NULL, _thread_cb, context)) {
+        if (0 != pthread_create(&context->terminal_thread_id,
+                    NULL, _thread_cb, context)) {
             log_error("pthread_create failed \n");
             break;
         }

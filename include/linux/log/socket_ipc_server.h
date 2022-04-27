@@ -33,6 +33,7 @@ typedef struct {
 
     pthread_t       id;
     hy_s32_t        is_exit;
+    hy_s32_t        wait_exit_flag;
     hy_s32_t        pipe_fd[2];
 
     socket_ipc_server_accept_cb_t   accept_cb;

@@ -67,6 +67,7 @@ static void *_thread_cb(void *args)
             }
         }
     }
+    context->wait_exit_flag = 1;
 
     return NULL;
 }
@@ -79,6 +80,13 @@ void socket_ipc_server_destroy(socket_ipc_server_s **socket_ipc_server_pp)
     }
 
     socket_ipc_server_s *context = *socket_ipc_server_pp;
+
+    context->is_exit = 1;
+    write(context->pipe_fd[1], context, sizeof(*context));
+    while (!context->wait_exit_flag) {
+        usleep(10 * 1000);
+    }
+    pthread_join(context->id, NULL);
 
     close(context->fd);
 
