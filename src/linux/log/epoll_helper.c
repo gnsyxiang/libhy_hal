@@ -25,13 +25,13 @@
 #include "epoll_helper.h"
 
 hy_s32_t epoll_helper_context_set(epoll_helper_context_s *context,
-        hy_s32_t fd, hy_u32_t event, void *args)
+        hy_u32_t event, epoll_helper_cb_param_s *cb_param)
 {
     struct epoll_event ev;
 
     ev.events   = event;
-    ev.data.ptr = args;
-    if(-1 == epoll_ctl(context->fd, EPOLL_CTL_ADD, fd, &ev)) {
+    ev.data.ptr = cb_param;
+    if(-1 == epoll_ctl(context->fd, EPOLL_CTL_ADD, cb_param->fd, &ev)) {
         log_error("epoll_ctl failed \n");
         return -1;
     } else {
@@ -45,7 +45,7 @@ static void *_thread_cb(void *args)
     hy_s32_t ret = 0;
     struct epoll_event events[MX_EVNTS];
     epoll_helper_context_s *context = args;
-    hy_s32_t *fd = NULL;
+    epoll_helper_cb_param_s *cb_param = NULL;
 
     while (!context->is_exit) {
         memset(events, '\0', sizeof(events));
@@ -56,20 +56,20 @@ static void *_thread_cb(void *args)
         }
 
         for (hy_s32_t i = 0; i < ret; ++i) {
-            fd = (hy_s32_t *)events[i].data.ptr;
-            ret = epoll_ctl(context->fd, EPOLL_CTL_DEL, *fd, NULL);
+            cb_param = events[i].data.ptr;
+            ret = epoll_ctl(context->fd, EPOLL_CTL_DEL, cb_param->fd, NULL);
             if (-1 == ret) {
                 log_error("epoll_ctl failed \n");
                 break;
             }
 
-            if (*fd == context->pipe_fd[0]) {
+            if (cb_param->fd == context->pipe_fd[0]) {
                 log_error("exit epoll wait \n");
                 goto _L_EPOLL_1;
             }
 
             if (context->epoll_helper_cb) {
-                context->epoll_helper_cb(*fd, events[i].data.ptr);
+                context->epoll_helper_cb(cb_param);
             }
         }
     }
