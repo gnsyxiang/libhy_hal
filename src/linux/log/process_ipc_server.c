@@ -46,6 +46,10 @@ typedef struct {
     hy_s32_t                epoll_fd;
     hy_s32_t                is_epoll_exit;
     pthread_t               epoll_thread_id;
+
+    hy_s32_t                wait_exit_flag;
+    hy_s32_t                pipe_fd[2];
+
     socket_ipc_server_s     *socket_ipc_server;
 
     struct hy_list_head     list;
@@ -133,6 +137,10 @@ static void *_epoll_thread_cb(void *args)
                 break;
             }
 
+            if (ev->data.fd == context->pipe_fd[0]) {
+                goto _L_EPOLL_1;
+            }
+
             _epoll_handle_data(context, socket_node->fd);
 
             ev->events = EPOLLIN | EPOLLET;
@@ -142,6 +150,9 @@ static void *_epoll_thread_cb(void *args)
             }
         }
     }
+
+_L_EPOLL_1:
+    context->wait_exit_flag = 1;
 
     return NULL;
 }
@@ -215,6 +226,13 @@ void process_ipc_server_destroy(void **handle)
     _process_ipc_server_context_s *context = *handle;
     log_info("process ipc server context: %p destroy \n", context);
 
+    context->is_epoll_exit = 1;
+    write(context->pipe_fd[1], context, sizeof(*context));
+    while (!context->wait_exit_flag) {
+        usleep(10 * 1000);
+    }
+    pthread_join(context->epoll_thread_id, NULL);
+
     while (!fifo_async_is_empty(context->terminal_fifo_async)) {
         usleep(100 * 1000);
     }
@@ -231,8 +249,8 @@ void process_ipc_server_destroy(void **handle)
 
     close(context->epoll_fd);
 
-    context->is_epoll_exit = 1;
-    pthread_join(context->epoll_thread_id, NULL);
+    close(context->pipe_fd[0]);
+    close(context->pipe_fd[1]);
 
     _socket_node_s *pos, *n;
     hy_list_for_each_entry_safe(pos, n, &context->list, entry) {
@@ -266,6 +284,20 @@ void *process_ipc_server_create(hy_u32_t fifo_len)
         context->epoll_fd = epoll_create1(0);
         if(-1 == context->epoll_fd){
             log_error("epoll_create1 failed \n");
+            break;
+        }
+
+        if (0 != pipe(context->pipe_fd)) {
+            log_error("pipe failed \n");
+            break;
+        }
+
+        struct epoll_event ev;
+        ev.events   = EPOLLIN | EPOLLET;
+        ev.data.ptr = &context->pipe_fd[0];
+        if (-1 == epoll_ctl(context->epoll_fd, EPOLL_CTL_ADD,
+                    context->pipe_fd[0], &ev)) {
+            log_error("epoll_ctl failed \n");
             break;
         }
 
