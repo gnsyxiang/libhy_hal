@@ -114,6 +114,7 @@ static hy_s32_t _thread_loop_cb(void *args)
 
     while (!context->is_exit) {
         LOGI("haha \n");
+        usleep(1000);
     }
 
     return -1;

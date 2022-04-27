@@ -43,7 +43,7 @@ hy_s32_t fifo_async_write(fifo_async_s *fifo_async,
         const void *buf, hy_u32_t len);
 hy_s32_t fifo_async_read(fifo_async_s *fifo_async, void *buf, hy_u32_t len);
 
-hy_s32_t fifo_async_is_empty(fifo_async_s *fifo_async);
+#define FIFO_ASYNC_IS_EMPTY(fifo_async) FIFO_IS_EMPTY((fifo_async)->fifo)
 
 #ifdef __cplusplus
 }

@@ -26,22 +26,24 @@ extern "C" {
 
 #include "log_private.h"
 
-typedef void (*socket_ipc_server_accept_cb_t)(hy_s32_t fd, void *args);
+typedef void (*socket_ipc_accept_cb_t)(hy_s32_t fd, void *args);
 
 typedef struct {
-    hy_s32_t        fd;
+    hy_s32_t                fd;
 
-    pthread_t       id;
-    hy_s32_t        is_exit;
-    hy_s32_t        wait_exit_flag;
-    hy_s32_t        pipe_fd[2];
+    pthread_t               id;
+    hy_s32_t                is_exit;
+    hy_s32_t                wait_exit_flag;
+    hy_s32_t                pipe_fd[2];
 
-    socket_ipc_server_accept_cb_t   accept_cb;
-    void                            *args;
+    hy_s32_t                epoll_fd;
+
+    socket_ipc_accept_cb_t  accept_cb;
+    void                    *args;
 } socket_ipc_server_s;
 
 socket_ipc_server_s *socket_ipc_server_create(const char *name,
-        socket_ipc_server_accept_cb_t accept_cb, void *args);
+        socket_ipc_accept_cb_t accept_cb, void *args);
 void socket_ipc_server_destroy(socket_ipc_server_s **socket_ipc_server_pp);
 
 #ifdef __cplusplus

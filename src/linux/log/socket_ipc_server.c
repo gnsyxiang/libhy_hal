@@ -103,7 +103,7 @@ void socket_ipc_server_destroy(socket_ipc_server_s **socket_ipc_server_pp)
 }
 
 socket_ipc_server_s *socket_ipc_server_create(const char *name,
-        socket_ipc_server_accept_cb_t accept_cb, void *args)
+        socket_ipc_accept_cb_t accept_cb, void *args)
 {
     if (!name || strlen(name) <= 0 || !accept_cb) {
         log_error("the param is error \n");

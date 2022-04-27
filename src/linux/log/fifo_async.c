@@ -24,11 +24,6 @@
 
 #include "fifo_async.h"
 
-hy_s32_t fifo_async_is_empty(fifo_async_s *fifo_async)
-{
-    return FIFO_IS_EMPTY(fifo_async->fifo);
-}
-
 hy_s32_t fifo_async_write(fifo_async_s *fifo_async,
         const void *buf, hy_u32_t len)
 {

@@ -198,7 +198,7 @@ static void *_tcp_msg_cb(void *args)
         len = fifo_async_read(context->tcp_fifo_async, buf, sizeof(buf));
         if (len > 0) {
             /* @fixme: <22-04-22, uos> 多种方式处理数据 */
-            // printf("%s", buf);
+            printf("%s", buf);
         }
     }
 
@@ -250,15 +250,15 @@ void process_ipc_server_destroy(void **handle)
     }
     pthread_join(context->epoll_thread_id, NULL);
 
-    while (!fifo_async_is_empty(context->terminal_fifo_async)) {
-        usleep(100 * 1000);
+    while (!FIFO_ASYNC_IS_EMPTY(context->terminal_fifo_async)) {
+        usleep(10 * 1000);
     }
     context->is_terminal_exit = 1;
     fifo_async_destroy(&context->terminal_fifo_async);
     pthread_join(context->terminal_thread_id, NULL);
 
-    while (!fifo_async_is_empty(context->tcp_fifo_async)) {
-        usleep(100 * 1000);
+    while (!FIFO_ASYNC_IS_EMPTY(context->tcp_fifo_async)) {
+        usleep(10 * 1000);
     }
     context->is_tcp_exit = 1;
     fifo_async_destroy(&context->tcp_fifo_async);

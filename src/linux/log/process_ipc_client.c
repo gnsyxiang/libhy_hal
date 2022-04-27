@@ -100,7 +100,7 @@ void process_ipc_client_destroy(void **handle)
     }
     _process_ipc_client_context_s *context = *handle;
 
-    while (!fifo_async_is_empty(context->terminal_fifo_async)) {
+    while (!FIFO_ASYNC_IS_EMPTY(context->terminal_fifo_async)) {
         usleep(100 * 1000);
     }
     context->is_exit = 1;

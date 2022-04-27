@@ -83,7 +83,7 @@ void process_single_destroy(void **handle)
     _process_single_context_s *context = *handle;
     log_info("process single context: %p destroy \n", context);
 
-    while (!fifo_async_is_empty(context->fifo_async)) {
+    while (!FIFO_ASYNC_IS_EMPTY(context->fifo_async)) {
         usleep(100 * 1000);
     }
     context->is_exit = 1;
