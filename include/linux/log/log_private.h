@@ -46,12 +46,16 @@ typedef struct {
     HyLogAddiInfo_s     *addi_info;
 } log_write_info_s;
 
+#if 0
 #define log_error(fmt, ...)                                     \
     do {                                                        \
         printf("[%s:%d](errno: %d, errstr: %s)",                \
                 __func__, __LINE__, errno, strerror(errno));    \
         printf(fmt, ##__VA_ARGS__);                             \
     } while (0)
+#else
+#define log_error(fmt, ...)
+#endif
 
 #if 0
 #define log_info(fmt, ...)                                      \

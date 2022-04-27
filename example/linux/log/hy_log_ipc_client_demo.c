@@ -29,11 +29,15 @@
 #include "hy_module.h"
 #include "hy_hal_utils.h"
 #include "hy_log.h"
+#include "hy_thread.h"
 
-#define _APP_NAME "hy_log_ipc_client_demo"
+#define _APP_NAME       "hy_log_ipc_client_demo"
+#define _THREAD_NUM     (10)
 
 typedef struct {
     hy_s32_t    is_exit;
+
+    void        *thread_h[_THREAD_NUM];
 } _main_context_s;
 
 static void _signal_error_cb(void *args)
@@ -104,6 +108,17 @@ static _main_context_s *_module_create(void)
     return context;
 }
 
+static hy_s32_t _thread_loop_cb(void *args)
+{
+    _main_context_s *context = args;
+
+    while (!context->is_exit) {
+        LOGI("haha \n");
+    }
+
+    return -1;
+}
+
 int main(int argc, char *argv[])
 {
     _main_context_s *context = _module_create();
@@ -114,8 +129,25 @@ int main(int argc, char *argv[])
 
     LOGE("version: %s, data: %s, time: %s \n", "0.1.0", __DATE__, __TIME__);
 
+    char buf[16] = {0};
+    for (hy_s32_t i = 0; i < _THREAD_NUM; ++i) {
+        HY_MEMSET(buf, sizeof(buf));
+
+        snprintf(buf, sizeof(buf), "HY_LI_client_%d", i);
+
+        context->thread_h[i] = HyThreadCreate_m(buf, _thread_loop_cb, context);
+        if (!context->thread_h[i]) {
+            LOGE("HyThreadCreate_m failed \n");
+            break;
+        }
+    }
+
     while (!context->is_exit) {
         sleep(1);
+    }
+
+    for (hy_s32_t i = 0; i < _THREAD_NUM; ++i) {
+        HyThreadDestroy(&context->thread_h[i]);
     }
 
     _module_destroy(&context);
