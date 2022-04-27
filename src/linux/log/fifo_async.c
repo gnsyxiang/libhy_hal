@@ -61,6 +61,7 @@ void fifo_async_destroy(fifo_async_s **fifo_async_pp)
     log_info("fifo_async: %p destroy \n", fifo_async);
 
     pthread_cond_signal(&fifo_async->cond);
+    usleep(1000);
 
     pthread_mutex_destroy(&fifo_async->mutex);
     pthread_cond_destroy(&fifo_async->cond);
