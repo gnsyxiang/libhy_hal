@@ -42,7 +42,7 @@ typedef struct {
     pthread_t               tcp_thread_id;
     fifo_async_s            *tcp_fifo_async;
 
-    epoll_helper_context_s  *epoll_helper;
+    epoll_helper_s          *epoll_helper;
 
     socket_ipc_server_s     *socket_ipc_server;
 
@@ -143,9 +143,7 @@ static void _epoll_handle_data(epoll_helper_cb_param_s *cb_param)
             break;
         } else {
             fifo_async_write(context->tcp_fifo_async, buf, ret);
-
-            epoll_helper_context_set(context->epoll_helper,
-                    EPOLLIN | EPOLLET, cb_param);
+            epoll_helper_set(context->epoll_helper, EPOLLIN | EPOLLET, cb_param);
             break;
         }
     }
@@ -158,12 +156,9 @@ static void _epoll_handle_data(epoll_helper_cb_param_s *cb_param)
 static void _accept_cb(hy_s32_t fd, void *args)
 {
     _process_ipc_server_context_s *context = args;
-
     _socket_node_s *socket_node = socket_node_create(fd, args);
 
-    epoll_helper_context_set(context->epoll_helper,
-            EPOLLIN | EPOLLET, &socket_node->cb_param);
-
+    epoll_helper_set(context->epoll_helper, EPOLLIN | EPOLLET, &socket_node->cb_param);
     hy_list_add_tail(&socket_node->entry, &context->list);
 }
 
@@ -270,7 +265,7 @@ void *process_ipc_server_create(hy_u32_t fifo_len)
             break;
         }
 
-        context->epoll_helper = epoll_helper_create(_epoll_handle_data);
+        context->epoll_helper = epoll_helper_create(100, _epoll_handle_data);
         if (!context->epoll_helper) {
             log_error("epoll_helper_create failed \n");
             break;

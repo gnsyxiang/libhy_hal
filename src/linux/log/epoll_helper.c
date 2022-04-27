@@ -19,14 +19,19 @@
  */
 #include <stdio.h>
 #include <stdlib.h>
+#include <assert.h>
 
 #include "log_private.h"
 
 #include "epoll_helper.h"
 
-hy_s32_t epoll_helper_context_set(epoll_helper_context_s *context,
+#define _THREAD_NAME "HY_epoll_helper"
+
+hy_s32_t epoll_helper_set(epoll_helper_s *context,
         hy_u32_t event, epoll_helper_cb_param_s *cb_param)
 {
+    assert(context);
+    assert(cb_param);
     struct epoll_event ev;
 
     ev.events   = event;
@@ -41,15 +46,27 @@ hy_s32_t epoll_helper_context_set(epoll_helper_context_s *context,
 
 static void *_thread_cb(void *args)
 {
-    #define MX_EVNTS 100
     hy_s32_t ret = 0;
-    struct epoll_event events[MX_EVNTS];
-    epoll_helper_context_s *context = args;
+    hy_u32_t len = 0;
+    epoll_helper_s *context = args;
     epoll_helper_cb_param_s *cb_param = NULL;
+    struct epoll_event *events = NULL;
 
+#ifdef _GNU_SOURCE
+    pthread_setname_np(context->id, _THREAD_NAME);
+#endif
+
+    len = context->max_event * sizeof(struct epoll_event);
+    events = calloc(1, len);
+    if (!events) {
+        log_error("calloc failed \n");
+        return NULL;
+    }
+
+    log_info("%s thread start \n", _THREAD_NAME);
     while (!context->is_exit) {
-        memset(events, '\0', sizeof(events));
-        ret = epoll_wait(context->fd, events, MX_EVNTS, -1);
+        memset(events, '\0', len);
+        ret = epoll_wait(context->fd, events, context->max_event, -1);
         if (-1 == ret) {
             log_error("epoll_wait failed \n");
             break;
@@ -77,12 +94,23 @@ static void *_thread_cb(void *args)
 _L_EPOLL_1:
     context->wait_exit_flag = 1;
 
+    if (events) {
+        free(events);
+        events = NULL;
+    }
+
+    log_info("%s thread stop \n", _THREAD_NAME);
     return NULL;
 }
 
-void epoll_helper_destroy(epoll_helper_context_s **context_pp)
+void epoll_helper_destroy(epoll_helper_s **context_pp)
 {
-    epoll_helper_context_s *context = *context_pp;
+    if (!context_pp || !*context_pp) {
+        log_error("the param is NULL \n");
+        return;
+    }
+
+    epoll_helper_s *context = *context_pp;
     log_info("epoll helper context: %p destroy, thread_id: 0x%lx, "
             "epoll_fd: %d, pipe_fd[0]: %d, pipe_fd[1]: %d \n",
             context, context->id, context->fd,
@@ -104,15 +132,24 @@ void epoll_helper_destroy(epoll_helper_context_s **context_pp)
     *context_pp = NULL;
 }
 
-epoll_helper_context_s *epoll_helper_create(epoll_helper_cb_t epoll_helper_cb)
+epoll_helper_s *epoll_helper_create(hy_u32_t max_event,
+        epoll_helper_cb_t epoll_helper_cb)
 {
-    epoll_helper_context_s *context = NULL;
+    if (max_event <=0 || !epoll_helper_cb) {
+        log_error("the param is NULL \n");
+        return NULL;
+    }
+
+    epoll_helper_s *context = NULL;
     do {
         context = calloc(1, sizeof(*context));
         if (!context) {
             log_error("calloc failed \n");
             break;
         }
+
+        context->epoll_helper_cb    = epoll_helper_cb;
+        context->max_event          = max_event;
 
         context->fd = epoll_create1(0);
         if(-1 == context->fd){
@@ -137,8 +174,6 @@ epoll_helper_context_s *epoll_helper_create(epoll_helper_cb_t epoll_helper_cb)
             log_error("pthread_create failed \n");
             break;
         }
-
-        context->epoll_helper_cb = epoll_helper_cb;
 
         log_info("epoll helper context: %p create, thread_id: 0x%lx, "
                 "epoll_fd: %d, pipe_fd[0]: %d, pipe_fd[1]: %d \n",

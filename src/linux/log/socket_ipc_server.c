@@ -46,7 +46,7 @@ static void _epoll_handle_data(epoll_helper_cb_param_s *cb_param)
         context->accept_cb(fd, context->args);
     }
 
-    epoll_helper_context_set(context->epoll_helper, EPOLLIN | EPOLLET, cb_param);
+    epoll_helper_set(context->epoll_helper, EPOLLIN | EPOLLET, cb_param);
 }
 
 void socket_ipc_server_destroy(socket_ipc_server_s **socket_ipc_server_pp)
@@ -110,7 +110,7 @@ socket_ipc_server_s *socket_ipc_server_create(const char *name,
             return NULL;
         }
 
-        context->epoll_helper = epoll_helper_create(_epoll_handle_data);
+        context->epoll_helper = epoll_helper_create(100, _epoll_handle_data);
         if (!context->epoll_helper) {
             log_error("epoll_helper_create failed \n");
             break;
@@ -118,9 +118,7 @@ socket_ipc_server_s *socket_ipc_server_create(const char *name,
 
         context->list_fd_cb_param.fd = context->fd;
         context->list_fd_cb_param.args = context;
-
-        epoll_helper_context_set(context->epoll_helper,
-                EPOLLIN | EPOLLET, &context->list_fd_cb_param);
+        epoll_helper_set(context->epoll_helper, EPOLLIN | EPOLLET, &context->list_fd_cb_param);
 
         context->accept_cb  = accept_cb;
         context->args       = args;

@@ -33,7 +33,7 @@ typedef struct {
     hy_s32_t                fd;
 
     epoll_helper_cb_param_s list_fd_cb_param;
-    epoll_helper_context_s  *epoll_helper;
+    epoll_helper_s          *epoll_helper;
 
     socket_ipc_accept_cb_t  accept_cb;
     void                    *args;
