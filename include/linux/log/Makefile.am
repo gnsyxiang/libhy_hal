@@ -31,6 +31,7 @@ install_includedir      = $(includedir)/@project_name@
 # ---------------------
 _no_install_headers_com += \
                            dynamic_array.h      \
+                           epoll_helper.h       \
                            fifo.h               \
                            fifo_async.h         \
                            log_private.h        \

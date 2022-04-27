@@ -49,6 +49,7 @@ _include_com    += \
 
 _sources_com    += \
                    dynamic_array.c      \
+                   epoll_helper.c       \
                    fifo.c               \
                    fifo_async.c         \
                    hy_log.c             \
