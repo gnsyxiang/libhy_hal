@@ -55,6 +55,10 @@ typedef struct {
 epoll_helper_context_s *epoll_helper_create(epoll_helper_cb_t epoll_helper_cb);
 void epoll_helper_destroy(epoll_helper_context_s **context_pp);
 
+/* @fixme: <22-04-27, uos>
+ * 1，args必须是fd的地址
+ * 2，args为数据结构时，第一个字段必须时fd
+ */
 hy_s32_t epoll_helper_context_set(epoll_helper_context_s *context,
         hy_s32_t fd, hy_u32_t event, void *args);
 

@@ -45,6 +45,7 @@ static void *_thread_cb(void *args)
     hy_s32_t ret = 0;
     struct epoll_event events[MX_EVNTS];
     epoll_helper_context_s *context = args;
+    hy_s32_t *fd = NULL;
 
     while (!context->is_exit) {
         memset(events, '\0', sizeof(events));
@@ -55,19 +56,20 @@ static void *_thread_cb(void *args)
         }
 
         for (hy_s32_t i = 0; i < ret; ++i) {
-            ret = epoll_ctl(context->fd, EPOLL_CTL_DEL, events[i].data.fd, NULL);
+            fd = (hy_s32_t *)events[i].data.ptr;
+            ret = epoll_ctl(context->fd, EPOLL_CTL_DEL, *fd, NULL);
             if (-1 == ret) {
                 log_error("epoll_ctl failed \n");
                 break;
             }
 
-            if (events[i].data.fd == context->pipe_fd[0]) {
+            if (*fd == context->pipe_fd[0]) {
                 log_error("exit epoll wait \n");
                 goto _L_EPOLL_1;
             }
 
             if (context->epoll_helper_cb) {
-                context->epoll_helper_cb(events[i].data.fd, events[i].data.ptr);
+                context->epoll_helper_cb(*fd, events[i].data.ptr);
             }
         }
     }
@@ -81,6 +83,10 @@ _L_EPOLL_1:
 void epoll_helper_destroy(epoll_helper_context_s **context_pp)
 {
     epoll_helper_context_s *context = *context_pp;
+    log_info("epoll helper context: %p destroy, thread_id: 0x%lx, "
+            "epoll_fd: %d, pipe_fd[0]: %d, pipe_fd[1]: %d \n",
+            context, context->id, context->fd,
+            context->pipe_fd[0], context->pipe_fd[1]);
 
     context->is_exit = 1;
     write(context->pipe_fd[1], context, sizeof(*context));
@@ -88,6 +94,9 @@ void epoll_helper_destroy(epoll_helper_context_s **context_pp)
         usleep(10 * 1000);
     }
     pthread_join(context->id, NULL);
+
+    close(context->pipe_fd[0]);
+    close(context->pipe_fd[1]);
 
     close(context->fd);
 
@@ -131,9 +140,15 @@ epoll_helper_context_s *epoll_helper_create(epoll_helper_cb_t epoll_helper_cb)
 
         context->epoll_helper_cb = epoll_helper_cb;
 
+        log_info("epoll helper context: %p create, thread_id: 0x%lx, "
+                "epoll_fd: %d, pipe_fd[0]: %d, pipe_fd[1]: %d \n",
+                context, context->id, context->fd,
+                context->pipe_fd[0], context->pipe_fd[1]);
         return context;
     } while (0);
 
+    log_error("epoll helper context: %p create failed \n", context);
+    epoll_helper_destroy(&context);
     return NULL;
 }
 
