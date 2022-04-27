@@ -58,6 +58,7 @@ hy_s32_t fifo_async_read(fifo_async_s *fifo_async, void *buf, hy_u32_t len)
 void fifo_async_destroy(fifo_async_s **fifo_async_pp)
 {
     fifo_async_s *fifo_async = *fifo_async_pp;
+    log_info("fifo_async: %p destroy \n", fifo_async);
 
     pthread_cond_signal(&fifo_async->cond);
 
@@ -96,9 +97,11 @@ fifo_async_s *fifo_async_create(hy_u32_t fifo_len)
             break;
         }
 
+        log_info("fifo_async: %p create \n", fifo_async);
         return fifo_async;
     } while (0);
 
+    log_error("fifo_async: %p create failed \n", fifo_async);
     fifo_async_destroy(&fifo_async);
     return NULL;
 }

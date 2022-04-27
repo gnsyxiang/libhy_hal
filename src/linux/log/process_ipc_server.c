@@ -183,18 +183,27 @@ static void *_tcp_msg_cb(void *args)
 {
     _process_ipc_server_context_s *context = args;
     hy_s32_t len = 0;
-    char buf[1024] = {0};
+
+    char *buf = calloc(1, FIFO_ITEM_LEN_MAX);
+    if (!buf) {
+        log_error("calloc failed \n");
+        return NULL;
+    }
 
 #ifdef _GNU_SOURCE
-    pthread_setname_np(context->terminal_thread_id, "HY_async_log");
+    pthread_setname_np(context->terminal_thread_id, "HY_SV_tcp");
 #endif
 
     while (!context->is_tcp_exit) {
         len = fifo_async_read(context->tcp_fifo_async, buf, sizeof(buf));
         if (len > 0) {
             /* @fixme: <22-04-22, uos> 多种方式处理数据 */
-            printf("%s", buf);
+            // printf("%s", buf);
         }
+    }
+
+    if (buf) {
+        free(buf);
     }
 
     return NULL;
@@ -204,10 +213,14 @@ static void *_terminal_msg_cb(void *args)
 {
     _process_ipc_server_context_s *context = args;
     hy_s32_t len = 0;
-    char buf[1024] = {0};
 
+    char *buf = calloc(1, FIFO_ITEM_LEN_MAX);
+    if (!buf) {
+        log_error("calloc failed \n");
+        return NULL;
+    }
 #ifdef _GNU_SOURCE
-    pthread_setname_np(context->terminal_thread_id, "HY_async_log");
+    pthread_setname_np(context->terminal_thread_id, "HY_SV_terminal");
 #endif
 
     while (!context->is_terminal_exit) {
@@ -216,6 +229,10 @@ static void *_terminal_msg_cb(void *args)
             /* @fixme: <22-04-22, uos> 多种方式处理数据 */
             // printf("%s", buf);
         }
+    }
+
+    if (buf) {
+        free(buf);
     }
 
     return NULL;
@@ -344,7 +361,7 @@ void *process_ipc_server_create(hy_u32_t fifo_len)
         return context;
     } while (0);
 
-    log_error("process ipc server create failed \n");
+    log_error("process ipc server context: %p create failed \n", context);
     process_ipc_server_destroy((void **)&context);
     return NULL;
 }

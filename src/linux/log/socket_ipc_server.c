@@ -35,6 +35,10 @@ static void *_thread_cb(void *args)
     hy_s32_t fd = -1;
     fd_set read_fs;
 
+#ifdef _GNU_SOURCE
+    pthread_setname_np(context->id, "HY_ipc_server");
+#endif
+
     if (listen(context->fd, SOMAXCONN) < 0) {
         log_error("listen failed, fd: %d \n", context->fd);
         return NULL;
@@ -80,6 +84,7 @@ void socket_ipc_server_destroy(socket_ipc_server_s **socket_ipc_server_pp)
     }
 
     socket_ipc_server_s *context = *socket_ipc_server_pp;
+    log_info("socket ipc server context: %p destroy \n", context);
 
     context->is_exit = 1;
     write(context->pipe_fd[1], context, sizeof(*context));
@@ -148,9 +153,12 @@ socket_ipc_server_s *socket_ipc_server_create(const char *name,
         context->accept_cb  = accept_cb;
         context->args       = args;
 
+        log_info("socket ipc server context: %p create \n", context);
         return context;
     } while (0);
 
+    log_error("socket ipc server context: %p create failed \n", context);
+    socket_ipc_server_destroy(&context);
     return NULL;
 }
 

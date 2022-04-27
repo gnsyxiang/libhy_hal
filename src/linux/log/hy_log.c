@@ -283,6 +283,8 @@ void HyLogDeInit(void)
     _log_context_s *context = &_context;
     HyLogSaveConfig_s *save_c = &context->save_c;
 
+    log_info("log context: %p destroy \n", context);
+
     switch (save_c->mode) {
         case HY_LOG_MODE_PROCESS_SINGLE:
             process_single_destroy(&context->write_h);
@@ -368,9 +370,11 @@ hy_s32_t HyLogInit(HyLogConfig_s *log_c)
         }
 
         _is_init = 1;
+        log_info("log context: %p create \n", context);
         return 0;
     } while (0);
 
+    log_error("log context: %p create failed \n", context);
     HyLogDeInit();
     return -1;
 }

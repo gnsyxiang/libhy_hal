@@ -28,6 +28,8 @@ extern "C" {
 
 #include "fifo.h"
 
+#define FIFO_ITEM_LEN_MAX   (4 * 1024)
+
 typedef struct {
     fifo_context_s      *fifo;
     pthread_mutex_t     mutex;

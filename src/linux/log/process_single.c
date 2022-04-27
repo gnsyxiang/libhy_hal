@@ -52,10 +52,15 @@ static void *_thread_cb(void *args)
 {
     _process_single_context_s *context = args;
     hy_s32_t len = 0;
-    char buf[1024] = {0};
+
+    char *buf = malloc(FIFO_ITEM_LEN_MAX);
+    if (!buf) {
+        log_error("malloc failed \n");
+        return NULL;
+    }
 
 #ifdef _GNU_SOURCE
-    pthread_setname_np(context->thread, "HY_async_log");
+    pthread_setname_np(context->thread, "HY_SG_terminal");
 #endif
 
     while (!context->is_exit) {
@@ -64,6 +69,10 @@ static void *_thread_cb(void *args)
             /* @fixme: <22-04-22, uos> 多种方式处理数据 */
             printf("%s", buf);
         }
+    }
+
+    if (buf) {
+        free(buf);
     }
 
     return NULL;
