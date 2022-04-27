@@ -25,18 +25,15 @@ extern "C" {
 #endif
 
 #include "log_private.h"
+#include "epoll_helper.h"
 
 typedef void (*socket_ipc_accept_cb_t)(hy_s32_t fd, void *args);
 
 typedef struct {
     hy_s32_t                fd;
 
-    pthread_t               id;
-    hy_s32_t                is_exit;
-    hy_s32_t                wait_exit_flag;
-    hy_s32_t                pipe_fd[2];
-
-    hy_s32_t                epoll_fd;
+    epoll_helper_cb_param_s list_fd_cb_param;
+    epoll_helper_context_s  *epoll_helper;
 
     socket_ipc_accept_cb_t  accept_cb;
     void                    *args;

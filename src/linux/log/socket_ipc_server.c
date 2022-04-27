@@ -26,54 +26,27 @@
 #include <stddef.h>
 
 #include "log_private.h"
+#include "epoll_helper.h"
 
 #include "socket_ipc_server.h"
 
-static void *_thread_cb(void *args)
+static void _epoll_handle_data(epoll_helper_cb_param_s *cb_param)
 {
-    socket_ipc_server_s *context = args;
-    hy_s32_t fd = -1;
-    fd_set read_fs;
+    hy_s32_t fd;
+    socket_ipc_server_s *context = cb_param->args;
 
-#ifdef _GNU_SOURCE
-    pthread_setname_np(context->id, "HY_ipc_server");
-#endif
+    fd = accept(context->fd, NULL, NULL);
+    if (fd < 0) {
+        log_error("accept failed, fd: %d \n", context->fd);
+        return;
+    }
+    log_info("new client fd: %d \n", fd);
 
-    if (listen(context->fd, SOMAXCONN) < 0) {
-        log_error("listen failed, fd: %d \n", context->fd);
-        return NULL;
+    if (context->accept_cb) {
+        context->accept_cb(fd, context->args);
     }
 
-    while (!context->is_exit) {
-        FD_ZERO(&read_fs);
-        FD_SET(context->fd, &read_fs);
-        FD_SET(context->pipe_fd[0], &read_fs);
-
-        if (select(FD_SETSIZE, &read_fs, NULL, NULL, NULL) < 0) {
-            log_error("select failed \n");
-            break;
-        }
-
-        if (FD_ISSET(context->pipe_fd[0], &read_fs)) {
-            log_error("pipe break while for accept\n");
-            break;
-        }
-
-        if (FD_ISSET(context->fd, &read_fs)) {
-            fd = accept(context->fd, NULL, NULL);
-            if (fd < 0) {
-                log_error("accept failed, fd: %d \n", context->fd);
-                break;
-            }
-
-            if (context->accept_cb) {
-                context->accept_cb(fd, context->args);
-            }
-        }
-    }
-    context->wait_exit_flag = 1;
-
-    return NULL;
+    epoll_helper_context_set(context->epoll_helper, EPOLLIN | EPOLLET, cb_param);
 }
 
 void socket_ipc_server_destroy(socket_ipc_server_s **socket_ipc_server_pp)
@@ -86,17 +59,9 @@ void socket_ipc_server_destroy(socket_ipc_server_s **socket_ipc_server_pp)
     socket_ipc_server_s *context = *socket_ipc_server_pp;
     log_info("socket ipc server context: %p destroy \n", context);
 
-    context->is_exit = 1;
-    write(context->pipe_fd[1], context, sizeof(*context));
-    while (!context->wait_exit_flag) {
-        usleep(10 * 1000);
-    }
-    pthread_join(context->id, NULL);
+    epoll_helper_destroy(&context->epoll_helper);
 
     close(context->fd);
-
-    close(context->pipe_fd[0]);
-    close(context->pipe_fd[1]);
 
     free(context);
     *socket_ipc_server_pp = NULL;
@@ -115,11 +80,6 @@ socket_ipc_server_s *socket_ipc_server_create(const char *name,
         context = calloc(1, sizeof(*context));
         if (!context) {
             log_error("calloc failed \n");
-            break;
-        }
-
-        if (0 != pipe(context->pipe_fd)) {
-            log_error("pipe failed \n");
             break;
         }
 
@@ -145,10 +105,22 @@ socket_ipc_server_s *socket_ipc_server_create(const char *name,
             break;
         }
 
-        if (0 != pthread_create(&context->id, NULL, _thread_cb, context)) {
-            log_error("pthread_create failed \n");
+        if (listen(context->fd, SOMAXCONN) < 0) {
+            log_error("listen failed, fd: %d \n", context->fd);
+            return NULL;
+        }
+
+        context->epoll_helper = epoll_helper_create(_epoll_handle_data);
+        if (!context->epoll_helper) {
+            log_error("epoll_helper_create failed \n");
             break;
         }
+
+        context->list_fd_cb_param.fd = context->fd;
+        context->list_fd_cb_param.args = context;
+
+        epoll_helper_context_set(context->epoll_helper,
+                EPOLLIN | EPOLLET, &context->list_fd_cb_param);
 
         context->accept_cb  = accept_cb;
         context->args       = args;

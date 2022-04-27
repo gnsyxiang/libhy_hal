@@ -19,18 +19,17 @@
  */
 #include <stdio.h>
 #include <stdlib.h>
-#include <sys/epoll.h>
 
 #include "fifo_async.h"
 #include "log_private.h"
 #include "socket_ipc_server.h"
 #include "hy_list.h"
+#include "epoll_helper.h"
 
 #include "process_ipc_server.h"
 
 typedef struct {
-    hy_s32_t                fd;
-
+    epoll_helper_cb_param_s cb_param;
     struct hy_list_head     entry;
 } _socket_node_s;
 
@@ -43,12 +42,7 @@ typedef struct {
     pthread_t               tcp_thread_id;
     fifo_async_s            *tcp_fifo_async;
 
-    hy_s32_t                epoll_fd;
-    hy_s32_t                is_epoll_exit;
-    pthread_t               epoll_thread_id;
-
-    hy_s32_t                wait_exit_flag;
-    hy_s32_t                pipe_fd[2];
+    epoll_helper_context_s  *epoll_helper;
 
     socket_ipc_server_s     *socket_ipc_server;
 
@@ -82,99 +76,47 @@ void process_ipc_server_write(void *handle, log_write_info_s *log_write_info)
             dynamic_array->buf, dynamic_array->cur_len);
 }
 
-static hy_s32_t _epoll_handle_data(_process_ipc_server_context_s *context,
-        hy_s32_t fd)
+static void _epoll_handle_data(epoll_helper_cb_param_s *cb_param)
 {
+    _process_ipc_server_context_s *context = cb_param->args;
     hy_s32_t ret = 0;
     char buf[1024] = {0};
 
     while (1) {
-        ret = read(fd, buf, sizeof(buf));
+        ret = read(cb_param->fd, buf, sizeof(buf));
         if (ret < 0) {
             if (EINTR == errno || EAGAIN == errno || EWOULDBLOCK == errno) {
             } else {
-                log_error("read failed \n");
+                log_error("read failed, fd: %d \n", cb_param->fd);
                 break;
             }
         } else if (ret == 0) {
-            log_error("fd close, fd: %d \n", fd);
+            log_error("fd close, fd: %d \n", cb_param->fd);
             break;
         } else {
             fifo_async_write(context->tcp_fifo_async, buf, ret);
+
+            epoll_helper_context_set(context->epoll_helper,
+                    EPOLLIN | EPOLLET, cb_param);
             break;
         }
     }
-
-    return ret;
-}
-
-static void *_epoll_thread_cb(void *args)
-{
-    #define MX_EVNTS 100
-    hy_s32_t ret = 0;
-    _process_ipc_server_context_s *context = args;
-    struct epoll_event events[MX_EVNTS];
-    struct epoll_event *ev;
-
-    while (!context->is_epoll_exit) {
-        memset(events, '\0', sizeof(events));
-
-        ret = epoll_wait(context->epoll_fd, events, MX_EVNTS, -1);
-        if (-1 == ret) {
-            log_error("epoll_wait failed \n");
-            break;
-        }
-
-        _socket_node_s *socket_node = NULL;
-        for (hy_s32_t i = 0; i < ret; ++i) {
-            ev = &events[i];
-            socket_node = ev->data.ptr;
-
-            ret = epoll_ctl(context->epoll_fd, EPOLL_CTL_DEL,
-                    socket_node->fd, NULL);
-            if (-1 == ret) {
-                log_error("epoll_ctl failed \n");
-                break;
-            }
-
-            if (ev->data.fd == context->pipe_fd[0]) {
-                goto _L_EPOLL_1;
-            }
-
-            _epoll_handle_data(context, socket_node->fd);
-
-            ev->events = EPOLLIN | EPOLLET;
-            if(-1 == epoll_ctl(context->epoll_fd, EPOLL_CTL_ADD,
-                        socket_node->fd, ev)) {
-                log_error("epoll_ctl failed \n");
-            }
-        }
-    }
-
-_L_EPOLL_1:
-    context->wait_exit_flag = 1;
-
-    return NULL;
 }
 
 static void _accept_cb(hy_s32_t fd, void *args)
 {
     _process_ipc_server_context_s *context = args;
-    struct epoll_event ev;
 
     _socket_node_s *socket_node = calloc(1, sizeof(*socket_node));
     if (!socket_node) {
         log_error("calloc failed \n");
         return;
     }
+    socket_node->cb_param.fd = fd;
+    socket_node->cb_param.args = context;
 
-    socket_node->fd = fd;
-
-    ev.events   = EPOLLIN | EPOLLET;
-    ev.data.ptr = socket_node;
-    if(-1 == epoll_ctl(context->epoll_fd, EPOLL_CTL_ADD, fd, &ev)) {
-        log_error("epoll_ctl failed \n");
-    }
+    epoll_helper_context_set(context->epoll_helper,
+            EPOLLIN | EPOLLET, &socket_node->cb_param);
 
     hy_list_add_tail(&socket_node->entry, &context->list);
 }
@@ -243,12 +185,9 @@ void process_ipc_server_destroy(void **handle)
     _process_ipc_server_context_s *context = *handle;
     log_info("process ipc server context: %p destroy \n", context);
 
-    context->is_epoll_exit = 1;
-    write(context->pipe_fd[1], context, sizeof(*context));
-    while (!context->wait_exit_flag) {
-        usleep(10 * 1000);
-    }
-    pthread_join(context->epoll_thread_id, NULL);
+    socket_ipc_server_destroy(&context->socket_ipc_server);
+
+    epoll_helper_destroy(&context->epoll_helper);
 
     while (!FIFO_ASYNC_IS_EMPTY(context->terminal_fifo_async)) {
         usleep(10 * 1000);
@@ -264,20 +203,13 @@ void process_ipc_server_destroy(void **handle)
     fifo_async_destroy(&context->tcp_fifo_async);
     pthread_join(context->tcp_thread_id, NULL);
 
-    close(context->epoll_fd);
-
-    close(context->pipe_fd[0]);
-    close(context->pipe_fd[1]);
-
     _socket_node_s *pos, *n;
     hy_list_for_each_entry_safe(pos, n, &context->list, entry) {
         hy_list_del(&pos->entry);
 
-        close(pos->fd);
+        close(pos->cb_param.fd);
         free(pos);
     }
-
-    socket_ipc_server_destroy(&context->socket_ipc_server);
 
     free(context);
     *handle = NULL;
@@ -298,23 +230,9 @@ void *process_ipc_server_create(hy_u32_t fifo_len)
             break;
         }
 
-        context->epoll_fd = epoll_create1(0);
-        if(-1 == context->epoll_fd){
-            log_error("epoll_create1 failed \n");
-            break;
-        }
-
-        if (0 != pipe(context->pipe_fd)) {
-            log_error("pipe failed \n");
-            break;
-        }
-
-        struct epoll_event ev;
-        ev.events   = EPOLLIN | EPOLLET;
-        ev.data.ptr = &context->pipe_fd[0];
-        if (-1 == epoll_ctl(context->epoll_fd, EPOLL_CTL_ADD,
-                    context->pipe_fd[0], &ev)) {
-            log_error("epoll_ctl failed \n");
+        context->epoll_helper = epoll_helper_create(_epoll_handle_data);
+        if (!context->epoll_helper) {
+            log_error("epoll_helper_create failed \n");
             break;
         }
 
@@ -340,12 +258,6 @@ void *process_ipc_server_create(hy_u32_t fifo_len)
 
         if (0 != pthread_create(&context->tcp_thread_id,
                     NULL, _tcp_msg_cb, context)) {
-            log_error("pthread_create failed \n");
-            break;
-        }
-
-        if (0 != pthread_create(&context->epoll_thread_id, NULL,
-                    _epoll_thread_cb, context)) {
             log_error("pthread_create failed \n");
             break;
         }
