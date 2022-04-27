@@ -49,6 +49,51 @@ typedef struct {
     struct hy_list_head     list;
 } _process_ipc_server_context_s;
 
+static inline void socket_node_destroy(_socket_node_s **socket_node_pp)
+{
+    _socket_node_s *socket_node = *socket_node_pp;
+
+    close(socket_node->cb_param.fd);
+
+    free(socket_node);
+    *socket_node_pp = NULL;
+}
+
+static inline _socket_node_s *socket_node_create(hy_s32_t fd, void *args)
+{
+    _socket_node_s *socket_node = calloc(1, sizeof(*socket_node));
+    if (!socket_node) {
+        log_error("calloc failed \n");
+        return NULL;
+    }
+    socket_node->cb_param.fd = fd;
+    socket_node->cb_param.args = args;
+
+    return socket_node;
+}
+
+static void socket_node_list_destroy(_process_ipc_server_context_s *context,
+        hy_s32_t fd)
+{
+    _socket_node_s *pos, *n;
+
+    if (fd > 0) {
+        hy_list_for_each_entry_safe(pos, n, &context->list, entry) {
+            if (fd == pos->cb_param.fd) {
+                hy_list_del(&pos->entry);
+                socket_node_destroy(&pos);
+                break;
+            }
+        }
+    } else {
+        hy_list_for_each_entry_safe(pos, n, &context->list, entry) {
+            hy_list_del(&pos->entry);
+
+            socket_node_destroy(&pos);
+        }
+    }
+}
+
 void process_ipc_server_write(void *handle, log_write_info_s *log_write_info)
 {
     _process_ipc_server_context_s *context = handle;
@@ -80,6 +125,7 @@ static void _epoll_handle_data(epoll_helper_cb_param_s *cb_param)
 {
     _process_ipc_server_context_s *context = cb_param->args;
     hy_s32_t ret = 0;
+    hy_s32_t flag = 0;
     char buf[1024] = {0};
 
     while (1) {
@@ -88,10 +134,12 @@ static void _epoll_handle_data(epoll_helper_cb_param_s *cb_param)
             if (EINTR == errno || EAGAIN == errno || EWOULDBLOCK == errno) {
             } else {
                 log_error("read failed, fd: %d \n", cb_param->fd);
+                flag = 1;
                 break;
             }
         } else if (ret == 0) {
             log_error("fd close, fd: %d \n", cb_param->fd);
+            flag = 1;
             break;
         } else {
             fifo_async_write(context->tcp_fifo_async, buf, ret);
@@ -101,19 +149,17 @@ static void _epoll_handle_data(epoll_helper_cb_param_s *cb_param)
             break;
         }
     }
+
+    if (flag) {
+        socket_node_list_destroy(context, cb_param->fd);
+    }
 }
 
 static void _accept_cb(hy_s32_t fd, void *args)
 {
     _process_ipc_server_context_s *context = args;
 
-    _socket_node_s *socket_node = calloc(1, sizeof(*socket_node));
-    if (!socket_node) {
-        log_error("calloc failed \n");
-        return;
-    }
-    socket_node->cb_param.fd = fd;
-    socket_node->cb_param.args = context;
+    _socket_node_s *socket_node = socket_node_create(fd, args);
 
     epoll_helper_context_set(context->epoll_helper,
             EPOLLIN | EPOLLET, &socket_node->cb_param);
@@ -140,7 +186,7 @@ static void *_tcp_msg_cb(void *args)
         len = fifo_async_read(context->tcp_fifo_async, buf, sizeof(buf));
         if (len > 0) {
             /* @fixme: <22-04-22, uos> 多种方式处理数据 */
-            printf("%s", buf);
+            // printf("%s", buf);
         }
     }
 
@@ -203,13 +249,7 @@ void process_ipc_server_destroy(void **handle)
     fifo_async_destroy(&context->tcp_fifo_async);
     pthread_join(context->tcp_thread_id, NULL);
 
-    _socket_node_s *pos, *n;
-    hy_list_for_each_entry_safe(pos, n, &context->list, entry) {
-        hy_list_del(&pos->entry);
-
-        close(pos->cb_param.fd);
-        free(pos);
-    }
+    socket_node_list_destroy(context, -1);
 
     free(context);
     *handle = NULL;
