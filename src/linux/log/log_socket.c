@@ -103,7 +103,7 @@ hy_s32_t log_socket_ipc_create(const char *name, log_socket_type_e type)
 
         if (type == LOG_SOCKET_TYPE_IPC_CLIENT) {
             if (connect(fd, (const struct sockaddr *)&addr, addr_len) < 0) {
-                log_error("connect failed \n", fd);
+                log_error("connect failed fd: %d \n", fd);
                 break;
             }
         } else {

@@ -24,8 +24,8 @@
 #include "log_private.h"
 #include "dynamic_array.h"
 #include "process_single.h"
-#include "process_ipc_client.h"
-#include "process_ipc_server.h"
+#include "process_client.h"
+#include "process_server.h"
 #include "thread_specific_data.h"
 
 #include "hy_log.h"
@@ -86,10 +86,10 @@ void HyLogWrite(HyLogAddiInfo_s *addi_info, char *fmt, ...)
             process_single_write(context->write_h, &log_write_info);
             break;
         case HY_LOG_MODE_PROCESS_CLIENT:
-            process_ipc_client_write(context->write_h, &log_write_info);
+            process_client_write(context->write_h, &log_write_info);
             break;
         case HY_LOG_MODE_PROCESS_SERVER:
-            process_ipc_server_write(context->write_h, &log_write_info);
+            process_server_write(context->write_h, &log_write_info);
             break;
         default:
             log_error("error mode \n");
@@ -131,10 +131,10 @@ void HyLogDeInit(void)
             process_single_destroy(&context->write_h);
             break;
         case HY_LOG_MODE_PROCESS_CLIENT:
-            process_ipc_client_destroy(&context->write_h);
+            process_client_destroy(&context->write_h);
             break;
         case HY_LOG_MODE_PROCESS_SERVER:
-            process_ipc_server_destroy(&context->write_h);
+            process_server_destroy(&context->write_h);
             break;
         default:
             log_error("error mode \n");
@@ -182,10 +182,10 @@ hy_s32_t HyLogInit(HyLogConfig_s *log_c)
                 context->write_h = process_single_create(log_c->fifo_len);
                 break;
             case HY_LOG_MODE_PROCESS_CLIENT:
-                context->write_h = process_ipc_client_create(log_c->fifo_len);
+                context->write_h = process_client_create(log_c->fifo_len);
                 break;
             case HY_LOG_MODE_PROCESS_SERVER:
-                context->write_h = process_ipc_server_create(log_c->fifo_len);
+                context->write_h = process_server_create(log_c->fifo_len);
                 break;
             default:
                 log_error("error mode \n");

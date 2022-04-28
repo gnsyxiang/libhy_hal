@@ -34,7 +34,8 @@ extern "C" {
 #define HY_LOG_DEBUG
 
 #define SOCKET_IPC_SERVER_NAME_LEN_MAX      (64)
-#define LOG_IPC_NAME                        "log_ipc_socket"
+#define LOG_SOCKET_PORT                     (7890)
+#define LOG_SOCKET_IPC_NAME                 "log_socket_ipc"
 #define LOG_ARRAY_CNT(array)                (hy_u32_t)(sizeof((array)) / sizeof((array)[0]))
 
 #ifdef HY_LOG_DEBUG

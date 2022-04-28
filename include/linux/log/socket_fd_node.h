@@ -32,8 +32,7 @@ typedef struct {
     struct hy_list_head         entry;
 } socket_fd_node_s;
 
-socket_fd_node_s *socket_fd_node_create(hy_s32_t fd,
-        epoll_fd_type_e type, void *args);
+socket_fd_node_s *socket_fd_node_create(hy_s32_t fd, hy_s32_t type, void *args);
 void socket_fd_node_destroy(socket_fd_node_s **context_pp);
 
 void socket_fd_node_list_destroy(struct hy_list_head *list, hy_s32_t fd);

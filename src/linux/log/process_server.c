@@ -19,11 +19,14 @@
  */
 #include <stdio.h>
 #include <unistd.h>
+#include <sys/types.h>          /* See NOTES */
+#include <sys/socket.h>
 
 #include "hy_list.h"
 #include "log_file.h"
 #include "log_file.h"
 #include "format_cb.h"
+#include "log_socket.h"
 #include "log_socket.h"
 #include "log_private.h"
 #include "epoll_helper.h"
@@ -40,25 +43,13 @@ typedef struct {
     struct hy_list_head     list;
     struct hy_list_head     socket_list;
 
-    socket_ipc_server_s     *socket_ipc_server;
-
-    log_socket_context_s    *log_sockt;
-
     process_handle_data_s   *tcp_handle_data;
     process_handle_data_s   *terminal_handle_data;
-} _process_ipc_server_context_s;
+} _process_server_context_s;
 
-static void _log_socket_accept_cb(hy_s32_t fd, void *args)
+void process_server_write(void *handle, log_write_info_s *log_write_info)
 {
-    _process_ipc_server_context_s *context = args;
-    socket_node_fd_s *socket_node_fd = socket_node_fd_create(fd, args);
-
-    hy_list_add_tail(&socket_node_fd->entry, &context->socket_list);
-}
-
-void process_ipc_server_write(void *handle, log_write_info_s *log_write_info)
-{
-    _process_ipc_server_context_s *context = handle;
+    _process_server_context_s *context = handle;
     HyLogAddiInfo_s *addi_info = log_write_info->addi_info;
     dynamic_array_s *dynamic_array = log_write_info->dynamic_array;
 
@@ -85,37 +76,64 @@ void process_ipc_server_write(void *handle, log_write_info_s *log_write_info)
 
 static void _epoll_handle_data(epoll_helper_cb_param_s *cb_param)
 {
-    _process_ipc_server_context_s *context = cb_param->args;
+    _process_server_context_s *context = cb_param->args;
     hy_s32_t ret = 0;
     char buf[1024] = {0};
+    hy_s32_t fd;
+    socket_fd_node_s *socket_fd_node = NULL;
 
-    ret = log_file_read(&cb_param->fd, buf, sizeof(buf));
-    if (ret > 0) {
-        process_handle_data_write(context->tcp_handle_data, buf, ret);
-        epoll_helper_set(context->epoll_helper, EPOLLIN | EPOLLET, cb_param);
-    } else {
-        socket_node_fd_list_destroy(&context->list, cb_param->fd);
+    printf("-------------type: %d \n", cb_param->type);
+
+    switch (cb_param->type) {
+        case LOG_SOCKET_TYPE_SERVER:
+            break;
+        case LOG_SOCKET_TYPE_IPC_SERVER:
+            fd = accept(cb_param->fd, NULL, NULL);
+            if (fd < 0) {
+                log_error("accept failed, fd: %d \n", fd);
+                return ;
+            }
+
+            socket_fd_node = socket_fd_node_create(fd,
+                    LOG_SOCKET_TYPE_IPC_CLIENT, context);
+            if (!socket_fd_node) {
+                log_error("socket_fd_node_create failed \n");
+                return;
+            }
+
+            epoll_helper_set(context->epoll_helper,
+                    EPOLLIN | EPOLLET, &socket_fd_node->cb_param);
+            hy_list_add_tail(&socket_fd_node->entry, &context->list);
+            break;
+        case LOG_SOCKET_TYPE_IPC_CLIENT:
+            ret = log_file_read(cb_param->fd, buf, sizeof(buf));
+            if (ret > 0) {
+                process_handle_data_write(context->tcp_handle_data, buf, ret);
+                epoll_helper_set(context->epoll_helper,
+                        EPOLLIN | EPOLLET, cb_param);
+            } else {
+                socket_fd_node_list_destroy(&context->list, cb_param->fd);
+            }
+            break;
+        default:
+            break;
     }
-}
-
-static void _accept_cb(hy_s32_t fd, void *args)
-{
-    _process_ipc_server_context_s *context = args;
-    socket_node_fd_s *socket_node_fd = socket_node_fd_create(fd, args);
-
-    epoll_helper_set(context->epoll_helper, EPOLLIN | EPOLLET, socket_node_fd->cb_param);
-    hy_list_add_tail(&socket_node_fd->entry, &context->list);
 }
 
 static void _tcp_process_handle_data_cb(void *buf, hy_u32_t len, void *args)
 {
     printf("%s", (char *)buf);
 
-    socket_node_fd_s *pos;
-    _process_ipc_server_context_s *context = args;
+    socket_fd_node_s *pos, *n;
+    hy_s32_t ret = 0;
+    _process_server_context_s *context = args;
 
-    hy_list_for_each_entry(pos, &context->socket_list, entry) {
-        log_file_write(&pos->cb_param->fd, buf, len);
+    hy_list_for_each_entry_safe(pos, n, &context->socket_list, entry) {
+        ret = log_file_write(pos->cb_param.fd, buf, len);
+        if (ret < 0) {
+            hy_list_del(&pos->entry);
+            socket_fd_node_destroy(&pos);
+        }
     }
 }
 
@@ -124,36 +142,34 @@ static void _terminal_process_handle_data_cb(void *buf, hy_u32_t len, void *args
     // printf("%s", (char *)buf);
 }
 
-void process_ipc_server_destroy(void **handle)
+void process_server_destroy(void **handle)
 {
-    _process_ipc_server_context_s *context = *handle;
+    _process_server_context_s *context = *handle;
     log_info("process ipc server context: %p destroy \n", context);
-
-    socket_ipc_server_destroy(&context->socket_ipc_server);
 
     epoll_helper_destroy(&context->epoll_helper);
 
-    log_socket_destroy(&context->log_sockt);
+    socket_fd_node_destroy(&context->socket_ipc_listen_fd);
+    socket_fd_node_destroy(&context->socket_listen_fd);
 
     process_handle_data_destroy(&context->terminal_handle_data);
     process_handle_data_destroy(&context->tcp_handle_data);
 
-    socket_node_fd_list_destroy(&context->socket_list, -1);
-
-    socket_node_fd_list_destroy(&context->list, -1);
+    socket_fd_node_list_destroy(&context->socket_list, -1);
+    socket_fd_node_list_destroy(&context->list, -1);
 
     free(context);
     *handle = NULL;
 }
 
-void *process_ipc_server_create(hy_u32_t fifo_len)
+void *process_server_create(hy_u32_t fifo_len)
 {
     if (fifo_len <= 0) {
         log_error("the param is error \n");
         return NULL;
     }
 
-    _process_ipc_server_context_s *context = NULL;
+    _process_server_context_s *context = NULL;
     hy_s32_t fd = -1;
     do {
         context = calloc(1, sizeof(*context));
@@ -165,20 +181,52 @@ void *process_ipc_server_create(hy_u32_t fifo_len)
         HY_INIT_LIST_HEAD(&context->list);
         HY_INIT_LIST_HEAD(&context->socket_list);
 
-        context->epoll_helper = epoll_helper_create("HY_EH_new_fd",
+        context->epoll_helper = epoll_helper_create("hy_server_epoll",
                 100, _epoll_handle_data);
         if (!context->epoll_helper) {
             log_error("epoll_helper_create failed \n");
             break;
         }
 
-        fd = log_socket_ipc_create(LOG_SOCKET_IPC_NAME, LOG_SOCKET_IPC_TYPE_SERVER);
+        fd = log_socket_ipc_create(LOG_SOCKET_IPC_NAME,
+                LOG_SOCKET_TYPE_IPC_SERVER);
         if (fd < 0) {
             log_error("log_socket_ipc_create failed \n");
             break;
         }
 
-        context->socket_ipc_listen_fd = socket_fd_node_create(fd, );
+        context->socket_ipc_listen_fd = socket_fd_node_create(fd,
+                LOG_SOCKET_TYPE_IPC_SERVER, context);
+        if (!context->socket_ipc_listen_fd) {
+            log_error("socket_fd_node_create failed \n");
+            break;
+        }
+
+        if (0 != epoll_helper_set(context->epoll_helper,
+                EPOLLIN | EPOLLET, &context->socket_ipc_listen_fd->cb_param)) {
+            log_error("epoll_helper_set failed \n");
+            break;
+        }
+
+        fd = log_socket_create("127.0.0.1",
+                LOG_SOCKET_PORT, LOG_SOCKET_TYPE_SERVER);
+        if (fd < 0) {
+            log_error("log_socket_create failed \n");
+            break;
+        }
+
+        context->socket_listen_fd = socket_fd_node_create(fd,
+                LOG_SOCKET_TYPE_SERVER, context);
+        if (!context->socket_listen_fd) {
+            log_error("socket_fd_node_create failed \n");
+            break;
+        }
+
+        if (0 != epoll_helper_set(context->epoll_helper,
+                EPOLLIN | EPOLLET, &context->socket_listen_fd->cb_param)) {
+            log_error("epoll_helper_set failed \n");
+            break;
+        }
 
         context->terminal_handle_data = process_handle_data_create("HY_SV_terminal",
                 fifo_len, _terminal_process_handle_data_cb, context);
@@ -194,26 +242,12 @@ void *process_ipc_server_create(hy_u32_t fifo_len)
             break;
         }
 
-        context->socket_ipc_server = socket_ipc_server_create(LOG_IPC_NAME,
-                _accept_cb, context);
-        if (!context->socket_ipc_server) {
-            log_error("socket_ipc_server_create failed \n");
-            break;
-        }
-
-        context->log_sockt = log_socket_create(8080,
-                _log_socket_accept_cb, context);
-        if (!context->log_sockt) {
-            log_error("log_socket_create failed \n");
-            break;
-        }
-
         log_info("process ipc server context: %p create \n", context);
         return context;
     } while (0);
 
     log_error("process ipc server context: %p create failed \n", context);
-    process_ipc_server_destroy((void **)&context);
+    process_server_destroy((void **)&context);
     return NULL;
 }
 

@@ -63,6 +63,7 @@ static void *_thread_cb(void *args)
             log_error("epoll_wait failed \n");
             break;
         }
+        log_info("epoll_wait ret: %d \n", ret);
 
         for (hy_s32_t i = 0; i < ret; ++i) {
             cb_param = events[i].data.ptr;
