@@ -24,6 +24,7 @@
 #include <sys/socket.h>
 #include <sys/un.h>
 #include <stddef.h>
+#include <assert.h>
 
 #include "log_private.h"
 #include "epoll_helper.h"
@@ -32,6 +33,7 @@
 
 static void _epoll_handle_data(epoll_helper_cb_param_s *cb_param)
 {
+    assert(cb_param);
     hy_s32_t fd;
     socket_ipc_server_s *context = cb_param->args;
 
@@ -49,22 +51,23 @@ static void _epoll_handle_data(epoll_helper_cb_param_s *cb_param)
     epoll_helper_set(context->epoll_helper, EPOLLIN | EPOLLET, cb_param);
 }
 
-void socket_ipc_server_destroy(socket_ipc_server_s **socket_ipc_server_pp)
+void socket_ipc_server_destroy(socket_ipc_server_s **context_pp)
 {
-    if (!socket_ipc_server_pp || !*socket_ipc_server_pp) {
+    if (!context_pp || !*context_pp) {
         log_error("the param is error \n");
         return;
     }
 
-    socket_ipc_server_s *context = *socket_ipc_server_pp;
-    log_info("socket ipc server context: %p destroy \n", context);
+    socket_ipc_server_s *context = *context_pp;
+    log_info("socket ipc server context: %p destroy, fd: %d, epoll_helper: %p \n",
+            context, context->fd, context->epoll_helper);
 
     epoll_helper_destroy(&context->epoll_helper);
 
     close(context->fd);
 
     free(context);
-    *socket_ipc_server_pp = NULL;
+    *context_pp = NULL;
 }
 
 socket_ipc_server_s *socket_ipc_server_create(const char *name,
@@ -123,7 +126,8 @@ socket_ipc_server_s *socket_ipc_server_create(const char *name,
         context->accept_cb  = accept_cb;
         context->args       = args;
 
-        log_info("socket ipc server context: %p create \n", context);
+        log_info("socket ipc server context: %p create, fd: %d, epoll_helper: %p \n",
+                context, context->fd, context->epoll_helper);
         return context;
     } while (0);
 

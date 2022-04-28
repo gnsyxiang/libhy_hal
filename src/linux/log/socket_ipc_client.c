@@ -27,10 +27,11 @@
 
 #include "socket_ipc_client.h"
 
-hy_s32_t socket_ipc_client_write(socket_ipc_client_s *socket_ipc_client,
+hy_s32_t socket_ipc_client_write(socket_ipc_client_s *context,
         const void *buf, hy_u32_t len)
 {
-    assert(socket_ipc_client);
+    assert(context);
+    assert(buf);
 
     hy_s32_t ret;
     hy_u32_t nleft;
@@ -40,12 +41,12 @@ hy_s32_t socket_ipc_client_write(socket_ipc_client_s *socket_ipc_client,
     nleft = len;
 
     while (nleft > 0) {
-        ret = write(socket_ipc_client->fd, ptr, nleft);
+        ret = write(context->fd, ptr, nleft);
         if (ret <= 0) {
             if (ret < 0 && errno == EINTR) {
                 ret = 0;
             } else {
-                log_error("fd close, fd: %d \n", socket_ipc_client->fd);
+                log_error("fd close, fd: %d \n", context->fd);
                 return -1;
             }
         }
@@ -57,18 +58,20 @@ hy_s32_t socket_ipc_client_write(socket_ipc_client_s *socket_ipc_client,
     return len;
 }
 
-void socket_ipc_client_destroy(socket_ipc_client_s **socket_ipc_client_pp)
+void socket_ipc_client_destroy(socket_ipc_client_s **context_pp)
 {
-    if (!socket_ipc_client_pp || !*socket_ipc_client_pp) {
+    if (!context_pp || !*context_pp) {
         log_error("the param is error \n");
         return;
     }
-    socket_ipc_client_s *context = *socket_ipc_client_pp;
+    socket_ipc_client_s *context = *context_pp;
+    log_info("socket ipc client context: %p create, fd: %d \n",
+            context, context->fd);
 
     close(context->fd);
 
     free(context);
-    *socket_ipc_client_pp = NULL;
+    *context_pp = NULL;
 }
 
 socket_ipc_client_s *socket_ipc_client_create(const char *name)
@@ -106,9 +109,12 @@ socket_ipc_client_s *socket_ipc_client_create(const char *name)
             context->fd = -1;
         }
 
+        log_info("socket ipc client context: %p create, fd: %d \n",
+                context, context->fd);
         return context;
     } while (0);
 
+    log_error("socket ipc client context: %p create failed \n", context);
     socket_ipc_client_destroy(&context);
     return NULL;
 }

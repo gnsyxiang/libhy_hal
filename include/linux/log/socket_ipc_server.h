@@ -41,7 +41,7 @@ typedef struct {
 
 socket_ipc_server_s *socket_ipc_server_create(const char *name,
         socket_ipc_accept_cb_t accept_cb, void *args);
-void socket_ipc_server_destroy(socket_ipc_server_s **socket_ipc_server_pp);
+void socket_ipc_server_destroy(socket_ipc_server_s **context_pp);
 
 #ifdef __cplusplus
 }
