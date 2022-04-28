@@ -19,6 +19,7 @@
  */
 #include <stdio.h>
 #include <stdlib.h>
+#include <assert.h>
 
 #include "hy_barrier.h"
 #include "log_private.h"
@@ -69,6 +70,7 @@ static void _hex(const void *_buf, hy_u32_t len, hy_s32_t flag)
 
 static void _dump_content(fifo_context_s *context)
 {
+    assert(context);
     hy_u32_t len_tmp;
 
     len_tmp = context->len - FIFO_READ_POS(context);
@@ -83,10 +85,7 @@ static void _dump_content(fifo_context_s *context)
 
 void fifo_dump(fifo_context_s *context, fifo_dump_type_e type)
 {
-    if (!context) {
-        log_error("the param is error \n");
-        return;
-    }
+    assert(context);
 
     switch (type) {
         case FIFO_DUMP_TYPE_ALL:
@@ -132,10 +131,8 @@ static hy_s32_t _fifo_read_com(fifo_context_s *context, void *buf, hy_u32_t len)
 
 hy_s32_t fifo_read(fifo_context_s *context, void *buf, hy_u32_t len)
 {
-    if (!context || !buf || len == 0) {
-        log_error("the param is error \n");
-        return -1;
-    }
+    assert(context);
+    assert(buf);
 
     len = _fifo_read_com(context, buf, len);
     context->read_pos += len;
@@ -145,22 +142,18 @@ hy_s32_t fifo_read(fifo_context_s *context, void *buf, hy_u32_t len)
 
 hy_s32_t fifo_read_peek(fifo_context_s *context, void *buf, hy_u32_t len)
 {
-    if (!context || !buf || len == 0) {
-        log_error("the param is error \n");
-        return -1;
-    }
+    assert(context);
+    assert(buf);
 
     return _fifo_read_com(context, buf, len);
 }
 
 hy_s32_t fifo_write(fifo_context_s *context, const void *buf, hy_u32_t len)
 {
-    hy_u32_t len_tmp = 0;
+    assert(context);
+    assert(buf);
 
-    if (!context || !buf || len == 0) {
-        log_info("the param is error \n");
-        return -1;
-    }
+    hy_u32_t len_tmp = 0;
 
     if (len > FIFO_FREE_LEN(context)) {
         log_error("write failed, len: %u, free_len: %u \n",
@@ -202,29 +195,28 @@ static hy_u32_t _num_to_2n(hy_u32_t num)
 
 void fifo_destroy(fifo_context_s **context_pp)
 {
-    fifo_context_s *context = *context_pp;
-
     if (!context_pp || !*context_pp) {
         log_error("the param is error \n");
         return ;
     }
+    fifo_context_s *context = *context_pp;
+    log_info("fifo create context: %p destroy, buf: %p \n",
+            context, context->buf);
 
     free(context->buf);
 
-    log_info("fifo destroy, context: %p \n", context);
     free(context);
     *context_pp = NULL;
 }
 
 fifo_context_s *fifo_create(hy_u32_t len)
 {
-    fifo_context_s *context = NULL;
-
     if (len == 0) {
         log_error("the param is error \n");
         return NULL;
     }
 
+    fifo_context_s *context = NULL;
     do {
         if (!_IS_POWER_OF_2(len)) {
             log_error("old len: %d \n", len);
@@ -247,11 +239,12 @@ fifo_context_s *fifo_create(hy_u32_t len)
         context->len        = len;
         context->read_pos   = context->write_pos = 0;
 
-        log_info("fifo create, context: %p \n", context);
+        log_info("fifo create context: %p create, buf: %p \n",
+                context, context->buf);
         return context;
     } while (0);
 
-    log_error("fifo create failed \n");
+    log_error("fifo create context: %p failed \n", context);
     return NULL;
 }
 
