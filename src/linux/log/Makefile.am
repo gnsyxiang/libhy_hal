@@ -53,6 +53,7 @@ _sources_com    += \
                    fifo.c                   \
                    format_cb.c              \
                    hy_log.c                 \
+                   log_file.c               \
                    process_handle_data.c    \
                    process_ipc_client.c     \
                    process_ipc_server.c     \

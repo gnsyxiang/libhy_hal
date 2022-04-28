@@ -34,6 +34,7 @@ _no_install_headers_com += \
                            epoll_helper.h           \
                            fifo.h                   \
                            format_cb.h              \
+                           log_file.h               \
                            log_private.h            \
                            process_handle_data.h    \
                            process_ipc_client.h     \

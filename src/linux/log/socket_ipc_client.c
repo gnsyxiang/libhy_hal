@@ -25,6 +25,8 @@
 #include <stddef.h>
 #include <assert.h>
 
+#include "log_file.h"
+
 #include "socket_ipc_client.h"
 
 hy_s32_t socket_ipc_client_write(socket_ipc_client_s *context,
@@ -33,29 +35,7 @@ hy_s32_t socket_ipc_client_write(socket_ipc_client_s *context,
     assert(context);
     assert(buf);
 
-    hy_s32_t ret;
-    hy_u32_t nleft;
-    const void *ptr;
-
-    ptr   = buf;
-    nleft = len;
-
-    while (nleft > 0) {
-        ret = write(context->fd, ptr, nleft);
-        if (ret <= 0) {
-            if (ret < 0 && errno == EINTR) {
-                ret = 0;
-            } else {
-                log_error("fd close, fd: %d \n", context->fd);
-                return -1;
-            }
-        }
-
-        nleft -= ret;
-        ptr   += ret;
-    }
-
-    return len;
+    return log_file_write(context->fd, buf, len);
 }
 
 void socket_ipc_client_destroy(socket_ipc_client_s **context_pp)

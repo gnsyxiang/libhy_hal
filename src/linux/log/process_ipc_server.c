@@ -20,11 +20,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "log_private.h"
-#include "socket_ipc_server.h"
 #include "hy_list.h"
 #include "epoll_helper.h"
+#include "socket_ipc_server.h"
 #include "process_handle_data.h"
+#include "log_file.h"
 
 #include "process_ipc_server.h"
 
@@ -118,30 +118,13 @@ static void _epoll_handle_data(epoll_helper_cb_param_s *cb_param)
 {
     _process_ipc_server_context_s *context = cb_param->args;
     hy_s32_t ret = 0;
-    hy_s32_t flag = 0;
     char buf[1024] = {0};
 
-    while (1) {
-        ret = read(cb_param->fd, buf, sizeof(buf));
-        if (ret < 0) {
-            if (EINTR == errno || EAGAIN == errno || EWOULDBLOCK == errno) {
-            } else {
-                log_error("read failed, fd: %d \n", cb_param->fd);
-                flag = 1;
-                break;
-            }
-        } else if (ret == 0) {
-            log_error("fd close, fd: %d \n", cb_param->fd);
-            flag = 1;
-            break;
-        } else {
-            process_handle_data_write(context->tcp_handle_data, buf, ret);
-            epoll_helper_set(context->epoll_helper, EPOLLIN | EPOLLET, cb_param);
-            break;
-        }
-    }
-
-    if (flag) {
+    ret = log_file_read(cb_param->fd, buf, sizeof(buf));
+    if (ret > 0) {
+        process_handle_data_write(context->tcp_handle_data, buf, ret);
+        epoll_helper_set(context->epoll_helper, EPOLLIN | EPOLLET, cb_param);
+    } else {
         socket_node_list_destroy(context, cb_param->fd);
     }
 }
