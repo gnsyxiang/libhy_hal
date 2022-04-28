@@ -74,6 +74,8 @@ void process_ipc_client_destroy(void **handle)
 
     process_handle_data_destroy(&context->terminal_handle_data);
 
+    socket_ipc_client_destroy(&context->socket_ipc_client);
+
     free(context);
     *handle = NULL;
 }
