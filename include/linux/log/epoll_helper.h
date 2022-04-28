@@ -69,7 +69,7 @@ typedef struct {
  *
  * @return 成功返回句柄，失败返回NULL
  */
-epoll_helper_s *epoll_helper_create(hy_u32_t max_event,
+epoll_helper_s *epoll_helper_create(const char *name, hy_u32_t max_event,
         epoll_helper_cb_t epoll_helper_cb);
 
 /**

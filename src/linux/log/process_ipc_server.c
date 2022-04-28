@@ -200,7 +200,8 @@ void *process_ipc_server_create(hy_u32_t fifo_len)
 
         HY_INIT_LIST_HEAD(&context->list);
 
-        context->epoll_helper = epoll_helper_create(100, _epoll_handle_data);
+        context->epoll_helper = epoll_helper_create("HY_EH_new_fd",
+                100, _epoll_handle_data);
         if (!context->epoll_helper) {
             log_error("epoll_helper_create failed \n");
             break;

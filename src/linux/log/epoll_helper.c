@@ -25,8 +25,6 @@
 
 #include "epoll_helper.h"
 
-#define _THREAD_NAME "HY_epoll_helper"
-
 hy_s32_t epoll_helper_set(epoll_helper_s *context,
         hy_u32_t event, epoll_helper_cb_param_s *cb_param)
 {
@@ -52,10 +50,6 @@ static void *_thread_cb(void *args)
     epoll_helper_cb_param_s *cb_param = NULL;
     struct epoll_event *events = NULL;
 
-#ifdef _GNU_SOURCE
-    pthread_setname_np(context->id, _THREAD_NAME);
-#endif
-
     len = context->max_event * sizeof(struct epoll_event);
     events = calloc(1, len);
     if (!events) {
@@ -63,7 +57,6 @@ static void *_thread_cb(void *args)
         return NULL;
     }
 
-    log_info("%s thread start \n", _THREAD_NAME);
     while (!context->is_exit) {
         memset(events, '\0', len);
         ret = epoll_wait(context->fd, events, context->max_event, -1);
@@ -99,7 +92,6 @@ _L_EPOLL_1:
         events = NULL;
     }
 
-    log_info("%s thread stop \n", _THREAD_NAME);
     return NULL;
 }
 
@@ -132,10 +124,10 @@ void epoll_helper_destroy(epoll_helper_s **context_pp)
     *context_pp = NULL;
 }
 
-epoll_helper_s *epoll_helper_create(hy_u32_t max_event,
+epoll_helper_s *epoll_helper_create(const char *name, hy_u32_t max_event,
         epoll_helper_cb_t epoll_helper_cb)
 {
-    if (max_event <=0 || !epoll_helper_cb) {
+    if (!name || max_event <=0 || !epoll_helper_cb) {
         log_error("the param is NULL \n");
         return NULL;
     }
@@ -174,6 +166,10 @@ epoll_helper_s *epoll_helper_create(hy_u32_t max_event,
             log_error("pthread_create failed \n");
             break;
         }
+
+#ifdef _GNU_SOURCE
+        pthread_setname_np(context->id, name);
+#endif
 
         log_info("epoll helper context: %p create, thread_id: 0x%lx, "
                 "epoll_fd: %d, pipe_fd[0]: %d, pipe_fd[1]: %d \n",

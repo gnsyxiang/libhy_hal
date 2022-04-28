@@ -113,7 +113,8 @@ socket_ipc_server_s *socket_ipc_server_create(const char *name,
             return NULL;
         }
 
-        context->epoll_helper = epoll_helper_create(100, _epoll_handle_data);
+        context->epoll_helper = epoll_helper_create("HY_EH_listen_fd",
+                100, _epoll_handle_data);
         if (!context->epoll_helper) {
             log_error("epoll_helper_create failed \n");
             break;
