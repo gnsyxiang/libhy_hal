@@ -51,7 +51,6 @@ _sources_com    += \
                    dynamic_array.c          \
                    epoll_helper.c           \
                    fifo.c                   \
-                   fifo_async.c             \
                    hy_log.c                 \
                    process_handle_data.c    \
                    process_ipc_client.c     \

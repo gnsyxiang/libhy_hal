@@ -20,16 +20,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "fifo_async.h"
 #include "log_private.h"
 #include "socket_ipc_client.h"
+#include "process_handle_data.h"
 
 #include "process_ipc_client.h"
 
 typedef struct {
-    hy_s32_t                is_exit;
-    pthread_t               terminal_thread_id;
-    fifo_async_s            *terminal_fifo_async;
+    process_handle_data_s   *terminal_handle_data;
 
     socket_ipc_client_s     *socket_ipc_client;
 } _process_ipc_client_context_s;
@@ -46,7 +44,7 @@ void process_ipc_client_write(void *handle, log_write_info_s *log_write_info)
         }
     }
 
-    fifo_async_write(context->terminal_fifo_async,
+    process_handle_data_write(context->terminal_handle_data,
             dynamic_array->buf, dynamic_array->cur_len);
 
     DYNAMIC_ARRAY_RESET(dynamic_array);
@@ -61,36 +59,10 @@ void process_ipc_client_write(void *handle, log_write_info_s *log_write_info)
             dynamic_array->buf, dynamic_array->cur_len);
 }
 
-static void *_thread_cb(void *args)
+static void _terminal_process_handle_data_cb(void *buf, hy_u32_t len, void *args)
 {
-    _process_ipc_client_context_s *context = args;
-    hy_s32_t len = 0;
-
-    char *buf = calloc(1, FIFO_ITEM_LEN_MAX);
-    if (!buf) {
-        log_error("calloc failed \n");
-        return NULL;
-    }
-
-#ifdef _GNU_SOURCE
-    pthread_setname_np(context->terminal_thread_id, "HY_CL_terminal");
-#endif
-
-    while (!context->is_exit) {
-        len = fifo_async_read(context->terminal_fifo_async, buf, sizeof(buf));
-        if (len > 0) {
-            /* @fixme: <22-04-22, uos> 多种方式处理数据 */
-            printf("%s", buf);
-        }
-    }
-
-    if (buf) {
-        free(buf);
-    }
-
-    return NULL;
+    printf("%s", (char *)buf);
 }
-
 
 void process_ipc_client_destroy(void **handle)
 {
@@ -100,13 +72,7 @@ void process_ipc_client_destroy(void **handle)
     }
     _process_ipc_client_context_s *context = *handle;
 
-    while (!FIFO_ASYNC_IS_EMPTY(context->terminal_fifo_async)) {
-        usleep(100 * 1000);
-    }
-    context->is_exit = 1;
-
-    fifo_async_destroy(&context->terminal_fifo_async);
-    pthread_join(context->terminal_thread_id, NULL);
+    process_handle_data_destroy(&context->terminal_handle_data);
 
     free(context);
     *handle = NULL;
@@ -127,15 +93,10 @@ void *process_ipc_client_create(hy_u32_t fifo_len)
             break;
         }
 
-        context->terminal_fifo_async = fifo_async_create(fifo_len);
-        if (!context->terminal_fifo_async) {
-            log_error("fifo_async_create failed \n");
-            break;
-        }
-
-        if (0 != pthread_create(&context->terminal_thread_id,
-                    NULL, _thread_cb, context)) {
-            log_error("pthread_create failed \n");
+        context->terminal_handle_data = process_handle_data_create("HY_CL_terminal",
+                fifo_len, _terminal_process_handle_data_cb, context);
+        if (!context->terminal_handle_data) {
+            log_error("process_handle_data_create failed \n");
             break;
         }
 

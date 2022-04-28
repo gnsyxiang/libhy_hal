@@ -20,16 +20,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "fifo_async.h"
-#include "dynamic_array.h"
+#include "process_handle_data.h"
 
 #include "process_single.h"
 
 typedef struct {
-    hy_s32_t        is_exit;
-    pthread_t       thread;
-
-    fifo_async_s    *fifo_async;
+    process_handle_data_s   *terminal_handle_data;
 } _process_single_context_s;
 
 void process_single_write(void *handle, log_write_info_s *log_write_info)
@@ -44,38 +40,13 @@ void process_single_write(void *handle, log_write_info_s *log_write_info)
         }
     }
 
-    fifo_async_write(context->fifo_async,
+    process_handle_data_write(context->terminal_handle_data,
             dynamic_array->buf, dynamic_array->cur_len);
 }
 
-static void *_thread_cb(void *args)
+static void _terminal_process_handle_data_cb(void *buf, hy_u32_t len, void *args)
 {
-    _process_single_context_s *context = args;
-    hy_s32_t len = 0;
-
-    char *buf = malloc(FIFO_ITEM_LEN_MAX);
-    if (!buf) {
-        log_error("malloc failed \n");
-        return NULL;
-    }
-
-#ifdef _GNU_SOURCE
-    pthread_setname_np(context->thread, "HY_SG_terminal");
-#endif
-
-    while (!context->is_exit) {
-        len = fifo_async_read(context->fifo_async, buf, sizeof(buf));
-        if (len > 0) {
-            /* @fixme: <22-04-22, uos> 多种方式处理数据 */
-            printf("%s", buf);
-        }
-    }
-
-    if (buf) {
-        free(buf);
-    }
-
-    return NULL;
+    printf("%s", (char *)buf);
 }
 
 void process_single_destroy(void **handle)
@@ -83,13 +54,7 @@ void process_single_destroy(void **handle)
     _process_single_context_s *context = *handle;
     log_info("process single context: %p destroy \n", context);
 
-    while (!FIFO_ASYNC_IS_EMPTY(context->fifo_async)) {
-        usleep(100 * 1000);
-    }
-    context->is_exit = 1;
-
-    fifo_async_destroy(&context->fifo_async);
-    pthread_join(context->thread, NULL);
+    process_handle_data_destroy(&context->terminal_handle_data);
 
     free(context);
     *handle = NULL;
@@ -111,14 +76,10 @@ void *process_single_create(hy_u32_t fifo_len)
             break;
         }
 
-        context->fifo_async = fifo_async_create(fifo_len);
-        if (!context->fifo_async) {
-            log_error("fifo_async_create failed \n");
-            break;
-        }
-
-        if (0 != pthread_create(&context->thread, NULL, _thread_cb, context)) {
-            log_error("pthread_create failed \n");
+        context->terminal_handle_data = process_handle_data_create("HY_CL_terminal",
+                fifo_len, _terminal_process_handle_data_cb, context);
+        if (!context->terminal_handle_data) {
+            log_error("process_handle_data_create failed \n");
             break;
         }
 

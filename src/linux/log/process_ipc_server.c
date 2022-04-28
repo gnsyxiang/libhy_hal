@@ -20,11 +20,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "fifo_async.h"
 #include "log_private.h"
 #include "socket_ipc_server.h"
 #include "hy_list.h"
 #include "epoll_helper.h"
+#include "process_handle_data.h"
 
 #include "process_ipc_server.h"
 
@@ -34,19 +34,12 @@ typedef struct {
 } _socket_node_s;
 
 typedef struct {
-    hy_s32_t                is_terminal_exit;
-    pthread_t               terminal_thread_id;
-    fifo_async_s            *terminal_fifo_async;
-
-    hy_s32_t                is_tcp_exit;
-    pthread_t               tcp_thread_id;
-    fifo_async_s            *tcp_fifo_async;
-
-    epoll_helper_s          *epoll_helper;
-
     socket_ipc_server_s     *socket_ipc_server;
-
+    epoll_helper_s          *epoll_helper;
     struct hy_list_head     list;
+
+    process_handle_data_s   *tcp_handle_data;
+    process_handle_data_s   *terminal_handle_data;
 } _process_ipc_server_context_s;
 
 static inline void socket_node_destroy(_socket_node_s **socket_node_pp)
@@ -106,7 +99,7 @@ void process_ipc_server_write(void *handle, log_write_info_s *log_write_info)
         }
     }
 
-    fifo_async_write(context->terminal_fifo_async,
+    process_handle_data_write(context->terminal_handle_data,
             dynamic_array->buf, dynamic_array->cur_len);
 
     DYNAMIC_ARRAY_RESET(dynamic_array);
@@ -117,7 +110,7 @@ void process_ipc_server_write(void *handle, log_write_info_s *log_write_info)
         }
     }
 
-    fifo_async_write(context->tcp_fifo_async,
+    process_handle_data_write(context->tcp_handle_data,
             dynamic_array->buf, dynamic_array->cur_len);
 }
 
@@ -142,7 +135,7 @@ static void _epoll_handle_data(epoll_helper_cb_param_s *cb_param)
             flag = 1;
             break;
         } else {
-            fifo_async_write(context->tcp_fifo_async, buf, ret);
+            process_handle_data_write(context->tcp_handle_data, buf, ret);
             epoll_helper_set(context->epoll_helper, EPOLLIN | EPOLLET, cb_param);
             break;
         }
@@ -162,63 +155,14 @@ static void _accept_cb(hy_s32_t fd, void *args)
     hy_list_add_tail(&socket_node->entry, &context->list);
 }
 
-static void *_tcp_msg_cb(void *args)
+static void _tcp_process_handle_data_cb(void *buf, hy_u32_t len, void *args)
 {
-    _process_ipc_server_context_s *context = args;
-    hy_s32_t len = 0;
-
-    char *buf = calloc(1, FIFO_ITEM_LEN_MAX);
-    if (!buf) {
-        log_error("calloc failed \n");
-        return NULL;
-    }
-
-#ifdef _GNU_SOURCE
-    pthread_setname_np(context->terminal_thread_id, "HY_SV_tcp");
-#endif
-
-    while (!context->is_tcp_exit) {
-        len = fifo_async_read(context->tcp_fifo_async, buf, sizeof(buf));
-        if (len > 0) {
-            /* @fixme: <22-04-22, uos> 多种方式处理数据 */
-            // printf("%s", buf);
-        }
-    }
-
-    if (buf) {
-        free(buf);
-    }
-
-    return NULL;
+    printf("%s", (char *)buf);
 }
 
-static void *_terminal_msg_cb(void *args)
+static void _terminal_process_handle_data_cb(void *buf, hy_u32_t len, void *args)
 {
-    _process_ipc_server_context_s *context = args;
-    hy_s32_t len = 0;
-
-    char *buf = calloc(1, FIFO_ITEM_LEN_MAX);
-    if (!buf) {
-        log_error("calloc failed \n");
-        return NULL;
-    }
-#ifdef _GNU_SOURCE
-    pthread_setname_np(context->terminal_thread_id, "HY_SV_terminal");
-#endif
-
-    while (!context->is_terminal_exit) {
-        len = fifo_async_read(context->terminal_fifo_async, buf, sizeof(buf));
-        if (len > 0) {
-            /* @fixme: <22-04-22, uos> 多种方式处理数据 */
-            // printf("%s", buf);
-        }
-    }
-
-    if (buf) {
-        free(buf);
-    }
-
-    return NULL;
+    // printf("%s", (char *)buf);
 }
 
 void process_ipc_server_destroy(void **handle)
@@ -230,19 +174,8 @@ void process_ipc_server_destroy(void **handle)
 
     epoll_helper_destroy(&context->epoll_helper);
 
-    while (!FIFO_ASYNC_IS_EMPTY(context->terminal_fifo_async)) {
-        usleep(10 * 1000);
-    }
-    context->is_terminal_exit = 1;
-    fifo_async_destroy(&context->terminal_fifo_async);
-    pthread_join(context->terminal_thread_id, NULL);
-
-    while (!FIFO_ASYNC_IS_EMPTY(context->tcp_fifo_async)) {
-        usleep(10 * 1000);
-    }
-    context->is_tcp_exit = 1;
-    fifo_async_destroy(&context->tcp_fifo_async);
-    pthread_join(context->tcp_thread_id, NULL);
+    process_handle_data_destroy(&context->terminal_handle_data);
+    process_handle_data_destroy(&context->tcp_handle_data);
 
     socket_node_list_destroy(context, -1);
 
@@ -265,35 +198,25 @@ void *process_ipc_server_create(hy_u32_t fifo_len)
             break;
         }
 
+        HY_INIT_LIST_HEAD(&context->list);
+
         context->epoll_helper = epoll_helper_create(100, _epoll_handle_data);
         if (!context->epoll_helper) {
             log_error("epoll_helper_create failed \n");
             break;
         }
 
-        HY_INIT_LIST_HEAD(&context->list);
-
-        context->terminal_fifo_async = fifo_async_create(fifo_len);
-        if (!context->terminal_fifo_async) {
-            log_error("fifo_async_create failed \n");
+        context->terminal_handle_data = process_handle_data_create("HY_SV_terminal",
+                fifo_len, _terminal_process_handle_data_cb, context);
+        if (!context->terminal_handle_data) {
+            log_error("process_handle_data_create failed \n");
             break;
         }
 
-        context->tcp_fifo_async = fifo_async_create(fifo_len);
-        if (!context->tcp_fifo_async) {
-            log_error("fifo_async_create failed \n");
-            break;
-        }
-
-        if (0 != pthread_create(&context->terminal_thread_id,
-                    NULL, _terminal_msg_cb, context)) {
-            log_error("pthread_create failed \n");
-            break;
-        }
-
-        if (0 != pthread_create(&context->tcp_thread_id,
-                    NULL, _tcp_msg_cb, context)) {
-            log_error("pthread_create failed \n");
+        context->tcp_handle_data = process_handle_data_create("HY_SV_TCP",
+                fifo_len, _tcp_process_handle_data_cb, context);
+        if (!context->tcp_handle_data) {
+            log_error("process_handle_data_create failed \n");
             break;
         }
 
