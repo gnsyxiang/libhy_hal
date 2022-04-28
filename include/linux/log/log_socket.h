@@ -30,12 +30,17 @@ extern "C" {
  * @brief 
  */
 typedef enum {
-    LOG_SOCKET_TYPE_CLIENT,   ///< 
-    LOG_SOCKET_TYPE_SERVER,   ///< 
+    LOG_SOCKET_TYPE_CLIENT,         ///< 
+    LOG_SOCKET_TYPE_SERVER,         ///< 
+
+    LOG_SOCKET_TYPE_IPC_CLIENT,     ///< 
+    LOG_SOCKET_TYPE_IPC_SERVER,     ///< 
 } log_socket_type_e;
 
-hy_s32_t log_socket_ipc_create(const char *ip,
+hy_s32_t log_socket_create(const char *ip,
         hy_u16_t port, log_socket_type_e type);
+
+hy_s32_t log_socket_ipc_create(const char *name, log_socket_type_e type);
 
 #ifdef __cplusplus
 }
