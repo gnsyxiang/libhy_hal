@@ -2,7 +2,7 @@
  * 
  * Release under GPLv-3.0.
  * 
- * @file    process_ipc_client.c
+ * @file    process_client.c
  * @brief   
  * @author  gnsyxiang <gnsyxiang@163.com>
  * @date    26/04 2022 13:58
@@ -21,10 +21,9 @@
 
 #include "format_cb.h"
 #include "log_private.h"
-#include "socket_ipc_client.h"
 #include "process_handle_data.h"
 
-#include "process_ipc_client.h"
+#include "process_client.h"
 
 typedef struct {
     process_handle_data_s   *terminal_handle_data;
@@ -32,7 +31,7 @@ typedef struct {
     socket_ipc_client_s     *socket_ipc_client;
 } _process_ipc_client_context_s;
 
-void process_ipc_client_write(void *handle, log_write_info_s *log_write_info)
+void process_client_write(void *handle, log_write_info_s *log_write_info)
 {
     _process_ipc_client_context_s *context = handle;
     HyLogAddiInfo_s *addi_info = log_write_info->addi_info;
@@ -65,7 +64,7 @@ static void _terminal_process_handle_data_cb(void *buf,
     printf("%s", (char *)buf);
 }
 
-void process_ipc_client_destroy(void **handle)
+void process_client_destroy(void **handle)
 {
     if (!handle || !*handle) {
         log_error("the param is error \n");
@@ -85,7 +84,7 @@ void process_ipc_client_destroy(void **handle)
     *handle = NULL;
 }
 
-void *process_ipc_client_create(hy_u32_t fifo_len)
+void *process_client_create(hy_u32_t fifo_len)
 {
     if (fifo_len <= 0) {
         log_error("the param is error \n");

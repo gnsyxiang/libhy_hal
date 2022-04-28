@@ -2,7 +2,7 @@
  *
  * Release under GPLv-3.0.
  * 
- * @file    process_ipc_server.h
+ * @file    process_server.h
  * @brief   
  * @author  gnsyxiang <gnsyxiang@163.com>
  * @date    25/04 2022 17:25
@@ -17,8 +17,8 @@
  * 
  *     last modified: 25/04 2022 17:25
  */
-#ifndef __LIBHY_HAL_INCLUDE_PROCESS_IPC_SERVER_H_
-#define __LIBHY_HAL_INCLUDE_PROCESS_IPC_SERVER_H_
+#ifndef __LIBHY_HAL_INCLUDE_PROCESS_SERVER_H_
+#define __LIBHY_HAL_INCLUDE_PROCESS_SERVER_H_
 
 #ifdef __cplusplus
 extern "C" {
@@ -28,10 +28,10 @@ extern "C" {
 
 struct log_write_info_tag;
 
-void *process_ipc_server_create(hy_u32_t fifo_len);
-void process_ipc_server_destroy(void **handle);
+void *process_server_create(hy_u32_t fifo_len);
+void process_server_destroy(void **handle);
 
-void process_ipc_server_write(void *handle, struct log_write_info_tag *log_write_info);
+void process_server_write(void *handle, struct log_write_info_tag *log_write_info);
 
 #ifdef __cplusplus
 }

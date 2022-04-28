@@ -55,9 +55,9 @@ _sources_com    += \
                    log_fifo.c               \
                    log_file.c               \
                    log_socket.c             \
+                   process_client.c         \
                    process_handle_data.c    \
-                   process_ipc_client.c     \
-                   process_ipc_server.c     \
+                   process_server.c         \
                    process_single.c         \
                    socket_fd_node.c         \
                    thread_specific_data.c

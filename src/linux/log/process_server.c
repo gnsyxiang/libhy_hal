@@ -2,7 +2,7 @@
  * 
  * Release under GPLv-3.0.
  * 
- * @file    process_ipc_server.c
+ * @file    process_server.c
  * @brief   
  * @author  gnsyxiang <gnsyxiang@163.com>
  * @date    25/04 2022 17:27
@@ -27,18 +27,20 @@
 #include "log_socket.h"
 #include "log_private.h"
 #include "epoll_helper.h"
-#include "socket_node_fd.h"
-#include "socket_ipc_server.h"
+#include "socket_fd_node.h"
 #include "process_handle_data.h"
 
-#include "process_ipc_server.h"
+#include "process_server.h"
 
 typedef struct {
-    socket_ipc_server_s     *socket_ipc_server;
     epoll_helper_s          *epoll_helper;
-    struct hy_list_head     list;
+    socket_fd_node_s        *socket_listen_fd;
+    socket_fd_node_s        *socket_ipc_listen_fd;
 
+    struct hy_list_head     list;
     struct hy_list_head     socket_list;
+
+    socket_ipc_server_s     *socket_ipc_server;
 
     log_socket_context_s    *log_sockt;
 
@@ -107,7 +109,7 @@ static void _accept_cb(hy_s32_t fd, void *args)
 
 static void _tcp_process_handle_data_cb(void *buf, hy_u32_t len, void *args)
 {
-    // printf("%s", (char *)buf);
+    printf("%s", (char *)buf);
 
     socket_node_fd_s *pos;
     _process_ipc_server_context_s *context = args;
@@ -152,6 +154,7 @@ void *process_ipc_server_create(hy_u32_t fifo_len)
     }
 
     _process_ipc_server_context_s *context = NULL;
+    hy_s32_t fd = -1;
     do {
         context = calloc(1, sizeof(*context));
         if (!context) {
@@ -168,6 +171,14 @@ void *process_ipc_server_create(hy_u32_t fifo_len)
             log_error("epoll_helper_create failed \n");
             break;
         }
+
+        fd = log_socket_ipc_create(LOG_SOCKET_IPC_NAME, LOG_SOCKET_IPC_TYPE_SERVER);
+        if (fd < 0) {
+            log_error("log_socket_ipc_create failed \n");
+            break;
+        }
+
+        context->socket_ipc_listen_fd = socket_fd_node_create(fd, );
 
         context->terminal_handle_data = process_handle_data_create("HY_SV_terminal",
                 fifo_len, _terminal_process_handle_data_cb, context);
