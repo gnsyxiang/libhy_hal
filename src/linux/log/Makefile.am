@@ -60,7 +60,7 @@ _sources_com    += \
                    process_ipc_client.c     \
                    process_ipc_server.c     \
                    process_single.c         \
-                   socket_node_fd.c         \
+                   socket_fd_node.c         \
                    thread_specific_data.c
 
 _cppflags_com   += \

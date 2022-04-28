@@ -42,7 +42,7 @@ _no_install_headers_com += \
                            process_ipc_client.h     \
                            process_ipc_server.h     \
                            process_single.h         \
-                           socket_node_fd.h         \
+                           socket_fd_node.h         \
                            thread_specific_data.h
 
 _install_headers_com    += hy_log.h
