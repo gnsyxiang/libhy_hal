@@ -24,28 +24,22 @@
 extern "C" {
 #endif
 
-#include <stdarg.h>
+#include <assert.h>
+#include <errno.h>
+#include <string.h>
+#include <time.h>
 #include <sys/time.h>
-
-#include "format_cb.h"
+#include <stdlib.h>
 
 #define HY_LOG_DEBUG
 
 #define SOCKET_IPC_SERVER_NAME_LEN_MAX      (64)
 #define LOG_IPC_NAME                        "log_ipc_socket"
-#define _ARRAY_CNT(array) (hy_u32_t)(sizeof((array)) / sizeof((array)[0]))
-
-typedef struct {
-    format_cb_t         *format_cb;
-    hy_u32_t            format_cb_cnt;
-
-    dynamic_array_s     *dynamic_array;
-    HyLogAddiInfo_s     *addi_info;
-} log_write_info_s;
+#define LOG_ARRAY_CNT(array)                (hy_u32_t)(sizeof((array)) / sizeof((array)[0]))
 
 #ifdef HY_LOG_DEBUG
 #define log_time(_buf, _buf_len)                                                \
-    do {                                                                        \
+    ({                                                                          \
         time_t t = 0;                                                           \
         struct tm tm;                                                           \
         struct timeval tv;                                                      \
@@ -55,7 +49,7 @@ typedef struct {
         snprintf(_buf, _buf_len, "[%04d-%02d-%02d_%02d:%02d:%02d.%03d]",        \
                 tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday,                   \
                 tm.tm_hour, tm.tm_min, tm.tm_sec, (hy_u32_t)tv.tv_usec / 1000); \
-    } while (0)
+     })
 
 #define log_error(fmt, ...)                                             \
     do {                                                                \

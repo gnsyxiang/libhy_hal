@@ -18,13 +18,11 @@
  *     last modified: 25/04 2022 19:04
  */
 #include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
 #include <sys/types.h>          /* See NOTES */
 #include <sys/socket.h>
 #include <sys/un.h>
 #include <stddef.h>
-#include <assert.h>
+#include <unistd.h>
 
 #include "log_private.h"
 #include "epoll_helper.h"

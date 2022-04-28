@@ -18,8 +18,6 @@
  *     last modified: 28/04 2022 10:47
  */
 #include <stdio.h>
-#include <assert.h>
-#include <stdlib.h>
 
 #include "log_private.h"
 

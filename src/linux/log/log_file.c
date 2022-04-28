@@ -19,7 +19,6 @@
  */
 #include <stdio.h>
 #include <unistd.h>
-#include <errno.h>
 
 #include "log_private.h"
 

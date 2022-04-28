@@ -18,8 +18,6 @@
  *     last modified: 21/04 2022 15:43
  */
 #include <stdio.h>
-#include <stdlib.h>
-#include <assert.h>
 
 #include "hy_barrier.h"
 #include "log_private.h"

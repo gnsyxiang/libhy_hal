@@ -24,12 +24,14 @@
 extern "C" {
 #endif
 
-#include "log_private.h"
+#include "hy_type.h"
+
+struct log_write_info_tag;
 
 void *process_ipc_server_create(hy_u32_t fifo_len);
 void process_ipc_server_destroy(void **handle);
 
-void process_ipc_server_write(void *handle, log_write_info_s *log_write_info);
+void process_ipc_server_write(void *handle, struct log_write_info_tag *log_write_info);
 
 #ifdef __cplusplus
 }

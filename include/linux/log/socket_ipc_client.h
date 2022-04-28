@@ -24,7 +24,7 @@
 extern "C" {
 #endif
 
-#include "log_private.h"
+#include "hy_type.h"
 
 typedef struct {
     hy_s32_t        fd;

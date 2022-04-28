@@ -18,7 +18,6 @@
  *     last modified: 28/04 2022 10:21
  */
 #include <stdio.h>
-#include <sys/time.h>
 #include <inttypes.h>
 
 #include "hy_printf.h"
@@ -68,19 +67,9 @@ static hy_s32_t _format_log_time_cb(dynamic_array_s *dynamic_array,
         HyLogAddiInfo_s *addi_info)
 {
     char buf[32] = {0};
-    hy_s32_t ret = 0;
-    time_t t = 0;
-    struct tm tm;
-    struct timeval tv;
+    hy_u32_t ret = 0;
 
-    t = time(NULL);
-    localtime_r(&t, &tm);
-    gettimeofday(&tv, NULL);
-
-    ret = snprintf(buf, sizeof(buf), "[%04d-%02d-%02d_%02d:%02d:%02d.%03d]",
-            tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday,
-            tm.tm_hour, tm.tm_min, tm.tm_sec, (hy_u32_t)tv.tv_usec / 1000);
-
+    ret = log_time(buf, sizeof(buf));
     return dynamic_array_write(dynamic_array, buf, ret);
 }
 
@@ -142,7 +131,7 @@ void format_cb_register(format_cb_t *format_cb, hy_u32_t format)
         {HY_LOG_OUTPUT_FORMAT_COLOR_RESET,  {_format_log_color_reset_cb,    NULL,                       }},
     };
 
-    for (hy_u32_t i = 0; i < _ARRAY_CNT(log_format_cb); ++i) {
+    for (hy_u32_t i = 0; i < LOG_ARRAY_CNT(log_format_cb); ++i) {
         if (log_format_cb[i].format == (format & 0x1 << i)) {
             memcpy(format_cb[i], log_format_cb[i].format_log_cb,
                     sizeof(log_format_cb[i].format_log_cb));

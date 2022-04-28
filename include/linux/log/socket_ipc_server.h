@@ -24,7 +24,6 @@
 extern "C" {
 #endif
 
-#include "log_private.h"
 #include "epoll_helper.h"
 
 typedef void (*socket_ipc_accept_cb_t)(hy_s32_t fd, void *args);

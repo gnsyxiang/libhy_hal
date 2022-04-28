@@ -18,8 +18,9 @@
  *     last modified: 21/04 2022 14:36
  */
 #include <stdio.h>
-#include <stdlib.h>
 
+#include "format_cb.h"
+#include "log_private.h"
 #include "process_handle_data.h"
 
 #include "process_single.h"

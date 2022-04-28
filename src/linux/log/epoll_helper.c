@@ -18,8 +18,7 @@
  *     last modified: 27/04 2022 15:48
  */
 #include <stdio.h>
-#include <stdlib.h>
-#include <assert.h>
+#include <unistd.h>
 
 #include "log_private.h"
 

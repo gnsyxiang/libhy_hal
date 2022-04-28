@@ -18,8 +18,9 @@
  *     last modified: 26/04 2022 13:58
  */
 #include <stdio.h>
-#include <stdlib.h>
 
+#include "format_cb.h"
+#include "log_private.h"
 #include "socket_ipc_client.h"
 #include "process_handle_data.h"
 

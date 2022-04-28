@@ -18,14 +18,14 @@
  *     last modified: 26/04 2022 11:56
  */
 #include <stdio.h>
-#include <stdlib.h>
 #include <sys/types.h>          /* See NOTES */
 #include <sys/socket.h>
 #include <sys/un.h>
 #include <stddef.h>
-#include <assert.h>
+#include <unistd.h>
 
 #include "log_file.h"
+#include "log_private.h"
 
 #include "socket_ipc_client.h"
 

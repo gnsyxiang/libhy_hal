@@ -18,9 +18,9 @@
  *     last modified: 29/10 2021 20:30
  */
 #include <stdio.h>
-#include <stdlib.h>
 #include <stdarg.h>
 
+#include "format_cb.h"
 #include "log_private.h"
 #include "dynamic_array.h"
 #include "process_single.h"
@@ -78,7 +78,7 @@ void HyLogWrite(HyLogAddiInfo_s *addi_info, char *fmt, ...)
     addi_info->fmt = fmt;
     addi_info->str_args = &args;
     log_write_info.format_cb        = context->format_cb;
-    log_write_info.format_cb_cnt    = _ARRAY_CNT(context->format_cb);
+    log_write_info.format_cb_cnt    = LOG_ARRAY_CNT(context->format_cb);
     log_write_info.dynamic_array    = dynamic_array;
     log_write_info.addi_info        = addi_info;
     switch (save_c->mode) {
