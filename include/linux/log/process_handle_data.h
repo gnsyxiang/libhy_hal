@@ -26,7 +26,7 @@ extern "C" {
 
 #include <pthread.h>
 
-#include "fifo.h"
+#include "log_fifo.h"
 
 typedef void (*process_handle_data_cb_t)(void *buf, hy_u32_t len, void *args);
 
@@ -34,7 +34,7 @@ typedef struct {
     hy_s32_t                    is_exit;
     pthread_t                   id;
 
-    fifo_context_s              *fifo;
+    log_fifo_context_s          *fifo;
     pthread_mutex_t             mutex;
     pthread_cond_t              cond;
 

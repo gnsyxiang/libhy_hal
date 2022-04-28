@@ -50,9 +50,9 @@ _include_com    += \
 _sources_com    += \
                    dynamic_array.c          \
                    epoll_helper.c           \
-                   fifo.c                   \
                    format_cb.c              \
                    hy_log.c                 \
+                   log_fifo.c               \
                    log_file.c               \
                    process_handle_data.c    \
                    process_ipc_client.c     \

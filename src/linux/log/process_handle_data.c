@@ -22,7 +22,6 @@
 #include <assert.h>
 
 #include "log_private.h"
-#include "fifo.h"
 
 #include "process_handle_data.h"
 
@@ -34,7 +33,7 @@ hy_s32_t process_handle_data_write(process_handle_data_s *context,
     hy_s32_t ret = 0;
 
     pthread_mutex_lock(&context->mutex);
-    ret = fifo_write(context->fifo, buf, len);
+    ret = log_fifo_write(context->fifo, buf, len);
     pthread_mutex_unlock(&context->mutex);
 
     pthread_cond_signal(&context->cond);
@@ -56,13 +55,13 @@ static void *_thread_cb(void *args)
 
     while (!context->is_exit) {
         pthread_mutex_lock(&context->mutex);
-        if (FIFO_IS_EMPTY(context->fifo)) {
+        if (LOG_FIFO_IS_EMPTY(context->fifo)) {
             pthread_cond_wait(&context->cond, &context->mutex);
         }
         pthread_mutex_unlock(&context->mutex);
 
         memset(buf, '\0', _ITEM_LEN_MAX);
-        ret = fifo_read(context->fifo, buf, _ITEM_LEN_MAX);
+        ret = log_fifo_read(context->fifo, buf, _ITEM_LEN_MAX);
 
         if (ret > 0 && context->cb) {
             context->cb(buf, ret, context->args);
@@ -86,7 +85,7 @@ void process_handle_data_destroy(process_handle_data_s **context_pp)
     log_info("process handle data context: %p destroy, fifo: %p, id: %0lx \n",
             context, context->fifo, context->id);
 
-    while (!FIFO_IS_EMPTY(context->fifo)) {
+    while (!LOG_FIFO_IS_EMPTY(context->fifo)) {
         usleep(10 * 1000);
     }
     context->is_exit = 1;
@@ -97,7 +96,7 @@ void process_handle_data_destroy(process_handle_data_s **context_pp)
     pthread_mutex_destroy(&context->mutex);
     pthread_cond_destroy(&context->cond);
 
-    fifo_destroy(&context->fifo);
+    log_fifo_destroy(&context->fifo);
 
     free(context);
     *context_pp = NULL;
@@ -131,7 +130,7 @@ process_handle_data_s *process_handle_data_create(const char *name,
             break;
         }
 
-        context->fifo = fifo_create(fifo_len);
+        context->fifo = log_fifo_create(fifo_len);
         if (!context->fifo) {
             log_info("fifo_create failed \n");
             break;
