@@ -30,11 +30,22 @@ extern "C" {
 #include "hy_type.h"
 
 /**
+ * @brief fd类型
+ */
+typedef enum {
+    EPOLL_FD_TYPE_LISTEN_FD,            ///< 监听fd
+    EPOLL_FD_TYPE_CLIENT_FD,            ///< 客户端fd
+
+    EPOLL_FD_TYPE_MAX,                  ///< 客户端fd
+} epoll_fd_type_e;
+
+/**
  * @brief 回调函数的参数
  */
-typedef struct epoll_helper_cb_param_tag {
-    hy_s32_t    fd;             ///< fd
-    void        *args;          ///< fd所携带的用户参数
+typedef struct {
+    hy_s32_t            fd;             ///< fd
+    epoll_fd_type_e     type;           ///< fd类型
+    void                *args;          ///< fd所携带的用户参数
 } epoll_helper_cb_param_s;
 
 /**
