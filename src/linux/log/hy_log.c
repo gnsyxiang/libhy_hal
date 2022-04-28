@@ -26,7 +26,7 @@
 #include "process_single.h"
 #include "process_ipc_client.h"
 #include "process_ipc_server.h"
-#include "socket_ipc_server.h"
+#include "thread_specific_data.h"
 
 #include "hy_log.h"
 
@@ -41,8 +41,7 @@
 typedef struct {
     HyLogSaveConfig_s   save_c;
 
-    pthread_key_t       thread_key;
-    format_cb_t     format_cb[FORMAT_LOG_CB_CNT];
+    format_cb_t         format_cb[FORMAT_LOG_CB_CNT];
 
     void                *write_h;
 } _log_context_s;
@@ -57,82 +56,7 @@ HyLogLevel_e HyLogLevelGet(void)
 
 void HyLogLevelSet(HyLogLevel_e level)
 {
-}
-
-static void _thread_private_data_reset(dynamic_array_s *dynamic_array)
-{
-    DYNAMIC_ARRAY_RESET(dynamic_array);
-}
-
-static dynamic_array_s *_thread_private_data_get(void)
-{
-    dynamic_array_s *dynamic_array = NULL;
-
-    dynamic_array = pthread_getspecific(_context.thread_key);
-    if (!dynamic_array) {
-        log_info("pthread_getspecific failed \n");
-        return NULL;
-    } else {
-        return dynamic_array;
-    }
-}
-
-static hy_s32_t _thread_private_data_set(dynamic_array_s *dynamic_array)
-{
-    if (!dynamic_array) {
-        log_error("the param is error \n");
-        return -1;
-    }
-
-    if (0 != pthread_setspecific(_context.thread_key, dynamic_array)) {
-        log_error("pthread_setspecific fail \n");
-        return -1;
-    } else {
-        return 0;
-    }
-}
-
-static void _thread_private_data_destroy(void *args)
-{
-    if (!args) {
-        log_error("the param is error \n");
-        return ;
-    }
-    dynamic_array_s *dynamic_array = args;
-
-    dynamic_array_destroy(&dynamic_array);
-}
-
-static dynamic_array_s *_thread_private_data_create(void)
-{
-    dynamic_array_s *dynamic_array = NULL;
-
-    dynamic_array = dynamic_array_create(_DYNAMIC_ARRAY_MIN_LEN, _DYNAMIC_ARRAY_MAX_LEN);
-    if (!dynamic_array) {
-        log_error("dynamic_array_create failed \n");
-        return NULL;
-    }
-
-    _thread_private_data_set(dynamic_array);
-
-    return dynamic_array;
-}
-
-static dynamic_array_s* _thread_private_data_featch(void)
-{
-    dynamic_array_s *dynamic_array = NULL;
-
-    dynamic_array = _thread_private_data_get();
-    if (!dynamic_array) {
-        dynamic_array = _thread_private_data_create();
-        if (!dynamic_array) {
-            log_error("_thread_private_data_create failed \n");
-        }
-    } else {
-        _thread_private_data_reset(dynamic_array);
-    }
-
-    return dynamic_array;
+    _context.save_c.level = level;
 }
 
 void HyLogWrite(HyLogAddiInfo_s *addi_info, char *fmt, ...)
@@ -143,7 +67,7 @@ void HyLogWrite(HyLogAddiInfo_s *addi_info, char *fmt, ...)
     log_write_info_s log_write_info;
     va_list args;
 
-    dynamic_array = _thread_private_data_featch();
+    dynamic_array = thread_specific_data_fetch();
     if (!dynamic_array) {
         log_info("_thread_private_data_featch failed \n");
         return;
@@ -172,9 +96,26 @@ void HyLogWrite(HyLogAddiInfo_s *addi_info, char *fmt, ...)
     va_end(args);
 }
 
-static void _log_thread_private_data_destroy(void)
+static void _thread_specific_data_reset_cb(void *handle)
 {
-    _thread_private_data_destroy(_thread_private_data_get());
+    dynamic_array_s *dynamic_array = handle;
+    DYNAMIC_ARRAY_RESET(dynamic_array);
+}
+
+static void _thread_specific_data_destroy_cb(void *handle)
+{
+    if (!handle) {
+        log_error("the param is error \n");
+        return ;
+    }
+    dynamic_array_s *dynamic_array = handle;
+
+    dynamic_array_destroy(&dynamic_array);
+}
+
+static void *_thread_specific_data_create_cb(void)
+{
+    return dynamic_array_create(_DYNAMIC_ARRAY_MIN_LEN, _DYNAMIC_ARRAY_MAX_LEN);
 }
 
 void HyLogDeInit(void)
@@ -197,6 +138,8 @@ void HyLogDeInit(void)
         default:
             break;
     }
+
+    thread_specific_data_destroy();
 }
 
 hy_s32_t HyLogInit(HyLogConfig_s *log_c)
@@ -220,14 +163,11 @@ hy_s32_t HyLogInit(HyLogConfig_s *log_c)
 
         format_cb_register(context->format_cb, save_c->output_format);
 
-        if (0 != pthread_key_create(&context->thread_key,
-                    _thread_private_data_destroy)) {
-            log_error("pthread_key_create failed \n");
-            break;
-        }
-
-        if (0 != atexit(_log_thread_private_data_destroy)) {
-            log_error("atexit fail \n");
+        if (0 != thread_specific_data_create(
+                    _thread_specific_data_create_cb,
+                    _thread_specific_data_destroy_cb,
+                    _thread_specific_data_reset_cb)) {
+            log_error("thread_specific_data_create failed \n");
             break;
         }
 

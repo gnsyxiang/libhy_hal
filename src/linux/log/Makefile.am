@@ -58,7 +58,8 @@ _sources_com    += \
                    process_ipc_server.c     \
                    process_single.c         \
                    socket_ipc_client.c      \
-                   socket_ipc_server.c
+                   socket_ipc_server.c      \
+                   thread_specific_data.c
 
 _cppflags_com   += \
                    $(_no_error_com)     \
