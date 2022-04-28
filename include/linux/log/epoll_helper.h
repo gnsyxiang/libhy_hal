@@ -32,7 +32,7 @@ extern "C" {
 /**
  * @brief 回调函数的参数
  */
-typedef struct {
+typedef struct epoll_helper_cb_param_tag {
     hy_s32_t    fd;             ///< fd
     void        *args;          ///< fd所携带的用户参数
 } epoll_helper_cb_param_s;

@@ -25,15 +25,11 @@
 #include "format_cb.h"
 #include "log_private.h"
 #include "epoll_helper.h"
+#include "socket_node_fd.h"
 #include "socket_ipc_server.h"
 #include "process_handle_data.h"
 
 #include "process_ipc_server.h"
-
-typedef struct {
-    epoll_helper_cb_param_s cb_param;
-    struct hy_list_head     entry;
-} _socket_node_s;
 
 typedef struct {
     socket_ipc_server_s     *socket_ipc_server;
@@ -43,51 +39,6 @@ typedef struct {
     process_handle_data_s   *tcp_handle_data;
     process_handle_data_s   *terminal_handle_data;
 } _process_ipc_server_context_s;
-
-static inline void socket_node_destroy(_socket_node_s **socket_node_pp)
-{
-    _socket_node_s *socket_node = *socket_node_pp;
-
-    close(socket_node->cb_param.fd);
-
-    free(socket_node);
-    *socket_node_pp = NULL;
-}
-
-static inline _socket_node_s *socket_node_create(hy_s32_t fd, void *args)
-{
-    _socket_node_s *socket_node = calloc(1, sizeof(*socket_node));
-    if (!socket_node) {
-        log_error("calloc failed \n");
-        return NULL;
-    }
-    socket_node->cb_param.fd = fd;
-    socket_node->cb_param.args = args;
-
-    return socket_node;
-}
-
-static void socket_node_list_destroy(_process_ipc_server_context_s *context,
-        hy_s32_t fd)
-{
-    _socket_node_s *pos, *n;
-
-    if (fd > 0) {
-        hy_list_for_each_entry_safe(pos, n, &context->list, entry) {
-            if (fd == pos->cb_param.fd) {
-                hy_list_del(&pos->entry);
-                socket_node_destroy(&pos);
-                break;
-            }
-        }
-    } else {
-        hy_list_for_each_entry_safe(pos, n, &context->list, entry) {
-            hy_list_del(&pos->entry);
-
-            socket_node_destroy(&pos);
-        }
-    }
-}
 
 void process_ipc_server_write(void *handle, log_write_info_s *log_write_info)
 {
@@ -127,17 +78,17 @@ static void _epoll_handle_data(epoll_helper_cb_param_s *cb_param)
         process_handle_data_write(context->tcp_handle_data, buf, ret);
         epoll_helper_set(context->epoll_helper, EPOLLIN | EPOLLET, cb_param);
     } else {
-        socket_node_list_destroy(context, cb_param->fd);
+        socket_node_fd_list_destroy(&context->list, cb_param->fd);
     }
 }
 
 static void _accept_cb(hy_s32_t fd, void *args)
 {
     _process_ipc_server_context_s *context = args;
-    _socket_node_s *socket_node = socket_node_create(fd, args);
+    socket_node_fd_s *socket_node_fd = socket_node_fd_create(fd, args);
 
-    epoll_helper_set(context->epoll_helper, EPOLLIN | EPOLLET, &socket_node->cb_param);
-    hy_list_add_tail(&socket_node->entry, &context->list);
+    epoll_helper_set(context->epoll_helper, EPOLLIN | EPOLLET, socket_node_fd->cb_param);
+    hy_list_add_tail(&socket_node_fd->entry, &context->list);
 }
 
 static void _tcp_process_handle_data_cb(void *buf, hy_u32_t len, void *args)
@@ -162,7 +113,7 @@ void process_ipc_server_destroy(void **handle)
     process_handle_data_destroy(&context->terminal_handle_data);
     process_handle_data_destroy(&context->tcp_handle_data);
 
-    socket_node_list_destroy(context, -1);
+    socket_node_fd_list_destroy(&context->list, -1);
 
     free(context);
     *handle = NULL;
