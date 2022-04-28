@@ -20,7 +20,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "log_private.h"
 #include "socket_ipc_client.h"
 #include "process_handle_data.h"
 
@@ -59,7 +58,8 @@ void process_ipc_client_write(void *handle, log_write_info_s *log_write_info)
             dynamic_array->buf, dynamic_array->cur_len);
 }
 
-static void _terminal_process_handle_data_cb(void *buf, hy_u32_t len, void *args)
+static void _terminal_process_handle_data_cb(void *buf,
+        hy_u32_t len, void *args)
 {
     printf("%s", (char *)buf);
 }
@@ -71,6 +71,10 @@ void process_ipc_client_destroy(void **handle)
         return;
     }
     _process_ipc_client_context_s *context = *handle;
+    log_info("process ipc client context: %p destroy, "
+            "terminal_handle_data: %p, socket_ipc_client: %p \n",
+            context, context->terminal_handle_data,
+            context->socket_ipc_client);
 
     process_handle_data_destroy(&context->terminal_handle_data);
 
@@ -108,9 +112,14 @@ void *process_ipc_client_create(hy_u32_t fifo_len)
             break;
         }
 
+        log_info("process ipc client context: %p create, "
+                "terminal_handle_data: %p, socket_ipc_client: %p \n",
+                context, context->terminal_handle_data,
+                context->socket_ipc_client);
         return context;
     } while (0);
 
+    log_error("process ipc client context: %p create failed \n", context);
     process_ipc_client_destroy((void *)&context);
     return NULL;
 }

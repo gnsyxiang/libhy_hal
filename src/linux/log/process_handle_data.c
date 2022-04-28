@@ -83,13 +83,15 @@ void process_handle_data_destroy(process_handle_data_s **context_pp)
         return;
     }
     process_handle_data_s *context = *context_pp;
+    log_info("process handle data context: %p destroy, fifo: %p, id: %0lx \n",
+            context, context->fifo, context->id);
 
     while (!FIFO_IS_EMPTY(context->fifo)) {
         usleep(10 * 1000);
     }
     context->is_exit = 1;
     pthread_cond_signal(&context->cond);
-    usleep(1000);
+    usleep(10 * 1000);
     pthread_join(context->id, NULL);
 
     pthread_mutex_destroy(&context->mutex);
@@ -144,9 +146,12 @@ process_handle_data_s *process_handle_data_create(const char *name,
         pthread_setname_np(context->id, name);
 #endif
 
+        log_info("process handle data context: %p create, fifo: %p, id: %0lx \n",
+                context, context->fifo, context->id);
         return context;
     } while (0);
 
+    log_error("process handle data context: %p create failed \n", context);
     process_handle_data_destroy(&context);
     return NULL;
 }

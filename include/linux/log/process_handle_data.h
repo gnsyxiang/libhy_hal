@@ -28,13 +28,6 @@ extern "C" {
 
 #include "fifo.h"
 
-/**
- * @brief 
- *
- * @param args 
- *
- * @return 
- */
 typedef void (*process_handle_data_cb_t)(void *buf, hy_u32_t len, void *args);
 
 typedef struct {
