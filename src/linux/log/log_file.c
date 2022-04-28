@@ -24,13 +24,13 @@
 
 #include "log_file.h"
 
-hy_s32_t log_file_write(hy_s32_t *fd, const void *buf, hy_u32_t len)
+hy_s32_t log_file_write(hy_s32_t fd, const void *buf, hy_u32_t len)
 {
     hy_s32_t ret;
     hy_u32_t nleft;
     const void *ptr;
 
-    if (*fd < 0) {
+    if (fd < 0) {
         return -1;
     }
 
@@ -38,14 +38,12 @@ hy_s32_t log_file_write(hy_s32_t *fd, const void *buf, hy_u32_t len)
     nleft = len;
 
     while (nleft > 0) {
-        ret = write(*fd, ptr, nleft);
+        ret = write(fd, ptr, nleft);
         if (ret <= 0) {
             if (ret < 0 && errno == EINTR) {
                 ret = 0;
             } else {
-                log_error("fd close, fd: %d \n", *fd);
-                close(*fd);
-                *fd = -1;
+                log_error("fd close, fd: %d \n", fd);
                 return -1;
             }
         }
@@ -57,26 +55,24 @@ hy_s32_t log_file_write(hy_s32_t *fd, const void *buf, hy_u32_t len)
     return len;
 }
 
-hy_s32_t log_file_read(hy_s32_t *fd, void *buf, hy_u32_t len)
+hy_s32_t log_file_read(hy_s32_t fd, void *buf, hy_u32_t len)
 {
     hy_s32_t ret = 0;
 
-    if (*fd < 0) {
+    if (fd < 0) {
         return -1;
     }
 
-    ret = read(*fd, buf, len);
+    ret = read(fd, buf, len);
     if (ret < 0) {
         if (EINTR == errno || EAGAIN == errno || EWOULDBLOCK == errno) {
             ret = 0;
         } else {
-            log_error("read failed, fd: %d \n", *fd);
-            *fd = -1;
+            log_error("read failed, fd: %d \n", fd);
             ret = -1;
         }
     } else if (ret == 0) {
-        log_error("fd close, fd: %d \n", *fd);
-        *fd = -1;
+        log_error("fd close, fd: %d \n", fd);
         ret = -1;
     }
 
