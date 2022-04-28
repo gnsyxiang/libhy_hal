@@ -37,12 +37,11 @@ _no_install_headers_com += \
                            log_file.h               \
                            log_private.h            \
                            log_socket.h             \
+                           log_socket_ipc.h         \
                            process_handle_data.h    \
                            process_ipc_client.h     \
                            process_ipc_server.h     \
                            process_single.h         \
-                           socket_ipc_client.h      \
-                           socket_ipc_server.h      \
                            socket_node_fd.h         \
                            thread_specific_data.h
 

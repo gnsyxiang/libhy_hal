@@ -55,12 +55,11 @@ _sources_com    += \
                    log_fifo.c               \
                    log_file.c               \
                    log_socket.c             \
+                   log_socket_ipc.c         \
                    process_handle_data.c    \
                    process_ipc_client.c     \
                    process_ipc_server.c     \
                    process_single.c         \
-                   socket_ipc_client.c      \
-                   socket_ipc_server.c      \
                    socket_node_fd.c         \
                    thread_specific_data.c
 
