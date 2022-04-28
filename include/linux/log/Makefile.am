@@ -30,15 +30,16 @@ install_includedir      = $(includedir)/@project_name@
 # add necessary content
 # ---------------------
 _no_install_headers_com += \
-                           dynamic_array.h      \
-                           epoll_helper.h       \
-                           fifo.h               \
-                           fifo_async.h         \
-                           log_private.h        \
-                           process_ipc_client.h \
-                           process_ipc_server.h \
-                           process_single.h     \
-                           socket_ipc_client.h  \
+                           dynamic_array.h          \
+                           epoll_helper.h           \
+                           fifo.h                   \
+                           fifo_async.h             \
+                           log_private.h            \
+                           process_handle_data.h    \
+                           process_ipc_client.h     \
+                           process_ipc_server.h     \
+                           process_single.h         \
+                           socket_ipc_client.h      \
                            socket_ipc_server.h
 
 _install_headers_com    += hy_log.h

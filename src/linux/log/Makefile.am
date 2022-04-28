@@ -48,15 +48,16 @@ _include_com    += \
                    -I$(top_srcdir)/include
 
 _sources_com    += \
-                   dynamic_array.c      \
-                   epoll_helper.c       \
-                   fifo.c               \
-                   fifo_async.c         \
-                   hy_log.c             \
-                   process_ipc_client.c \
-                   process_ipc_server.c \
-                   process_single.c     \
-                   socket_ipc_client.c  \
+                   dynamic_array.c          \
+                   epoll_helper.c           \
+                   fifo.c                   \
+                   fifo_async.c             \
+                   hy_log.c                 \
+                   process_handle_data.c    \
+                   process_ipc_client.c     \
+                   process_ipc_server.c     \
+                   process_single.c         \
+                   socket_ipc_client.c      \
                    socket_ipc_server.c
 
 _cppflags_com   += \
