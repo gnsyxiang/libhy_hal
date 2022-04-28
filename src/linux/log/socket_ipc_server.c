@@ -29,6 +29,42 @@
 
 #include "socket_ipc_server.h"
 
+static hy_s32_t _ipc_server_fd_create(socket_ipc_server_s *context, const char *name)
+{
+    do {
+        context->fd = socket(AF_UNIX, SOCK_STREAM, 0);
+        if (context->fd < 0) {
+            log_error("socket failed \n");
+            break;
+        }
+
+        char ipc_path[SOCKET_IPC_SERVER_NAME_LEN_MAX] = {0};
+        snprintf(ipc_path, sizeof(ipc_path), "%s/%s", "/tmp", name);
+        if (0 == access(ipc_path, F_OK)) {
+            remove(ipc_path);
+        }
+
+        hy_u32_t addr_len;
+        struct sockaddr_un addr;
+        addr.sun_family = AF_UNIX;
+        strcpy(addr.sun_path, ipc_path);
+        addr_len = strlen(ipc_path) + offsetof(struct sockaddr_un, sun_path);
+        if (bind(context->fd, (const struct sockaddr *)&addr, addr_len) < 0) {
+            log_error("bind failed, fd: %d \n", context->fd);
+            break;
+        }
+
+        if (listen(context->fd, SOMAXCONN) < 0) {
+            log_error("listen failed, fd: %d \n", context->fd);
+            return -1;
+        }
+
+        return 0;
+    } while (0);
+
+    return -1;
+}
+
 static void _epoll_handle_data(epoll_helper_cb_param_s *cb_param)
 {
     assert(cb_param);
@@ -84,31 +120,9 @@ socket_ipc_server_s *socket_ipc_server_create(const char *name,
             break;
         }
 
-        context->fd = socket(AF_UNIX, SOCK_STREAM, 0);
-        if (context->fd < 0) {
-            log_error("socket failed \n");
+        if (0 != _ipc_server_fd_create(context, name)) {
+            log_error("_ipc_server_fd_create failed \n");
             break;
-        }
-
-        char ipc_path[SOCKET_IPC_SERVER_NAME_LEN_MAX] = {0};
-        snprintf(ipc_path, sizeof(ipc_path), "%s/%s", "/tmp", name);
-        if (0 == access(ipc_path, F_OK)) {
-            remove(ipc_path);
-        }
-
-        hy_u32_t addr_len;
-        struct sockaddr_un addr;
-        addr.sun_family = AF_UNIX;
-        strcpy(addr.sun_path, ipc_path);
-        addr_len = strlen(ipc_path) + offsetof(struct sockaddr_un, sun_path);
-        if (bind(context->fd, (const struct sockaddr *)&addr, addr_len) < 0) {
-            log_error("bind failed, fd: %d \n", context->fd);
-            break;
-        }
-
-        if (listen(context->fd, SOMAXCONN) < 0) {
-            log_error("listen failed, fd: %d \n", context->fd);
-            return NULL;
         }
 
         context->epoll_helper = epoll_helper_create("HY_EH_listen_fd",

@@ -38,6 +38,34 @@ hy_s32_t socket_ipc_client_write(socket_ipc_client_s *context,
     return log_file_write(&context->fd, buf, len);
 }
 
+static hy_s32_t _ipc_client_fd_create(socket_ipc_client_s *context, const char *name)
+{
+    do {
+        context->fd = socket(AF_UNIX, SOCK_STREAM, 0);
+        if (context->fd < 0) {
+            log_error("socket failed \n");
+            break;
+        }
+
+        char ipc_path[SOCKET_IPC_SERVER_NAME_LEN_MAX] = {0};
+        snprintf(ipc_path, sizeof(ipc_path), "%s/%s", "/tmp", name);
+
+        hy_u32_t addr_len;
+        struct sockaddr_un addr;
+        addr.sun_family = AF_UNIX;
+        strcpy(addr.sun_path, ipc_path);
+        addr_len = strlen(ipc_path) + offsetof(struct sockaddr_un, sun_path);
+
+        if (connect(context->fd, (const struct sockaddr *)&addr, addr_len) < 0) {
+            close(context->fd);
+            context->fd = -1;
+        }
+        return 0;
+    } while (0);
+
+    return -1;
+}
+
 void socket_ipc_client_destroy(socket_ipc_client_s **context_pp)
 {
     if (!context_pp || !*context_pp) {
@@ -69,24 +97,9 @@ socket_ipc_client_s *socket_ipc_client_create(const char *name)
             break;
         }
 
-        context->fd = socket(AF_UNIX, SOCK_STREAM, 0);
-        if (context->fd < 0) {
-            log_error("socket failed \n");
+        if (0 != _ipc_client_fd_create(context, name)) {
+            log_error("_ipc_client_fd_create failed \n");
             break;
-        }
-
-        char ipc_path[SOCKET_IPC_SERVER_NAME_LEN_MAX] = {0};
-        snprintf(ipc_path, sizeof(ipc_path), "%s/%s", "/tmp", name);
-
-        hy_u32_t addr_len;
-        struct sockaddr_un addr;
-        addr.sun_family = AF_UNIX;
-        strcpy(addr.sun_path, ipc_path);
-        addr_len = strlen(ipc_path) + offsetof(struct sockaddr_un, sun_path);
-
-        if (connect(context->fd, (const struct sockaddr *)&addr, addr_len) < 0) {
-            close(context->fd);
-            context->fd = -1;
         }
 
         log_info("socket ipc client context: %p create, fd: %d \n",
