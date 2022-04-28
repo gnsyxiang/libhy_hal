@@ -36,6 +36,7 @@ _no_install_headers_com += \
                            log_fifo.h               \
                            log_file.h               \
                            log_private.h            \
+                           log_socket.h             \
                            process_handle_data.h    \
                            process_ipc_client.h     \
                            process_ipc_server.h     \

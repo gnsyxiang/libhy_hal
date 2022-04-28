@@ -22,7 +22,9 @@
 
 #include "hy_list.h"
 #include "log_file.h"
+#include "log_file.h"
 #include "format_cb.h"
+#include "log_socket.h"
 #include "log_private.h"
 #include "epoll_helper.h"
 #include "socket_node_fd.h"
@@ -36,9 +38,21 @@ typedef struct {
     epoll_helper_s          *epoll_helper;
     struct hy_list_head     list;
 
+    struct hy_list_head     socket_list;
+
+    log_socket_context_s    *log_sockt;
+
     process_handle_data_s   *tcp_handle_data;
     process_handle_data_s   *terminal_handle_data;
 } _process_ipc_server_context_s;
+
+static void _log_socket_accept_cb(hy_s32_t fd, void *args)
+{
+    _process_ipc_server_context_s *context = args;
+    socket_node_fd_s *socket_node_fd = socket_node_fd_create(fd, args);
+
+    hy_list_add_tail(&socket_node_fd->entry, &context->socket_list);
+}
 
 void process_ipc_server_write(void *handle, log_write_info_s *log_write_info)
 {
@@ -93,7 +107,14 @@ static void _accept_cb(hy_s32_t fd, void *args)
 
 static void _tcp_process_handle_data_cb(void *buf, hy_u32_t len, void *args)
 {
-    printf("%s", (char *)buf);
+    // printf("%s", (char *)buf);
+
+    socket_node_fd_s *pos;
+    _process_ipc_server_context_s *context = args;
+
+    hy_list_for_each_entry(pos, &context->socket_list, entry) {
+        log_file_write(&pos->cb_param->fd, buf, len);
+    }
 }
 
 static void _terminal_process_handle_data_cb(void *buf, hy_u32_t len, void *args)
@@ -110,8 +131,12 @@ void process_ipc_server_destroy(void **handle)
 
     epoll_helper_destroy(&context->epoll_helper);
 
+    log_socket_destroy(&context->log_sockt);
+
     process_handle_data_destroy(&context->terminal_handle_data);
     process_handle_data_destroy(&context->tcp_handle_data);
+
+    socket_node_fd_list_destroy(&context->socket_list, -1);
 
     socket_node_fd_list_destroy(&context->list, -1);
 
@@ -135,6 +160,7 @@ void *process_ipc_server_create(hy_u32_t fifo_len)
         }
 
         HY_INIT_LIST_HEAD(&context->list);
+        HY_INIT_LIST_HEAD(&context->socket_list);
 
         context->epoll_helper = epoll_helper_create("HY_EH_new_fd",
                 100, _epoll_handle_data);
@@ -161,6 +187,13 @@ void *process_ipc_server_create(hy_u32_t fifo_len)
                 _accept_cb, context);
         if (!context->socket_ipc_server) {
             log_error("socket_ipc_server_create failed \n");
+            break;
+        }
+
+        context->log_sockt = log_socket_create(8080,
+                _log_socket_accept_cb, context);
+        if (!context->log_sockt) {
+            log_error("log_socket_create failed \n");
             break;
         }
 

@@ -54,6 +54,7 @@ _sources_com    += \
                    hy_log.c                 \
                    log_fifo.c               \
                    log_file.c               \
+                   log_socket.c             \
                    process_handle_data.c    \
                    process_ipc_client.c     \
                    process_ipc_server.c     \

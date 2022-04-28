@@ -49,7 +49,7 @@ typedef void (*epoll_helper_cb_t)(epoll_helper_cb_param_s *cb_param);
 /**
  * @brief epoll上下文
  */
-typedef struct {
+typedef struct epoll_helper_tag {
     hy_u32_t            max_event;          ///< 内核监控的最大数
     hy_s32_t            fd;                 ///< epoll文件描述符
 
