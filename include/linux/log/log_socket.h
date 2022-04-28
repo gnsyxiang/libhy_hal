@@ -26,24 +26,16 @@ extern "C" {
 
 #include "hy_type.h"
 
-struct epoll_helper_tag;
-struct epoll_helper_cb_param_tag;
+/**
+ * @brief 
+ */
+typedef enum {
+    LOG_SOCKET_TYPE_CLIENT,   ///< 
+    LOG_SOCKET_TYPE_SERVER,   ///< 
+} log_socket_type_e;
 
-typedef void (*log_socket_accept_cb_t)(hy_s32_t fd, void *args);
-
-typedef struct log_socket_context_tag {
-    hy_s32_t                            fd;
-    struct epoll_helper_tag             *epoll_helper;
-    struct epoll_helper_cb_param_tag    *cb_param;
-
-    log_socket_accept_cb_t              accept_cb;
-    void                                *args;
-} log_socket_context_s;
-
-log_socket_context_s *log_socket_create(hy_u16_t port,
-        log_socket_accept_cb_t accept_cb, void *args);
-
-void log_socket_destroy(log_socket_context_s **context_pp);
+hy_s32_t log_socket_ipc_create(const char *ip,
+        hy_u16_t port, log_socket_type_e type);
 
 #ifdef __cplusplus
 }
