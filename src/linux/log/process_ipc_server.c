@@ -120,7 +120,7 @@ static void _epoll_handle_data(epoll_helper_cb_param_s *cb_param)
     hy_s32_t ret = 0;
     char buf[1024] = {0};
 
-    ret = log_file_read(cb_param->fd, buf, sizeof(buf));
+    ret = log_file_read(&cb_param->fd, buf, sizeof(buf));
     if (ret > 0) {
         process_handle_data_write(context->tcp_handle_data, buf, ret);
         epoll_helper_set(context->epoll_helper, EPOLLIN | EPOLLET, cb_param);

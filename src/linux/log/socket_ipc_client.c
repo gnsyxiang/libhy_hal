@@ -35,7 +35,7 @@ hy_s32_t socket_ipc_client_write(socket_ipc_client_s *context,
     assert(context);
     assert(buf);
 
-    return log_file_write(context->fd, buf, len);
+    return log_file_write(&context->fd, buf, len);
 }
 
 void socket_ipc_client_destroy(socket_ipc_client_s **context_pp)

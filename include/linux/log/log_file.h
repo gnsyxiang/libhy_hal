@@ -26,8 +26,8 @@ extern "C" {
 
 #include "hy_type.h"
 
-hy_s32_t log_file_write(hy_s32_t fd, const void *buf, hy_u32_t len);
-hy_s32_t log_file_read(hy_s32_t fd, void *buf, hy_u32_t len);
+hy_s32_t log_file_write(hy_s32_t *fd, const void *buf, hy_u32_t len);
+hy_s32_t log_file_read(hy_s32_t *fd, void *buf, hy_u32_t len);
 
 #ifdef __cplusplus
 }
