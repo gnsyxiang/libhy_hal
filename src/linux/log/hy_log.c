@@ -46,6 +46,7 @@ typedef struct {
     void                *write_h;
 } _log_context_s;
 
+pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
 static hy_s32_t _is_init = 0;
 static _log_context_s _context;
 
@@ -91,6 +92,7 @@ void HyLogWrite(HyLogAddiInfo_s *addi_info, char *fmt, ...)
             process_ipc_server_write(context->write_h, &log_write_info);
             break;
         default:
+            log_error("error mode \n");
             break;
     }
     va_end(args);
@@ -98,8 +100,7 @@ void HyLogWrite(HyLogAddiInfo_s *addi_info, char *fmt, ...)
 
 static void _thread_specific_data_reset_cb(void *handle)
 {
-    dynamic_array_s *dynamic_array = handle;
-    DYNAMIC_ARRAY_RESET(dynamic_array);
+    DYNAMIC_ARRAY_RESET((dynamic_array_s *)handle);
 }
 
 static void _thread_specific_data_destroy_cb(void *handle)
@@ -136,6 +137,7 @@ void HyLogDeInit(void)
             process_ipc_server_destroy(&context->write_h);
             break;
         default:
+            log_error("error mode \n");
             break;
     }
 
@@ -149,10 +151,14 @@ hy_s32_t HyLogInit(HyLogConfig_s *log_c)
         return -1;
     }
 
+    pthread_mutex_lock(&lock);
     if (_is_init) {
         log_error("The logging system has been initialized \n");
+        pthread_mutex_unlock(&lock);
         return -1;
     }
+    _is_init = 1;
+    pthread_mutex_unlock(&lock);
 
     _log_context_s *context = &_context;
     HyLogSaveConfig_s *save_c = &log_c->save_c;
@@ -182,6 +188,7 @@ hy_s32_t HyLogInit(HyLogConfig_s *log_c)
                 context->write_h = process_ipc_server_create(log_c->fifo_len);
                 break;
             default:
+                log_error("error mode \n");
                 break;
         }
         if (!context->write_h) {
@@ -189,7 +196,6 @@ hy_s32_t HyLogInit(HyLogConfig_s *log_c)
             break;
         }
 
-        _is_init = 1;
         log_info("log context: %p create \n", context);
         return 0;
     } while (0);
