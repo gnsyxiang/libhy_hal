@@ -33,6 +33,7 @@ _no_install_headers_com += \
                            dynamic_array.h          \
                            epoll_helper.h           \
                            fifo.h                   \
+                           format_cb.h              \
                            log_private.h            \
                            process_handle_data.h    \
                            process_ipc_client.h     \

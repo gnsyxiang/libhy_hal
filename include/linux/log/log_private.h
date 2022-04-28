@@ -27,23 +27,17 @@ extern "C" {
 #include <stdarg.h>
 #include <sys/time.h>
 
-#include "hy_log.h"
-#include "dynamic_array.h"
+#include "format_cb.h"
 
 #define HY_LOG_DEBUG
 
-#define FORMAT_LOG_CB_CNT       (7)
-#define FORMAT_LOG_CB_TYPE      (2)
-
 #define SOCKET_IPC_SERVER_NAME_LEN_MAX      (64)
 #define LOG_IPC_NAME                        "log_ipc_socket"
-
-typedef hy_s32_t (*(format_log_cb_t[FORMAT_LOG_CB_TYPE]))
-    (dynamic_array_s *dynamic_array, HyLogAddiInfo_s *addi_info);
+#define _ARRAY_CNT(array) (hy_u32_t)(sizeof((array)) / sizeof((array)[0]))
 
 typedef struct {
-    format_log_cb_t     *format_log_cb;
-    hy_u32_t            format_log_cb_cnt;
+    format_cb_t         *format_cb;
+    hy_u32_t            format_cb_cnt;
 
     dynamic_array_s     *dynamic_array;
     HyLogAddiInfo_s     *addi_info;

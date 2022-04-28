@@ -34,9 +34,9 @@ void process_single_write(void *handle, log_write_info_s *log_write_info)
     HyLogAddiInfo_s *addi_info = log_write_info->addi_info;
     dynamic_array_s *dynamic_array = log_write_info->dynamic_array;
 
-    for (hy_u32_t i = 0; i < log_write_info->format_log_cb_cnt; ++i) {
-        if (log_write_info->format_log_cb[i][0]) {
-            log_write_info->format_log_cb[i][0](dynamic_array, addi_info);
+    for (hy_u32_t i = 0; i < log_write_info->format_cb_cnt; ++i) {
+        if (log_write_info->format_cb[i][0]) {
+            log_write_info->format_cb[i][0](dynamic_array, addi_info);
         }
     }
 
