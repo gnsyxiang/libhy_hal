@@ -56,57 +56,56 @@ dynamic_array_s *dynamic_array_create(hy_u32_t min_len, hy_u32_t max_len);
 /**
  * @brief 销毁动态数组
  *
- * @param dynamic_array_pp 句柄的地址（二级指针）
+ * @param context_pp 句柄的地址（二级指针）
  */
-void dynamic_array_destroy(dynamic_array_s **dynamic_array_pp);
+void dynamic_array_destroy(dynamic_array_s **context_pp);
 
 /**
  * @brief 从动态数组中读取
  *
- * @param dynamic_array 句柄
+ * @param context 句柄
  * @param buf 数组
  * @param len 长度
  *
  * @return 返回实际读取到的长度
  */
-hy_s32_t dynamic_array_read(dynamic_array_s *dynamic_array,
-        void *buf, hy_u32_t len);
+hy_s32_t dynamic_array_read(dynamic_array_s *context, void *buf, hy_u32_t len);
 
 /**
  * @brief 向动态数组中写入
  *
- * @param dynamic_array 句柄
+ * @param context 句柄
  * @param buf 数组
  * @param len 长度
  *
  * @return 成功返回写入的长度，失败返回-1
  */
-hy_s32_t dynamic_array_write(dynamic_array_s *dynamic_array,
+hy_s32_t dynamic_array_write(dynamic_array_s *context,
         const void *buf, hy_u32_t len);
 
 /**
  * @brief 向动态数组中写入
  *
- * @param dynamic_array 句柄
+ * @param context 句柄
  * @param format 用户格式
  * @param args 用户数据
  *
  * @return 成功返回写入的长度，失败返回-1
  */
-hy_s32_t dynamic_array_write_vprintf(dynamic_array_s *dynamic_array,
+hy_s32_t dynamic_array_write_vprintf(dynamic_array_s *context,
         const char *format, va_list *args);
 
 /**
  * @brief 复位动态数组，清空里面的数据
  *
- * @param _dynamic_array 句柄
+ * @param _context 句柄
  */
-#define DYNAMIC_ARRAY_RESET(_dynamic_array)                             \
-    do {                                                                \
-        memset((_dynamic_array)->buf, '\0', (_dynamic_array)->len);     \
-        (_dynamic_array)->cur_len   = 0;                                \
-        (_dynamic_array)->write_pos = 0;                                \
-        (_dynamic_array)->read_pos  = 0;                                \
+#define DYNAMIC_ARRAY_RESET(_context)                       \
+    do {                                                    \
+        memset((_context)->buf, '\0', (_context)->len);     \
+        (_context)->cur_len     = 0;                        \
+        (_context)->write_pos   = 0;                        \
+        (_context)->read_pos    = 0;                        \
     } while (0);
 
 #ifdef __cplusplus
