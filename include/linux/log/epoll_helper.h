@@ -81,7 +81,7 @@ epoll_helper_s *epoll_helper_create(const char *name, hy_u32_t max_event,
 void epoll_helper_destroy(epoll_helper_s **context_pp);
 
 /**
- * @brief 设置监控对象
+ * @brief 增加监控对象
  *
  * @param context 句柄
  * @param event epoll事件
@@ -89,8 +89,19 @@ void epoll_helper_destroy(epoll_helper_s **context_pp);
  *
  * @return 成功返回0，失败返回-1
  */
-hy_s32_t epoll_helper_set(epoll_helper_s *context,
+hy_s32_t epoll_helper_add(epoll_helper_s *context,
         hy_u32_t event, epoll_helper_cb_param_s *cb_param);
+
+/**
+ * @brief 删除监控对象
+ *
+ * @param context 句柄
+ * @param cb_param 回调函数的参数
+ *
+ * @return 成功返回0，失败返回-1
+ */
+hy_s32_t epoll_helper_del(epoll_helper_s *context,
+        epoll_helper_cb_param_s *cb_param);
 
 #ifdef __cplusplus
 }
