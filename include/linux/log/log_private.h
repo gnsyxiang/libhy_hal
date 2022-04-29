@@ -38,7 +38,6 @@ extern "C" {
 #define LOG_SOCKET_IPC_NAME                 "log_socket_ipc"
 #define LOG_ARRAY_CNT(array)                (hy_u32_t)(sizeof((array)) / sizeof((array)[0]))
 
-#ifdef HY_LOG_DEBUG
 #define log_time(_buf, _buf_len)                                                \
     ({                                                                          \
         time_t t = 0;                                                           \
@@ -52,6 +51,7 @@ extern "C" {
                 tm.tm_hour, tm.tm_min, tm.tm_sec, (hy_u32_t)tv.tv_usec / 1000); \
      })
 
+#ifdef HY_LOG_DEBUG
 #define log_error(fmt, ...)                                             \
     do {                                                                \
         char buf[32] = {0};                                             \

@@ -116,7 +116,7 @@ void *process_client_create(hy_u32_t fifo_len)
         }
 
         context->fd = log_socket_ipc_create(LOG_SOCKET_IPC_NAME,
-                LOG_SOCKET_TYPE_CLIENT);
+                LOG_SOCKET_TYPE_IPC_CLIENT);
         if (context->fd < 0) {
             log_error("log_socket_ipc_create failed \n");
             break;
