@@ -40,7 +40,7 @@ typedef struct {
 typedef struct {
     struct hy_list_head     list;
     hy_u32_t                list_cnt;
-} _main_context_t;
+} _main_context_s;
 
 static void _dump_list(struct hy_list_head *list, const char *tag)
 {
@@ -92,7 +92,7 @@ static void _sort(struct hy_list_head *list, hy_s32_t low, hy_s32_t high)
     }
 }
 
-static void _quick_sort(_main_context_t *context)
+static void _quick_sort(_main_context_s *context)
 {
     _dump_list(&context->list, "before");
     _sort(&context->list, 0, context->list_cnt);
@@ -101,7 +101,7 @@ static void _quick_sort(_main_context_t *context)
 
 int main(int argc, char *argv[])
 {
-    _main_context_t *context = HY_MEM_MALLOC_RET_VAL(_main_context_t *,
+    _main_context_s *context = HY_MEM_MALLOC_RET_VAL(_main_context_s *,
             sizeof(*context), -1);
 
     HyLogInit_m(10 * 1024, HY_LOG_MODE_PROCESS_SINGLE, HY_LOG_LEVEL_TRACE, HY_LOG_OUTFORMAT_ALL);

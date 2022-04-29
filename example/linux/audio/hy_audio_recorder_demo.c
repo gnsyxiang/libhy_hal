@@ -67,7 +67,7 @@ static void _signal_user_cb(void *args)
     context->is_exit = 1;
 }
 
-static void _module_destroy(_main_context_s **context_pp)
+static void _bool_module_destroy(void)
 {
     _main_context_s *context = *context_pp;
 
@@ -170,7 +170,7 @@ int main(int argc, char *argv[])
 
     close(context->fd);
 
-    _module_destroy(&context);
+    _bool_module_destroy();
 
     return 0;
 }

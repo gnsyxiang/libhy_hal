@@ -78,8 +78,9 @@ typedef struct {
                 }                                                               \
             }                                                                   \
         }                                                                       \
-                                                                                \
-        if (i < len) {                                                          \
+        if (i >= len) {                                                         \
+            return 0;                                                           \
+        } else {                                                                \
             hy_s32_t j;                                                         \
             for (j = i - 1; j >= 0; j--) {                                      \
                 HyModuleCreateHandle_s *_create = &module[j];                   \
@@ -87,7 +88,7 @@ typedef struct {
                     _create->destroy_handle_cb(_create->handle);                \
                 }                                                               \
             }                                                                   \
-            return NULL;                                                        \
+            return -1;                                                          \
         }                                                                       \
     } while(0)
 
@@ -147,8 +148,9 @@ typedef struct {
                 }                                                               \
             }                                                                   \
         }                                                                       \
-                                                                                \
-        if (i < len) {                                                          \
+        if (i >= len) {                                                         \
+            return 0;                                                           \
+        } else {                                                                \
             hy_s32_t j;                                                         \
             for (j = i - 1; j >= 0; j--) {                                      \
                 HyModuleCreateBool_s *_create = &module[j];                     \
@@ -156,7 +158,7 @@ typedef struct {
                     _create->destroy_bool_cb();                                 \
                 }                                                               \
             }                                                                   \
-            return NULL;                                                        \
+            return -1;                                                          \
         }                                                                       \
     } while(0)
 

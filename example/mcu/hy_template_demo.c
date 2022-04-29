@@ -39,7 +39,7 @@ typedef struct {
     hy_s32_t    is_exit;
 } _main_context_s;
 
-static void _module_destroy(_main_context_s **context_pp)
+static void _bool_module_destroy(void)
 {
     _main_context_s *context = *context_pp;
 
@@ -97,7 +97,7 @@ int main(int argc, char *argv[])
     for (;;) {
     }
 
-    _module_destroy(&context);
+    _bool_module_destroy();
 
     return 0;
 }

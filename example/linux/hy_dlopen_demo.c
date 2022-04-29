@@ -56,7 +56,7 @@ static void _signal_user_cb(void *args)
     context->is_exit = 1;
 }
 
-static void _module_destroy(_main_context_s **context_pp)
+static void _bool_module_destroy(void)
 {
     HyModuleDestroyBool_s bool_module[] = {
         {"signal",          HySignalDestroy },
@@ -127,7 +127,7 @@ int main(int argc, char *argv[])
         sleep(1);
     }
 
-    _module_destroy(&context);
+    _bool_module_destroy();
 
     return 0;
 }

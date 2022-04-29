@@ -39,13 +39,13 @@ typedef struct {
     void        *ipc_socket_h;
 
     hy_s32_t    exit_flag;
-} _main_context_t;
+} _main_context_s;
 
 static void _signal_error_cb(void *args)
 {
     LOGE("------error cb\n");
 
-    _main_context_t *context = args;
+    _main_context_s *context = args;
     context->exit_flag = 1;
 }
 
@@ -53,13 +53,13 @@ static void _signal_user_cb(void *args)
 {
     LOGW("------user cb\n");
 
-    _main_context_t *context = args;
+    _main_context_s *context = args;
     context->exit_flag = 1;
 }
 
-static void _module_destroy(_main_context_t **context_pp)
+static void _bool_module_destroy(void)
 {
-    _main_context_t *context = *context_pp;
+    _main_context_s *context = *context_pp;
 
     // note: 增加或删除要同步到HyModuleCreateHandle_s中
     HyModuleDestroyHandle_s module[] = {
@@ -78,9 +78,9 @@ static void _module_destroy(_main_context_t **context_pp)
     HY_MEM_FREE_PP(context_pp);
 }
 
-static _main_context_t *_module_create(void)
+static _main_context_s *_module_create(void)
 {
-    _main_context_t *context = HY_MEM_MALLOC_RET_VAL(_main_context_t *, sizeof(*context), NULL);
+    _main_context_s *context = HY_MEM_MALLOC_RET_VAL(_main_context_s *, sizeof(*context), NULL);
 
     HyLogConfig_s log_c;
     HY_MEMSET(&log_c, sizeof(log_c));
@@ -132,7 +132,7 @@ static _main_context_t *_module_create(void)
 
 int main(int argc, char *argv[])
 {
-    _main_context_t *context = _module_create();
+    _main_context_s *context = _module_create();
     if (!context) {
         LOGE("_module_create faild \n");
         return -1;
@@ -160,7 +160,7 @@ int main(int argc, char *argv[])
         sleep(1);
     }
 
-    _module_destroy(&context);
+    _bool_module_destroy();
 
     return 0;
 }

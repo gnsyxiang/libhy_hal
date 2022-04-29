@@ -47,13 +47,13 @@ typedef struct {
     void        *ipc_socket_h;
 
     hy_s32_t    exit_flag;
-} _main_context_t;
+} _main_context_s;
 
 static void _signal_error_cb(void *args)
 {
     LOGE("------error cb\n");
 
-    _main_context_t *context = args;
+    _main_context_s *context = args;
     context->exit_flag = 1;
 }
 
@@ -61,13 +61,13 @@ static void _signal_user_cb(void *args)
 {
     LOGW("------user cb\n");
 
-    _main_context_t *context = args;
+    _main_context_s *context = args;
     context->exit_flag = 1;
 }
 
-static void _module_destroy(_main_context_t **context_pp)
+static void _bool_module_destroy(void)
 {
-    _main_context_t *context = *context_pp;
+    _main_context_s *context = *context_pp;
 
     HyModuleDestroyBool_s bool_module[] = {
         {"signal",          HySignalDestroy },
@@ -79,9 +79,9 @@ static void _module_destroy(_main_context_t **context_pp)
     HY_MEM_FREE_PP(context_pp);
 }
 
-static _main_context_t *_module_create(void)
+static _main_context_s *_module_create(void)
 {
-    _main_context_t *context = HY_MEM_MALLOC_RET_VAL(_main_context_t *, sizeof(*context), NULL);
+    _main_context_s *context = HY_MEM_MALLOC_RET_VAL(_main_context_s *, sizeof(*context), NULL);
 
     HyLogConfig_s log_c;
     HY_MEMSET(&log_c, sizeof(log_c));
@@ -124,7 +124,7 @@ static hy_s32_t _socket_communication(void *args)
     LOGT("args: %p \n", args);
 
     _accept_s *accept = args;
-    _main_context_t *context = accept->args;
+    _main_context_s *context = accept->args;
     char buf[8] = {0};
     hy_s32_t ret = 0;
 
@@ -170,13 +170,13 @@ static void _accept_cb(void *handle, void *args)
 
 static hy_s32_t _thread_loop_cb(void *args)
 {
-    return HyIpcSocketAccept(((_main_context_t *)args)->ipc_socket_h,
+    return HyIpcSocketAccept(((_main_context_s *)args)->ipc_socket_h,
             _accept_cb, args);
 }
 
 int main(int argc, char *argv[])
 {
-    _main_context_t *context = _module_create();
+    _main_context_s *context = _module_create();
     if (!context) {
         LOGE("_module_create faild \n");
         return -1;
@@ -211,7 +211,7 @@ int main(int argc, char *argv[])
     // mem leak for waitting thread exit
     sleep(2);
 
-    _module_destroy(&context);
+    _bool_module_destroy();
 
     return 0;
 }
