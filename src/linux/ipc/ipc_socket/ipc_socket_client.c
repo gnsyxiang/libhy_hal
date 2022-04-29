@@ -23,10 +23,10 @@
 #include <sys/un.h>
 #include <stddef.h>
 
-#include "hy_hal/hy_assert.h"
-#include "hy_hal/hy_log.h"
-#include "hy_hal/hy_mem.h"
-#include "hy_hal/hy_string.h"
+#include "hy_assert.h"
+#include "hy_log.h"
+#include "hy_mem.h"
+#include "hy_string.h"
 
 #include "ipc_socket_client.h"
 

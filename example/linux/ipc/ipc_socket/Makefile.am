@@ -41,7 +41,10 @@ _define_com     +=
 
 _include_com    += \
                    -I$(top_srcdir)/include/$(run_os)/ipc/ipc_socket     \
+                   -I$(top_srcdir)/include/$(run_os)/log                \
+                   -I$(top_srcdir)/include/$(run_os)/thread             \
                    -I$(top_srcdir)/include/$(run_os)                    \
+                   -I$(top_srcdir)/include/hy_hal                       \
                    -I$(top_srcdir)/include
 
 _sources_com    +=
