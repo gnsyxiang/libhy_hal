@@ -45,7 +45,7 @@ hy_s32_t epoll_helper_add(epoll_helper_s *context,
     return epoll_ctl(context->fd, EPOLL_CTL_ADD, cb_param->fd, &ev);
 }
 
-static void *_thread_cb(void *args)
+static void *_epoll_thread_cb(void *args)
 {
     hy_s32_t ret = 0;
     hy_u32_t len = 0;
@@ -166,7 +166,7 @@ epoll_helper_s *epoll_helper_create(const char *name, hy_u32_t max_event,
             break;
         }
 
-        if (0 != pthread_create(&context->id, NULL, _thread_cb, context)) {
+        if (0 != pthread_create(&context->id, NULL, _epoll_thread_cb, context)) {
             log_error("pthread_create failed \n");
             break;
         }

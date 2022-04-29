@@ -30,8 +30,7 @@
 
 #include "log_socket.h"
 
-hy_s32_t log_socket_create(const char *ip,
-        hy_u16_t port, log_socket_type_e type)
+hy_s32_t log_socket_create(const char *ip, hy_u16_t port, log_socket_type_e type)
 {
     hy_s32_t fd = -1;
     do {
@@ -73,7 +72,7 @@ hy_s32_t log_socket_create(const char *ip,
         return fd;
     } while (0);
 
-    log_error("log socket fd: %d create \n", fd);
+    log_error("log socket fd: %d create failed \n", fd);
     return -1;
 }
 
