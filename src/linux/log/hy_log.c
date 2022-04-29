@@ -67,6 +67,10 @@ void HyLogWrite(HyLogAddiInfo_s *addi_info, char *fmt, ...)
     dynamic_array_s *dynamic_array = NULL;
     log_write_info_s log_write_info;
     va_list args;
+    if (!context->write_h) {
+        log_error("the write handle is NULL \n");
+        return;
+    }
 
     dynamic_array = thread_specific_data_fetch();
     if (!dynamic_array) {

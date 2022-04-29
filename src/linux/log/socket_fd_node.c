@@ -27,6 +27,10 @@
 
 void socket_fd_node_list_destroy(struct hy_list_head *list, hy_s32_t fd)
 {
+    if (!list) {
+        log_error("the param is NULL \n");
+        return;
+    }
     socket_fd_node_s *pos, *n;
 
     if (fd > 0) {

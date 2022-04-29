@@ -157,6 +157,10 @@ static void _terminal_process_handle_data_cb(void *buf, hy_u32_t len, void *args
 
 void process_server_destroy(void **handle)
 {
+    if (!handle || !*handle) {
+        log_error("the param is NULL \n");
+        return;
+    }
     _process_server_context_s *context = *handle;
     log_info("process ipc server context: %p destroy \n", context);
 
