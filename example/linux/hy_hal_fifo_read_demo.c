@@ -58,29 +58,16 @@ static void _signal_user_cb(void *args)
 
 static void _bool_module_destroy(void)
 {
-    _main_context_s *context = *context_pp;
-
-    // note: 增加或删除要同步到HyModuleCreateHandle_s中
-    HyModuleDestroyHandle_s module[] = {
-        {"hal fifo",    &context->hal_fifo_h,   HyHalFifoDestroy},
-    };
-
-    HY_MODULE_RUN_DESTROY_HANDLE(module);
-
     HyModuleDestroyBool_s bool_module[] = {
         {"signal",          HySignalDestroy },
         {"log",             HyLogDeInit     },
     };
 
     HY_MODULE_RUN_DESTROY_BOOL(bool_module);
-
-    HY_MEM_FREE_PP(context_pp);
 }
 
-static _main_context_s *_module_create(void)
+static hy_s32_t _bool_module_create(_main_context_s *context)
 {
-    _main_context_s *context = HY_MEM_MALLOC_RET_VAL(_main_context_s *, sizeof(*context), NULL);
-
     HyLogConfig_s log_c;
     HY_MEMSET(&log_c, sizeof(log_c));
     log_c.fifo_len                  = 10 * 1024;
@@ -113,7 +100,20 @@ static _main_context_s *_module_create(void)
     };
 
     HY_MODULE_RUN_CREATE_BOOL(bool_module);
+}
 
+static void _handle_module_destroy(_main_context_s *context)
+{
+    // note: 增加或删除要同步到HyModuleCreateHandle_s中
+    HyModuleDestroyHandle_s module[] = {
+        {"hal fifo",    &context->hal_fifo_h,   HyHalFifoDestroy},
+    };
+
+    HY_MODULE_RUN_DESTROY_HANDLE(module);
+}
+
+static hy_s32_t _handle_module_create(_main_context_s *context)
+{
     HyHalFifoConfig_s fifo_c;
     HY_MEMSET(&fifo_c, sizeof(fifo_c));
     fifo_c.name     = "fifo_demo";
@@ -125,30 +125,39 @@ static _main_context_s *_module_create(void)
     };
 
     HY_MODULE_RUN_CREATE_HANDLE(module);
-
-    return context;
 }
 
 int main(int argc, char *argv[])
 {
-    _main_context_s *context = _module_create();
-    if (!context) {
-        LOGE("_module_create faild \n");
-        return -1;
-    }
+    _main_context_s *context = NULL;
+    do {
+        context = HY_MEM_MALLOC_BREAK(_main_context_s *, sizeof(*context));
 
-    LOGE("version: %s, data: %s, time: %s \n", "0.1.0", __DATE__, __TIME__);
+        if (0 != _bool_module_create(context)) {
+            printf("_bool_module_create failed \n");
+            break;
+        }
 
-    hy_s32_t test = -1;
+        if (0 != _handle_module_create(context)) {
+            LOGE("_handle_module_create failed \n");
+            break;
+        }
 
-    HyHalFifoRead(context->hal_fifo_h, &test, sizeof(test));
-    LOGD("test: %d \n", test);
+        LOGE("version: %s, data: %s, time: %s \n", "0.1.0", __DATE__, __TIME__);
 
-    while (!context->is_exit) {
-        sleep(1);
-    }
+        hy_s32_t test = -1;
 
+        HyHalFifoRead(context->hal_fifo_h, &test, sizeof(test));
+        LOGD("test: %d \n", test);
+
+        while (!context->is_exit) {
+            sleep(1);
+        }
+    } while (0);
+
+    _handle_module_destroy(context);
     _bool_module_destroy();
+    HY_MEM_FREE_PP(&context);
 
     return 0;
 }

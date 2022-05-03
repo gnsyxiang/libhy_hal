@@ -60,14 +60,10 @@ static void _bool_module_destroy(void)
     };
 
     HY_MODULE_RUN_DESTROY_BOOL(bool_module);
-
-    HY_MEM_FREE_PP(context_pp);
 }
 
-static _main_context_s *_module_create(void)
+static hy_s32_t _bool_module_create(_main_context_s *context)
 {
-    _main_context_s *context = HY_MEM_MALLOC_RET_VAL(_main_context_s *, sizeof(*context), NULL);
-
     HyLogConfig_s log_c;
     HY_MEMSET(&log_c, sizeof(log_c));
     log_c.fifo_len                  = 10 * 1024;
@@ -100,8 +96,6 @@ static _main_context_s *_module_create(void)
     };
 
     HY_MODULE_RUN_CREATE_BOOL(bool_module);
-
-    return context;
 }
 
 static void _print_mem_val(const char *buf, hy_u32_t len)
@@ -114,33 +108,37 @@ static void _print_mem_val(const char *buf, hy_u32_t len)
 
 int main(int argc, char *argv[])
 {
-    _main_context_s *context = _module_create();
-    if (!context) {
-        LOGE("_module_create faild \n");
-        return -1;
-    }
+    _main_context_s *context = NULL;
+    do {
+        context = HY_MEM_MALLOC_BREAK(_main_context_s *, sizeof(*context));
 
-    LOGE("version: %s, data: %s, time: %s \n", "0.1.0", __DATE__, __TIME__);
+        if (0 != _bool_module_create(context)) {
+            printf("_bool_module_create failed \n");
+            break;
+        }
 
-    int num_int = 0x11223344;
-    _print_mem_val((char *)&num_int, 4);
+        LOGE("version: %s, data: %s, time: %s \n", "0.1.0", __DATE__, __TIME__);
 
-    char array[] = {0x11, 0x22};
-    short num_short = HY_MEM_LSB_BYTE_2_WORD(array);
-    _print_mem_val((char *)&num_short, 2);
+        int num_int = 0x11223344;
+        _print_mem_val((char *)&num_int, 4);
 
-    short num_short_1 = 0x1122;
-    char num_short_array[2] = {0};
-    HY_MEM_LSB_WORD_2_BYTE(num_short_array, num_short_1);
-    _print_mem_val((char *)&num_short, 2);
+        char array[] = {0x11, 0x22};
+        short num_short = HY_MEM_LSB_BYTE_2_WORD(array);
+        _print_mem_val((char *)&num_short, 2);
 
-    while (!context->is_exit) {
-        sleep(1);
-    }
+        short num_short_1 = 0x1122;
+        char num_short_array[2] = {0};
+        HY_MEM_LSB_WORD_2_BYTE(num_short_array, num_short_1);
+        _print_mem_val((char *)&num_short, 2);
+
+        while (!context->is_exit) {
+            sleep(1);
+        }
+    } while (0);
 
     _bool_module_destroy();
+    HY_MEM_FREE_PP(&context);
 
     return 0;
 }
-
 

@@ -101,8 +101,9 @@ static void _quick_sort(_main_context_s *context)
 
 int main(int argc, char *argv[])
 {
-    _main_context_s *context = HY_MEM_MALLOC_RET_VAL(_main_context_s *,
-            sizeof(*context), -1);
+    _main_context_s *context = NULL;
+
+    context = HY_MEM_MALLOC_RET_VAL(_main_context_s *, sizeof(*context), -1);
 
     HyLogInit_m(10 * 1024, HY_LOG_MODE_PROCESS_SINGLE, HY_LOG_LEVEL_TRACE, HY_LOG_OUTFORMAT_ALL);
 

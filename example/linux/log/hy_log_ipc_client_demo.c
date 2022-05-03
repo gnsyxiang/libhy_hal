@@ -64,14 +64,10 @@ static void _bool_module_destroy(void)
     };
 
     HY_MODULE_RUN_DESTROY_BOOL(bool_module);
-
-    HY_MEM_FREE_PP(context_pp);
 }
 
-static _main_context_s *_module_create(void)
+static hy_s32_t _bool_module_create(_main_context_s *context)
 {
-    _main_context_s *context = HY_MEM_MALLOC_RET_VAL(_main_context_s *, sizeof(*context), NULL);
-
     HyLogConfig_s log_c;
     HY_MEMSET(&log_c, sizeof(log_c));
     log_c.fifo_len                  = 10 * 1024;
@@ -104,8 +100,6 @@ static _main_context_s *_module_create(void)
     };
 
     HY_MODULE_RUN_CREATE_BOOL(bool_module);
-
-    return context;
 }
 
 static hy_s32_t _thread_loop_cb(void *args)
@@ -122,36 +116,41 @@ static hy_s32_t _thread_loop_cb(void *args)
 
 int main(int argc, char *argv[])
 {
-    _main_context_s *context = _module_create();
-    if (!context) {
-        LOGE("_module_create faild \n");
-        return -1;
-    }
+    _main_context_s *context = NULL;
+    do {
+        context = HY_MEM_MALLOC_BREAK(_main_context_s *, sizeof(*context));
 
-    LOGE("version: %s, data: %s, time: %s \n", "0.1.0", __DATE__, __TIME__);
-
-    char buf[16] = {0};
-    for (hy_s32_t i = 0; i < _THREAD_NUM; ++i) {
-        HY_MEMSET(buf, sizeof(buf));
-
-        snprintf(buf, sizeof(buf), "HY_LI_client_%d", i);
-
-        context->thread_h[i] = HyThreadCreate_m(buf, _thread_loop_cb, context);
-        if (!context->thread_h[i]) {
-            LOGE("HyThreadCreate_m failed \n");
+        if (0 != _bool_module_create(context)) {
+            printf("_bool_module_create failed \n");
             break;
         }
-    }
 
-    while (!context->is_exit) {
-        sleep(1);
-    }
+        LOGE("version: %s, data: %s, time: %s \n", "0.1.0", __DATE__, __TIME__);
+
+        char buf[16] = {0};
+        for (hy_s32_t i = 0; i < _THREAD_NUM; ++i) {
+            HY_MEMSET(buf, sizeof(buf));
+
+            snprintf(buf, sizeof(buf), "HY_LI_client_%d", i);
+
+            context->thread_h[i] = HyThreadCreate_m(buf, _thread_loop_cb, context);
+            if (!context->thread_h[i]) {
+                LOGE("HyThreadCreate_m failed \n");
+                break;
+            }
+        }
+
+        while (!context->is_exit) {
+            sleep(1);
+        }
+    } while (0);
 
     for (hy_s32_t i = 0; i < _THREAD_NUM; ++i) {
         HyThreadDestroy(&context->thread_h[i]);
     }
 
     _bool_module_destroy();
+    HY_MEM_FREE_PP(&context);
 
     return 0;
 }

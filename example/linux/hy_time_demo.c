@@ -62,14 +62,10 @@ static void _bool_module_destroy(void)
     };
 
     HY_MODULE_RUN_DESTROY_BOOL(bool_module);
-
-    HY_MEM_FREE_PP(context_pp);
 }
 
-static _main_context_s *_module_create(void)
+static hy_s32_t _bool_module_create(_main_context_s *context)
 {
-    _main_context_s *context = HY_MEM_MALLOC_RET_VAL(_main_context_s *, sizeof(*context), NULL);
-
     HyLogConfig_s log_c;
     HY_MEMSET(&log_c, sizeof(log_c));
     log_c.fifo_len                  = 10 * 1024;
@@ -102,46 +98,49 @@ static _main_context_s *_module_create(void)
     };
 
     HY_MODULE_RUN_CREATE_BOOL(bool_module);
-
-    return context;
 }
 
 int main(int argc, char *argv[])
 {
-    _main_context_s *context = _module_create();
-    if (!context) {
-        LOGE("_module_create faild \n");
-        return -1;
-    }
+    _main_context_s *context = NULL;
+    do {
+        context = HY_MEM_MALLOC_BREAK(_main_context_s *, sizeof(*context));
 
-    LOGE("version: %s, data: %s, time: %s \n", "0.1.0", __DATE__, __TIME__);
+        if (0 != _bool_module_create(context)) {
+            printf("_bool_module_create failed \n");
+            break;
+        }
 
-    char buf[64] = {0};
-    HyTimeFormatLocalTime(buf, sizeof(buf));
-    LOGD("buf: %s \n", buf);
+        LOGE("version: %s, data: %s, time: %s \n", "0.1.0", __DATE__, __TIME__);
 
-    time_t utc = HyTimeGetUTC();
-    LOGD("utc: %ld \n", utc);
+        char buf[64] = {0};
+        HyTimeFormatLocalTime(buf, sizeof(buf));
+        LOGD("buf: %s \n", buf);
 
-    time_t s = HyTimeFormatTime2UTC("2021-12-20_19-00-00");
-    LOGD("s: %ld \n", s);
+        time_t utc = HyTimeGetUTC();
+        LOGD("utc: %ld \n", utc);
 
-    unsigned long long us = HyTimeGetUTCUs();
-    LOGD("us: %lld \n", us);
+        time_t s = HyTimeFormatTime2UTC("2021-12-20_19-00-00");
+        LOGD("s: %ld \n", s);
 
-    unsigned long long ms = HyTimeGetUTCMs();
-    LOGD("ms: %lld \n", ms);
+        unsigned long long us = HyTimeGetUTCUs();
+        LOGD("us: %lld \n", us);
 
-    time_t start;
-    time_t end;
-    HyTimeGetCurDayRegion(1642466044, &start, &end);
-    LOGD("region[%ld, %ld] \n", start, end);
+        unsigned long long ms = HyTimeGetUTCMs();
+        LOGD("ms: %lld \n", ms);
 
-    while (!context->is_exit) {
-        sleep(1);
-    }
+        time_t start;
+        time_t end;
+        HyTimeGetCurDayRegion(1642466044, &start, &end);
+        LOGD("region[%ld, %ld] \n", start, end);
+
+        while (!context->is_exit) {
+            sleep(1);
+        }
+    } while (0);
 
     _bool_module_destroy();
+    HY_MEM_FREE_PP(&context);
 
     return 0;
 }

@@ -54,9 +54,9 @@ static void _bool_module_destroy(void)
     HY_MEM_FREE_PP(context_pp);
 }
 
-static _main_context_s *_module_create(void)
+static hy_s32_t _bool_module_create(_main_context_s *context)
 {
-    _main_context_s *context = HY_MEM_MALLOC_RET_VAL(_main_context_s *, sizeof(*context), NULL);
+    _main_context_s *context = HY_MEM_MALLOC_BREAK(_main_context_s *, sizeof(*context), NULL);
 
     HyUartConfig_t debug_uart_config;
     debug_uart_config.config_save.num       = DEBUG_UART_NUM;
