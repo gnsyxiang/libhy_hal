@@ -45,6 +45,7 @@ typedef struct {
 
     process_handle_data_s   *tcp_handle_data;
     process_handle_data_s   *terminal_handle_data;
+    pthread_mutex_t         terminal_mutex;
 } _process_server_context_s;
 
 void process_server_write(void *handle, log_write_info_s *log_write_info)
@@ -132,11 +133,13 @@ static void _epoll_handle_data(epoll_helper_cb_param_s *cb_param)
 
 static void _tcp_process_handle_data_cb(void *buf, hy_u32_t len, void *args)
 {
-    // printf("%s", (char *)buf);
-
     socket_fd_node_s *pos, *n;
     hy_s32_t ret = 0;
     _process_server_context_s *context = args;
+
+    pthread_mutex_lock(&context->terminal_mutex);
+    printf("%s", (char *)buf);
+    pthread_mutex_unlock(&context->terminal_mutex);
 
     hy_list_for_each_entry_safe(pos, n, &context->socket_list, entry) {
         ret = log_file_write(pos->cb_param.fd, buf, len);
@@ -152,7 +155,11 @@ static void _tcp_process_handle_data_cb(void *buf, hy_u32_t len, void *args)
 
 static void _terminal_process_handle_data_cb(void *buf, hy_u32_t len, void *args)
 {
-    // printf("%s", (char *)buf);
+    _process_server_context_s *context = args;
+
+    pthread_mutex_lock(&context->terminal_mutex);
+    printf("%s", (char *)buf);
+    pthread_mutex_unlock(&context->terminal_mutex);
 }
 
 void process_server_destroy(void **handle)
@@ -174,6 +181,8 @@ void process_server_destroy(void **handle)
 
     socket_fd_node_list_destroy(&context->socket_list, -1);
     socket_fd_node_list_destroy(&context->list, -1);
+
+    pthread_mutex_destroy(&context->terminal_mutex);
 
     free(context);
     *handle = NULL;
@@ -197,6 +206,11 @@ void *process_server_create(hy_u32_t fifo_len)
 
         HY_INIT_LIST_HEAD(&context->list);
         HY_INIT_LIST_HEAD(&context->socket_list);
+
+        if (0 != pthread_mutex_init(&context->terminal_mutex, NULL)) {
+            log_error("pthread_mutex_init failed \n");
+            break;
+        }
 
         context->epoll_helper = epoll_helper_create("hy_server_epoll",
                 100, _epoll_handle_data);

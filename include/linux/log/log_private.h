@@ -31,7 +31,7 @@ extern "C" {
 #include <sys/time.h>
 #include <stdlib.h>
 
-#define HY_LOG_DEBUG
+// #define HY_LOG_DEBUG
 
 #define SOCKET_IPC_SERVER_NAME_LEN_MAX      (64)
 #define LOG_SOCKET_PORT                     (7890)
