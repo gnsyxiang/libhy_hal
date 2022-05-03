@@ -2,7 +2,7 @@
  * 
  * Release under GPLv-3.0.
  * 
- * @file    process_ipc_client.c
+ * @file    process_client.c
  * @brief   
  * @author  gnsyxiang <gnsyxiang@163.com>
  * @date    26/04 2022 13:58
@@ -21,18 +21,19 @@
 
 #include "format_cb.h"
 #include "log_private.h"
-#include "socket_ipc_client.h"
+#include "log_file.h"
+#include "log_socket.h"
 #include "process_handle_data.h"
 
-#include "process_ipc_client.h"
+#include "process_client.h"
 
 typedef struct {
     process_handle_data_s   *terminal_handle_data;
 
-    socket_ipc_client_s     *socket_ipc_client;
+    hy_s32_t                fd;
 } _process_ipc_client_context_s;
 
-void process_ipc_client_write(void *handle, log_write_info_s *log_write_info)
+void process_client_write(void *handle, log_write_info_s *log_write_info)
 {
     _process_ipc_client_context_s *context = handle;
     HyLogAddiInfo_s *addi_info = log_write_info->addi_info;
@@ -55,8 +56,15 @@ void process_ipc_client_write(void *handle, log_write_info_s *log_write_info)
         }
     }
 
-    socket_ipc_client_write(context->socket_ipc_client,
-            dynamic_array->buf, dynamic_array->cur_len);
+    if (context->fd > 0) {
+        if (log_file_write(context->fd,
+                    dynamic_array->buf, dynamic_array->cur_len) < 0) {
+            log_info("the other party closes \n");
+
+            close(context->fd);
+            context->fd = -1;
+        }
+    }
 }
 
 static void _terminal_process_handle_data_cb(void *buf,
@@ -65,7 +73,7 @@ static void _terminal_process_handle_data_cb(void *buf,
     printf("%s", (char *)buf);
 }
 
-void process_ipc_client_destroy(void **handle)
+void process_client_destroy(void **handle)
 {
     if (!handle || !*handle) {
         log_error("the param is error \n");
@@ -73,19 +81,19 @@ void process_ipc_client_destroy(void **handle)
     }
     _process_ipc_client_context_s *context = *handle;
     log_info("process ipc client context: %p destroy, "
-            "terminal_handle_data: %p, socket_ipc_client: %p \n",
+            "terminal_handle_data: %p, fd: %d \n",
             context, context->terminal_handle_data,
-            context->socket_ipc_client);
+            context->fd);
 
     process_handle_data_destroy(&context->terminal_handle_data);
 
-    socket_ipc_client_destroy(&context->socket_ipc_client);
+    close(context->fd);
 
     free(context);
     *handle = NULL;
 }
 
-void *process_ipc_client_create(hy_u32_t fifo_len)
+void *process_client_create(hy_u32_t fifo_len)
 {
     if (fifo_len <= 0) {
         log_error("the param is error \n");
@@ -107,21 +115,21 @@ void *process_ipc_client_create(hy_u32_t fifo_len)
             break;
         }
 
-        context->socket_ipc_client = socket_ipc_client_create(LOG_IPC_NAME);
-        if (!context->socket_ipc_client) {
-            log_error("socket_ipc_client_create failed \n");
+        context->fd = log_socket_ipc_create(LOG_SOCKET_IPC_NAME,
+                LOG_SOCKET_TYPE_IPC_CLIENT);
+        if (context->fd < 0) {
+            log_error("log_socket_ipc_create failed \n");
             break;
         }
 
         log_info("process ipc client context: %p create, "
-                "terminal_handle_data: %p, socket_ipc_client: %p \n",
-                context, context->terminal_handle_data,
-                context->socket_ipc_client);
+                "terminal_handle_data: %p, fd: %d \n",
+                context, context->terminal_handle_data, context->fd);
         return context;
     } while (0);
 
     log_error("process ipc client context: %p create failed \n", context);
-    process_ipc_client_destroy((void *)&context);
+    process_client_destroy((void *)&context);
     return NULL;
 }
 

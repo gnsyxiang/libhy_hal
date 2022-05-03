@@ -22,14 +22,14 @@
 #include <string.h>
 #include <unistd.h>
 
-#include "hy_hal/hy_type.h"
-#include "hy_hal/hy_mem.h"
-#include "hy_hal/hy_string.h"
-#include "hy_hal/hy_signal.h"
-#include "hy_hal/hy_module.h"
-#include "hy_hal/hy_thread.h"
-#include "hy_hal/hy_hal_utils.h"
-#include "hy_hal/hy_log.h"
+#include "hy_type.h"
+#include "hy_mem.h"
+#include "hy_string.h"
+#include "hy_signal.h"
+#include "hy_module.h"
+#include "hy_thread.h"
+#include "hy_hal_utils.h"
+#include "hy_log.h"
 
 #include "hy_ipc_socket.h"
 
@@ -47,13 +47,13 @@ typedef struct {
     void        *ipc_socket_h;
 
     hy_s32_t    exit_flag;
-} _main_context_t;
+} _main_context_s;
 
 static void _signal_error_cb(void *args)
 {
     LOGE("------error cb\n");
 
-    _main_context_t *context = args;
+    _main_context_s *context = args;
     context->exit_flag = 1;
 }
 
@@ -61,28 +61,22 @@ static void _signal_user_cb(void *args)
 {
     LOGW("------user cb\n");
 
-    _main_context_t *context = args;
+    _main_context_s *context = args;
     context->exit_flag = 1;
 }
 
-static void _module_destroy(_main_context_t **context_pp)
+static void _bool_module_destroy(void)
 {
-    _main_context_t *context = *context_pp;
-
     HyModuleDestroyBool_s bool_module[] = {
         {"signal",          HySignalDestroy },
         {"log",             HyLogDeInit     },
     };
 
     HY_MODULE_RUN_DESTROY_BOOL(bool_module);
-
-    HY_MEM_FREE_PP(context_pp);
 }
 
-static _main_context_t *_module_create(void)
+static hy_s32_t _bool_module_create(_main_context_s *context)
 {
-    _main_context_t *context = HY_MEM_MALLOC_RET_VAL(_main_context_t *, sizeof(*context), NULL);
-
     HyLogConfig_s log_c;
     HY_MEMSET(&log_c, sizeof(log_c));
     log_c.fifo_len                  = 10 * 1024;
@@ -115,8 +109,6 @@ static _main_context_t *_module_create(void)
     };
 
     HY_MODULE_RUN_CREATE_BOOL(bool_module);
-
-    return context;
 }
 
 static hy_s32_t _socket_communication(void *args)
@@ -124,7 +116,7 @@ static hy_s32_t _socket_communication(void *args)
     LOGT("args: %p \n", args);
 
     _accept_s *accept = args;
-    _main_context_t *context = accept->args;
+    _main_context_s *context = accept->args;
     char buf[8] = {0};
     hy_s32_t ret = 0;
 
@@ -170,48 +162,55 @@ static void _accept_cb(void *handle, void *args)
 
 static hy_s32_t _thread_loop_cb(void *args)
 {
-    return HyIpcSocketAccept(((_main_context_t *)args)->ipc_socket_h,
+    return HyIpcSocketAccept(((_main_context_s *)args)->ipc_socket_h,
             _accept_cb, args);
 }
 
 int main(int argc, char *argv[])
 {
-    _main_context_t *context = _module_create();
-    if (!context) {
-        LOGE("_module_create faild \n");
-        return -1;
-    }
+    _main_context_s *context = NULL;
+    do {
+        context = HY_MEM_MALLOC_BREAK(_main_context_s *, sizeof(*context));
 
-    LOGE("version: %s, data: %s, time: %s \n", "0.1.0", __DATE__, __TIME__);
+        if (0 != _bool_module_create(context)) {
+            printf("_bool_module_create failed \n");
+            break;
+        }
 
-    context->ipc_socket_h = HyIpcSocketCreate_m(_IPC_SOCKET_IPC_NAME,
-            HY_IPC_SOCKET_TYPE_SERVER);
-    if (!context->ipc_socket_h) {
-        LOGE("HyIpcSocketCreate failed \n");
-    }
+        LOGE("version: %s, data: %s, time: %s \n", "0.1.0", __DATE__, __TIME__);
 
-    LOGI("fd: %d \n",       HyIpcSocketGetFD(context->ipc_socket_h));
-    LOGI("type: %d \n",     HyIpcSocketGetType(context->ipc_socket_h));
-    LOGI("ipc_name: %s \n", HyIpcSocketGetName(context->ipc_socket_h));
+        context->ipc_socket_h = HyIpcSocketCreate_m(_IPC_SOCKET_IPC_NAME,
+                HY_IPC_SOCKET_TYPE_SERVER);
+        if (!context->ipc_socket_h) {
+            LOGE("HyIpcSocketCreate failed \n");
+            break;
+        }
 
-    context->thread_handle = HyThreadCreate_m("hy_accept",
-            _thread_loop_cb, context);
-    if (!context->thread_handle) {
-        LOGE("HyThreadCreate_m failed \n");
-    }
+        LOGI("fd: %d \n",       HyIpcSocketGetFD(context->ipc_socket_h));
+        LOGI("type: %d \n",     HyIpcSocketGetType(context->ipc_socket_h));
+        LOGI("ipc_name: %s \n", HyIpcSocketGetName(context->ipc_socket_h));
 
-    while (!context->exit_flag) {
-        sleep(1);
-    }
+        context->thread_handle = HyThreadCreate_m("hy_accept",
+                _thread_loop_cb, context);
+        if (!context->thread_handle) {
+            LOGE("HyThreadCreate_m failed \n");
+            break;
+        }
+
+        while (!context->exit_flag) {
+            sleep(1);
+        }
+    } while (0);
 
     HyIpcSocketDestroy(&context->ipc_socket_h);
-
     HyThreadDestroy(&context->thread_handle);
 
     // mem leak for waitting thread exit
     sleep(2);
 
-    _module_destroy(&context);
+    _bool_module_destroy();
+    HY_MEM_FREE_PP(&context);
 
     return 0;
 }
+

@@ -19,113 +19,118 @@
  */
 #include <stdio.h>
 #include <unistd.h>
+#include <unistd.h>
 #include <sys/types.h>          /* See NOTES */
 #include <sys/socket.h>
 #include <arpa/inet.h>
+#include <sys/un.h>
+#include <stddef.h>
 
 #include "log_private.h"
-#include "epoll_helper.h"
 
 #include "log_socket.h"
 
-static void _epoll_handle_data(epoll_helper_cb_param_s *cb_param)
+hy_s32_t log_socket_create(const char *ip, hy_u16_t port, log_socket_type_e type)
 {
-    hy_s32_t fd;
-    log_socket_context_s *context = cb_param->args;
-
-    fd = accept(context->fd, NULL, NULL);
-    if (fd < 0) {
-        log_error("accept failed, fd: %d \n", context->fd);
-        return;
-    }
-    log_info("new socket client fd: %d \n", fd);
-
-    if (context->accept_cb) {
-        context->accept_cb(fd, context->args);
-    }
-
-    epoll_helper_set(context->epoll_helper, EPOLLIN | EPOLLET, cb_param);
-}
-
-void log_socket_destroy(log_socket_context_s **context_pp)
-{
-    if (!context_pp || !*context_pp) {
-        log_error("the param is NULL \n");
-        return;
-    }
-
-    log_socket_context_s *context = *context_pp;
-
-    epoll_helper_destroy(&context->epoll_helper);
-
-    close(context->fd);
-
-    free(context->cb_param);
-
-    free(context);
-    *context_pp = NULL;
-}
-
-log_socket_context_s *log_socket_create(hy_u16_t port,
-        log_socket_accept_cb_t accept_cb, void *args)
-{
-    if (!accept_cb) {
-        log_error("the param is NULL \n");
-        return NULL;
-    }
-
-    log_socket_context_s *context = NULL;
+    hy_s32_t fd = -1;
     do {
-        context = calloc(1, sizeof(*context));
-        if (!context) {
-            log_error("calloc failed \n");
-            break;
-        }
-        context->accept_cb = accept_cb;
-        context->args = args;
-
-        context->cb_param = calloc(1, sizeof(epoll_helper_cb_param_s));
-        if (!context->cb_param) {
-            log_error("calloc failed \n");
-            break;
-        }
-
-        context->fd = socket(AF_INET, SOCK_STREAM, 0);
-        if (context->fd < 0) {
+        fd = socket(AF_INET, SOCK_STREAM, 0);
+        if (fd < 0) {
             log_error("socket faild \n");
             break;
         }
 
-        int opt = SO_REUSEADDR;
-        setsockopt(context->fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
-
-        struct sockaddr_in server;
-        memset(&server, '\0', sizeof(server));
-        server.sin_family       = AF_INET;
-        server.sin_port         = htons(port);
-        server.sin_addr.s_addr  = htonl(INADDR_ANY);
-
-        if (bind(context->fd, (struct sockaddr *)&server, sizeof(server)) == -1) {
-            log_error("bind failed \n");
+        struct sockaddr_in addr;
+        memset(&addr, 0, sizeof(addr));
+        addr.sin_family = AF_INET;
+        addr.sin_port   = htons(port);
+        if (1 != inet_pton(AF_INET, ip, &addr.sin_addr)) {
+            log_error("inet_pton faild, ip: %s, port: %d \n", ip, port);
             break;
         }
 
-        if (listen(context->fd, 10) == -1) {
-            log_error("listen failed \n");
-            break;
+        if (type == LOG_SOCKET_TYPE_CLIENT) {
+            if (0 != connect(fd, (struct sockaddr*)&addr, sizeof(addr))) {
+                log_error("connect faild \n");
+                break;
+            }
+        } else {
+            addr.sin_addr.s_addr  = htonl(INADDR_ANY);
+
+            if (bind(fd, (struct sockaddr *)&addr, sizeof(addr)) == -1) {
+                log_error("bind failed \n");
+                break;
+            }
+
+            if (listen(fd, 10) == -1) {
+                log_error("listen failed \n");
+                break;
+            }
         }
 
-        context->epoll_helper = epoll_helper_create("HY_SV_socket", 100,
-                _epoll_handle_data);
-
-        context->cb_param->fd = context->fd;
-        context->cb_param->args = context;
-
-        epoll_helper_set(context->epoll_helper, EPOLLIN | EPOLLET, context->cb_param);
-
-        return context;
+        log_info("log socket fd: %d create \n", fd);
+        return fd;
     } while (0);
 
-    return NULL;
+    log_error("log socket fd: %d create failed \n", fd);
+    return -1;
+}
+
+hy_s32_t log_socket_ipc_create(const char *name, log_socket_type_e type)
+{
+    if (!name || strlen(name) <= 0) {
+        log_error("the param is error \n");
+        return -1;
+    }
+    hy_s32_t fd = -1;
+
+    do {
+        fd = socket(AF_UNIX, SOCK_STREAM, 0);
+        if (fd < 0) {
+            log_error("socket failed \n");
+            break;
+        }
+
+        char ipc_path[SOCKET_IPC_SERVER_NAME_LEN_MAX] = {0};
+        snprintf(ipc_path, sizeof(ipc_path), "%s/%s", "/tmp", name);
+
+        hy_u32_t addr_len;
+        struct sockaddr_un addr;
+        addr.sun_family = AF_UNIX;
+        strcpy(addr.sun_path, ipc_path);
+        addr_len = strlen(ipc_path) + offsetof(struct sockaddr_un, sun_path);
+
+        if (type == LOG_SOCKET_TYPE_IPC_CLIENT) {
+            if (connect(fd, (const struct sockaddr *)&addr, addr_len) < 0) {
+                log_error("connect failed fd: %d \n", fd);
+                break;
+            }
+        } else {
+            if (0 == access(ipc_path, F_OK)) {
+                remove(ipc_path);
+            }
+
+            if (bind(fd, (const struct sockaddr *)&addr, addr_len) < 0) {
+                log_error("bind failed, fd: %d \n", fd);
+                break;
+            }
+
+            if (listen(fd, SOMAXCONN) < 0) {
+                log_error("listen failed, fd: %d \n", fd);
+                break;
+            }
+        }
+
+        log_info("log socket ipc fd: %d create \n", fd);
+        return fd;
+    } while (0);
+
+    if (fd > 0) {
+        close(fd);
+        // fd = -1;
+    }
+
+    log_error("log socket ipc fd: %d create failed \n", fd);
+    return -1;
 }
 

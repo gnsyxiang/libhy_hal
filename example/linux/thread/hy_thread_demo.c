@@ -40,22 +40,6 @@ typedef struct {
     hy_s32_t    is_exit;
 } _main_context_s;
 
-static hy_s32_t _print_loop_cb(void *args)
-{
-    _main_context_s *context = args;
-
-    LOGI("name: %s, id: 0x%lx \n",
-            HyThreadGetName(context->thread_h),
-            HyThreadGetId(context->thread_h));
-
-    while (!context->is_exit) {
-        LOGI("haha \n");
-        sleep(1);
-    }
-
-    return -1;
-}
-
 static void _signal_error_cb(void *args)
 {
     LOGE("------error cb\n");
@@ -72,31 +56,18 @@ static void _signal_user_cb(void *args)
     context->is_exit = 1;
 }
 
-static void _module_destroy(_main_context_s **context_pp)
+static void _bool_module_destroy(void)
 {
-    _main_context_s *context = *context_pp;
-
-    // note: 增加或删除要同步到HyModuleCreateHandle_s中
-    HyModuleDestroyHandle_s module[] = {
-        {"thread",      &context->thread_h,     HyThreadDestroy},
-    };
-
-    HY_MODULE_RUN_DESTROY_HANDLE(module);
-
     HyModuleDestroyBool_s bool_module[] = {
         {"signal",          HySignalDestroy },
         {"log",             HyLogDeInit     },
     };
 
     HY_MODULE_RUN_DESTROY_BOOL(bool_module);
-
-    HY_MEM_FREE_PP(context_pp);
 }
 
-static _main_context_s *_module_create(void)
+static hy_s32_t _bool_module_create(_main_context_s *context)
 {
-    _main_context_s *context = HY_MEM_MALLOC_RET_VAL(_main_context_s *, sizeof(*context), NULL);
-
     HyLogConfig_s log_c;
     HY_MEMSET(&log_c, sizeof(log_c));
     log_c.fifo_len                  = 10 * 1024;
@@ -129,7 +100,36 @@ static _main_context_s *_module_create(void)
     };
 
     HY_MODULE_RUN_CREATE_BOOL(bool_module);
+}
 
+static hy_s32_t _print_loop_cb(void *args)
+{
+    _main_context_s *context = args;
+
+    LOGI("name: %s, id: 0x%lx \n",
+            HyThreadGetName(context->thread_h),
+            HyThreadGetId(context->thread_h));
+
+    while (!context->is_exit) {
+        LOGI("haha \n");
+        sleep(1);
+    }
+
+    return -1;
+}
+
+static void _handle_module_destroy(_main_context_s *context)
+{
+    // note: 增加或删除要同步到HyModuleCreateHandle_s中
+    HyModuleDestroyHandle_s module[] = {
+        {"thread",      &context->thread_h,     HyThreadDestroy},
+    };
+
+    HY_MODULE_RUN_DESTROY_HANDLE(module);
+}
+
+static hy_s32_t _handle_module_create(_main_context_s *context)
+{
     HyThreadConfig_s thread_config;
     HY_MEMSET(&thread_config, sizeof(thread_config));
     thread_config.save_c.thread_loop_cb    = _print_loop_cb;
@@ -143,8 +143,6 @@ static _main_context_s *_module_create(void)
     };
 
     HY_MODULE_RUN_CREATE_HANDLE(module);
-
-    return context;
 }
 
 static hy_s32_t _thread_detach_loop_cb(void *args)
@@ -156,31 +154,43 @@ static hy_s32_t _thread_detach_loop_cb(void *args)
 
 int main(int argc, char *argv[])
 {
-    _main_context_s *context = _module_create();
-    if (!context) {
-        LOGE("_module_create faild \n");
-        return -1;
-    }
+    _main_context_s *context = NULL;
+    do {
+        context = HY_MEM_MALLOC_BREAK(_main_context_s *, sizeof(*context));
 
-    LOGE("version: %s, data: %s, time: %s \n", "0.1.0", __DATE__, __TIME__);
+        if (0 != _bool_module_create(context)) {
+            printf("_bool_module_create failed \n");
+            break;
+        }
 
-    HyThreadConfig_s thread_config;
-    memset(&thread_config, '\0', sizeof(thread_config));
-    thread_config.save_c.destroy_mode      = HY_THREAD_DESTROY_MODE_GRACE;
-    thread_config.save_c.detach_mode       = HY_THREAD_DETACH_MODE_YES;
-    thread_config.save_c.thread_loop_cb    = _thread_detach_loop_cb;
-    thread_config.save_c.args              = context;
-    HY_STRNCPY(thread_config.save_c.name, HY_THREAD_NAME_LEN_MAX,
-            "hy_thd_demo_detach", HY_STRLEN("hy_thd_demo_detach"));
-    if (NULL == HyThreadCreate(&thread_config)) {
-        LOGE("HyThreadCreate_m fail \n");
-    }
+        if (0 != _handle_module_create(context)) {
+            LOGE("_handle_module_create failed \n");
+            break;
+        }
 
-    while (!context->is_exit) {
-        sleep(1);
-    }
+        LOGE("version: %s, data: %s, time: %s \n", "0.1.0", __DATE__, __TIME__);
 
-    _module_destroy(&context);
+        HyThreadConfig_s thread_config;
+        memset(&thread_config, '\0', sizeof(thread_config));
+        thread_config.save_c.destroy_mode      = HY_THREAD_DESTROY_MODE_GRACE;
+        thread_config.save_c.detach_mode       = HY_THREAD_DETACH_MODE_YES;
+        thread_config.save_c.thread_loop_cb    = _thread_detach_loop_cb;
+        thread_config.save_c.args              = context;
+        HY_STRNCPY(thread_config.save_c.name, HY_THREAD_NAME_LEN_MAX,
+                "hy_thd_demo_detach", HY_STRLEN("hy_thd_demo_detach"));
+        if (NULL == HyThreadCreate(&thread_config)) {
+            LOGE("HyThreadCreate_m fail \n");
+            break;
+        }
+
+        while (!context->is_exit) {
+            sleep(1);
+        }
+    } while (0);
+
+    _handle_module_destroy(context);
+    _bool_module_destroy();
+    HY_MEM_FREE_PP(&context);
 
     return 0;
 }

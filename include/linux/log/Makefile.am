@@ -37,13 +37,11 @@ _no_install_headers_com += \
                            log_file.h               \
                            log_private.h            \
                            log_socket.h             \
+                           process_client.h         \
                            process_handle_data.h    \
-                           process_ipc_client.h     \
-                           process_ipc_server.h     \
+                           process_server.h         \
                            process_single.h         \
-                           socket_ipc_client.h      \
-                           socket_ipc_server.h      \
-                           socket_node_fd.h         \
+                           socket_fd_node.h         \
                            thread_specific_data.h
 
 _install_headers_com    += hy_log.h

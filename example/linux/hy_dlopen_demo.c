@@ -56,7 +56,7 @@ static void _signal_user_cb(void *args)
     context->is_exit = 1;
 }
 
-static void _module_destroy(_main_context_s **context_pp)
+static void _bool_module_destroy(void)
 {
     HyModuleDestroyBool_s bool_module[] = {
         {"signal",          HySignalDestroy },
@@ -64,14 +64,10 @@ static void _module_destroy(_main_context_s **context_pp)
     };
 
     HY_MODULE_RUN_DESTROY_BOOL(bool_module);
-
-    HY_MEM_FREE_PP(context_pp);
 }
 
-static _main_context_s *_module_create(void)
+static hy_s32_t _bool_module_create(_main_context_s *context)
 {
-    _main_context_s *context = HY_MEM_MALLOC_RET_VAL(_main_context_s *, sizeof(*context), NULL);
-
     HyLogConfig_s log_c;
     HY_MEMSET(&log_c, sizeof(log_c));
     log_c.fifo_len                  = 10 * 1024;
@@ -104,30 +100,34 @@ static _main_context_s *_module_create(void)
     };
 
     HY_MODULE_RUN_CREATE_BOOL(bool_module);
-
-    return context;
 }
 
 int main(int argc, char *argv[])
 {
-    _main_context_s *context = _module_create();
-    if (!context) {
-        LOGE("_module_create faild \n");
-        return -1;
-    }
+    _main_context_s *context = NULL;
+    do {
+        context = HY_MEM_MALLOC_BREAK(_main_context_s *, sizeof(*context));
 
-    LOGE("version: %s, data: %s, time: %s \n", "0.1.0", __DATE__, __TIME__);
+        if (0 != _bool_module_create(context)) {
+            printf("_bool_module_create failed \n");
+            break;
+        }
 
-    void *handle = HyDlLibOpen("../lib/libautotools_demo_lib.so");
-    module_init_cb_t module_init = HyDlLibLoadSymbol(handle, "HyModuleAInit");
-    module_init();
-    HyDlLibClose(&handle);
+        LOGE("version: %s, data: %s, time: %s \n", "0.1.0", __DATE__, __TIME__);
 
-    while (!context->is_exit) {
-        sleep(1);
-    }
+        void *handle = HyDlLibOpen("../lib/libautotools_demo_lib.so");
+        module_init_cb_t module_init = HyDlLibLoadSymbol(handle, "HyCalcAdd");
+        module_init();
+        HyDlLibClose(&handle);
 
-    _module_destroy(&context);
+        while (!context->is_exit) {
+            sleep(1);
+        }
+
+    } while (0);
+
+    _bool_module_destroy();
+    HY_MEM_FREE_PP(&context);
 
     return 0;
 }
