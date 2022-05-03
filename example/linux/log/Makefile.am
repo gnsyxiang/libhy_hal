@@ -63,6 +63,14 @@ _ldadd_com      += \
                    $(top_builddir)/src/lib@project_name@.la \
                    $(ldadd_com)
 
+bin_PROGRAMS                    += hy_log_client_demo
+hy_log_client_demo_SOURCES      = $(_sources_com) hy_log_client_demo.c
+hy_log_client_demo_CPPFLAGS     = $(_cppflags_com)
+hy_log_client_demo_CFLAGS       = $(_cflags_com)
+hy_log_client_demo_CXXFLAGS     = $(_cxxflags_com)
+hy_log_client_demo_LDFLAGS      = $(_ldflags_com)
+hy_log_client_demo_LDADD        = $(_ldadd_com)
+
 bin_PROGRAMS                    += hy_log_demo
 hy_log_demo_SOURCES             = $(_sources_com) hy_log_demo.c
 hy_log_demo_CPPFLAGS            = $(_cppflags_com)

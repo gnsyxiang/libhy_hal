@@ -21,7 +21,6 @@
 #include <unistd.h>
 
 #include "log_private.h"
-#include "epoll_helper.h"
 
 #include "socket_fd_node.h"
 
