@@ -31,8 +31,8 @@ install_includedir      = $(includedir)/@project_name@
 # ---------------------
 _no_install_headers_com += \
                            dynamic_array.h          \
-                           epoll_helper.h           \
                            format_cb.h              \
+                           log_epoll.h              \
                            log_fifo.h               \
                            log_file.h               \
                            log_private.h            \

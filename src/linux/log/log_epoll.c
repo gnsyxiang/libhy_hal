@@ -2,7 +2,7 @@
  * 
  * Release under GPLv-3.0.
  * 
- * @file    epoll_helper.c
+ * @file    log_epoll.c
  * @brief   
  * @author  gnsyxiang <gnsyxiang@163.com>
  * @date    27/04 2022 15:48
@@ -22,10 +22,9 @@
 
 #include "log_private.h"
 
-#include "epoll_helper.h"
+#include "log_epoll.h"
 
-hy_s32_t epoll_helper_del(epoll_helper_s *context,
-        epoll_helper_cb_param_s *cb_param)
+hy_s32_t log_epoll_del(log_epoll_s *context, log_epoll_cb_param_s *cb_param)
 {
     assert(context);
     assert(cb_param);
@@ -33,8 +32,8 @@ hy_s32_t epoll_helper_del(epoll_helper_s *context,
     return epoll_ctl(context->fd, EPOLL_CTL_DEL, cb_param->fd, NULL);
 }
 
-hy_s32_t epoll_helper_add(epoll_helper_s *context,
-        hy_u32_t event, epoll_helper_cb_param_s *cb_param)
+hy_s32_t log_epoll_add(log_epoll_s *context,
+        hy_u32_t event, log_epoll_cb_param_s *cb_param)
 {
     assert(context);
     assert(cb_param);
@@ -49,8 +48,8 @@ static void *_epoll_thread_cb(void *args)
 {
     hy_s32_t ret = 0;
     hy_u32_t len = 0;
-    epoll_helper_s *context = args;
-    epoll_helper_cb_param_s *cb_param = NULL;
+    log_epoll_s *context = args;
+    log_epoll_cb_param_s *cb_param = NULL;
     struct epoll_event *events = NULL;
 
     len = context->max_event * sizeof(struct epoll_event);
@@ -82,8 +81,8 @@ static void *_epoll_thread_cb(void *args)
                 goto _L_EPOLL_1;
             }
 
-            if (context->epoll_helper_cb) {
-                context->epoll_helper_cb(cb_param);
+            if (context->log_epoll_cb) {
+                context->log_epoll_cb(cb_param);
             }
         }
     }
@@ -99,14 +98,14 @@ _L_EPOLL_1:
     return NULL;
 }
 
-void epoll_helper_destroy(epoll_helper_s **context_pp)
+void log_epoll_destroy(log_epoll_s **context_pp)
 {
     if (!context_pp || !*context_pp) {
         log_error("the param is NULL \n");
         return;
     }
 
-    epoll_helper_s *context = *context_pp;
+    log_epoll_s *context = *context_pp;
     log_info("epoll helper context: %p destroy, thread_id: 0x%lx, "
             "epoll_fd: %d, pipe_fd[0]: %d, pipe_fd[1]: %d \n",
             context, context->id, context->fd,
@@ -128,15 +127,15 @@ void epoll_helper_destroy(epoll_helper_s **context_pp)
     *context_pp = NULL;
 }
 
-epoll_helper_s *epoll_helper_create(const char *name, hy_u32_t max_event,
-        epoll_helper_cb_t epoll_helper_cb)
+log_epoll_s *log_epoll_create(const char *name, hy_u32_t max_event,
+        log_epoll_cb_t log_epoll_cb)
 {
-    if (!name || max_event <=0 || !epoll_helper_cb) {
+    if (!name || max_event <=0 || !log_epoll_cb) {
         log_error("the param is NULL \n");
         return NULL;
     }
 
-    epoll_helper_s *context = NULL;
+    log_epoll_s *context = NULL;
     do {
         context = calloc(1, sizeof(*context));
         if (!context) {
@@ -144,7 +143,7 @@ epoll_helper_s *epoll_helper_create(const char *name, hy_u32_t max_event,
             break;
         }
 
-        context->epoll_helper_cb    = epoll_helper_cb;
+        context->log_epoll_cb    = log_epoll_cb;
         context->max_event          = max_event;
 
         context->fd = epoll_create1(0);
@@ -183,7 +182,7 @@ epoll_helper_s *epoll_helper_create(const char *name, hy_u32_t max_event,
     } while (0);
 
     log_error("epoll helper context: %p create failed \n", context);
-    epoll_helper_destroy(&context);
+    log_epoll_destroy(&context);
     return NULL;
 }
 

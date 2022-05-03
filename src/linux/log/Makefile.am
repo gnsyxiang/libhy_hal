@@ -49,8 +49,8 @@ _include_com    += \
 
 _sources_com    += \
                    dynamic_array.c          \
-                   epoll_helper.c           \
                    format_cb.c              \
+                   log_epoll.c              \
                    hy_log.c                 \
                    log_fifo.c               \
                    log_file.c               \

@@ -25,10 +25,10 @@ extern "C" {
 #endif
 
 #include "hy_list.h"
-#include "epoll_helper.h"
+#include "log_epoll.h"
 
 typedef struct {
-    epoll_helper_cb_param_s     cb_param;
+    log_epoll_cb_param_s        cb_param;
     struct hy_list_head         entry;
 } socket_fd_node_s;
 

@@ -25,18 +25,18 @@
 #include "hy_list.h"
 #include "log_file.h"
 #include "log_file.h"
+#include "log_epoll.h"
 #include "format_cb.h"
 #include "log_socket.h"
 #include "log_socket.h"
 #include "log_private.h"
-#include "epoll_helper.h"
 #include "socket_fd_node.h"
 #include "process_handle_data.h"
 
 #include "process_server.h"
 
 typedef struct {
-    epoll_helper_s          *epoll_helper;
+    log_epoll_s             *log_epoll;
     socket_fd_node_s        *socket_listen_fd;
     socket_fd_node_s        *socket_ipc_listen_fd;
 
@@ -77,7 +77,7 @@ void process_server_write(void *handle, log_write_info_s *log_write_info)
             dynamic_array->buf, dynamic_array->cur_len);
 }
 
-static void _accept_client_fd(epoll_helper_cb_param_s *cb_param,
+static void _accept_client_fd(log_epoll_cb_param_s *cb_param,
         hy_s32_t type, struct hy_list_head *list, pthread_mutex_t *mutex)
 {
     hy_s32_t fd;
@@ -91,9 +91,9 @@ static void _accept_client_fd(epoll_helper_cb_param_s *cb_param,
             break;
         }
 
-        if (0 != epoll_helper_add(context->epoll_helper,
+        if (0 != log_epoll_add(context->log_epoll,
                     EPOLLIN | EPOLLET, cb_param)) {
-            log_error("epoll_helper_add add listen fd failed \n");
+            log_error("log_epoll_add add listen fd failed \n");
             break;
         }
 
@@ -103,9 +103,9 @@ static void _accept_client_fd(epoll_helper_cb_param_s *cb_param,
             break;
         }
 
-        if (0 != epoll_helper_add(context->epoll_helper,
+        if (0 != log_epoll_add(context->log_epoll,
                     EPOLLIN | EPOLLET, &socket_fd_node->cb_param)) {
-            log_error("epoll_helper_add add client fd failed \n");
+            log_error("log_epoll_add add client fd failed \n");
             break;
         }
 
@@ -115,7 +115,7 @@ static void _accept_client_fd(epoll_helper_cb_param_s *cb_param,
     } while (0);
 }
 
-static void _epoll_handle_data(epoll_helper_cb_param_s *cb_param)
+static void _epoll_handle_data(log_epoll_cb_param_s *cb_param)
 {
     _process_server_context_s *context = cb_param->args;
     hy_s32_t ret = 0;
@@ -134,8 +134,7 @@ static void _epoll_handle_data(epoll_helper_cb_param_s *cb_param)
             ret = log_file_read(cb_param->fd, buf, sizeof(buf));
             if (ret > 0) {
                 process_handle_data_write(context->tcp_handle_data, buf, ret);
-                epoll_helper_add(context->epoll_helper,
-                        EPOLLIN | EPOLLET, cb_param);
+                log_epoll_add(context->log_epoll, EPOLLIN | EPOLLET, cb_param);
             } else {
                 socket_fd_node_list_destroy(&context->list, cb_param->fd);
             }
@@ -163,7 +162,7 @@ static void _tcp_process_handle_data_cb(void *buf, hy_u32_t len, void *args)
             log_info("the other party closes, fd: %d \n", pos->cb_param.fd);
 
             hy_list_del(&pos->entry);
-            epoll_helper_del(context->epoll_helper, &pos->cb_param);
+            log_epoll_del(context->log_epoll, &pos->cb_param);
             socket_fd_node_destroy(&pos);
         }
     }
@@ -189,7 +188,7 @@ void process_server_destroy(void **handle)
     _process_server_context_s *context = *handle;
     log_info("process ipc server context: %p destroy \n", context);
 
-    epoll_helper_destroy(&context->epoll_helper);
+    log_epoll_destroy(&context->log_epoll);
 
     socket_fd_node_destroy(&context->socket_ipc_listen_fd);
     socket_fd_node_destroy(&context->socket_listen_fd);
@@ -242,10 +241,10 @@ void *process_server_create(hy_u32_t fifo_len)
             break;
         }
 
-        context->epoll_helper = epoll_helper_create("hy_server_epoll",
+        context->log_epoll = log_epoll_create("hy_server_epoll",
                 100, _epoll_handle_data);
-        if (!context->epoll_helper) {
-            log_error("epoll_helper_create failed \n");
+        if (!context->log_epoll) {
+            log_error("log_epoll_create failed \n");
             break;
         }
 
@@ -263,9 +262,9 @@ void *process_server_create(hy_u32_t fifo_len)
             break;
         }
 
-        if (0 != epoll_helper_add(context->epoll_helper,
+        if (0 != log_epoll_add(context->log_epoll,
                 EPOLLIN | EPOLLET, &context->socket_ipc_listen_fd->cb_param)) {
-            log_error("epoll_helper_add failed \n");
+            log_error("log_epoll_add failed \n");
             break;
         }
 
@@ -283,9 +282,9 @@ void *process_server_create(hy_u32_t fifo_len)
             break;
         }
 
-        if (0 != epoll_helper_add(context->epoll_helper,
+        if (0 != log_epoll_add(context->log_epoll,
                 EPOLLIN | EPOLLET, &context->socket_listen_fd->cb_param)) {
-            log_error("epoll_helper_add failed \n");
+            log_error("log_epoll_add failed \n");
             break;
         }
 

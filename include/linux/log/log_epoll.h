@@ -2,7 +2,7 @@
  *
  * Release under GPLv-3.0.
  * 
- * @file    epoll_helper.h
+ * @file    log_epoll.h
  * @brief   
  * @author  gnsyxiang <gnsyxiang@163.com>
  * @date    27/04 2022 15:37
@@ -17,8 +17,8 @@
  * 
  *     last modified: 27/04 2022 15:37
  */
-#ifndef __LIBHY_HAL_INCLUDE_EPOLL_HELPER_H_
-#define __LIBHY_HAL_INCLUDE_EPOLL_HELPER_H_
+#ifndef __LIBHY_HAL_INCLUDE_LOG_EPOLL_H_
+#define __LIBHY_HAL_INCLUDE_LOG_EPOLL_H_
 
 #ifdef __cplusplus
 extern "C" {
@@ -36,7 +36,7 @@ typedef struct {
     hy_s32_t            fd;                 ///< fd
     hy_s32_t            type;               ///< fd类型
     void                *args;              ///< fd所携带的用户参数
-} epoll_helper_cb_param_s;
+} log_epoll_cb_param_s;
 
 /**
  * @brief 回调函数
@@ -45,40 +45,40 @@ typedef struct {
  *
  * @return 无
  */
-typedef void (*epoll_helper_cb_t)(epoll_helper_cb_param_s *cb_param);
+typedef void (*log_epoll_cb_t)(log_epoll_cb_param_s *cb_param);
 
 /**
  * @brief epoll上下文
  */
-typedef struct epoll_helper_tag {
+typedef struct log_epoll_tag {
     hy_u32_t            max_event;          ///< 内核监控的最大数
     hy_s32_t            fd;                 ///< epoll文件描述符
 
-    epoll_helper_cb_t   epoll_helper_cb;    ///< 回调函数
+    log_epoll_cb_t      log_epoll_cb;       ///< 回调函数
 
     pthread_t           id;                 ///< 线程id
     hy_s32_t            is_exit;            ///< 控制线程退出
     hy_s32_t            pipe_fd[2];         ///< pipe文件描述符，控制线程退出
     hy_s32_t            wait_exit_flag;     ///< 控制线程退出标志位
-} epoll_helper_s;
+} log_epoll_s;
 
 /**
  * @brief 创建epoll模块
  *
  * @param max_event 内核监控的最大数
- * @param epoll_helper_cb 回调函数
+ * @param log_epoll_cb 回调函数
  *
  * @return 成功返回句柄，失败返回NULL
  */
-epoll_helper_s *epoll_helper_create(const char *name, hy_u32_t max_event,
-        epoll_helper_cb_t epoll_helper_cb);
+log_epoll_s *log_epoll_create(const char *name, hy_u32_t max_event,
+        log_epoll_cb_t log_epoll_cb);
 
 /**
  * @brief 销毁epoll模块
  *
  * @param context_pp 句柄的地址（二级指针）
  */
-void epoll_helper_destroy(epoll_helper_s **context_pp);
+void log_epoll_destroy(log_epoll_s **context_pp);
 
 /**
  * @brief 增加监控对象
@@ -89,8 +89,8 @@ void epoll_helper_destroy(epoll_helper_s **context_pp);
  *
  * @return 成功返回0，失败返回-1
  */
-hy_s32_t epoll_helper_add(epoll_helper_s *context,
-        hy_u32_t event, epoll_helper_cb_param_s *cb_param);
+hy_s32_t log_epoll_add(log_epoll_s *context,
+        hy_u32_t event, log_epoll_cb_param_s *cb_param);
 
 /**
  * @brief 删除监控对象
@@ -100,8 +100,7 @@ hy_s32_t epoll_helper_add(epoll_helper_s *context,
  *
  * @return 成功返回0，失败返回-1
  */
-hy_s32_t epoll_helper_del(epoll_helper_s *context,
-        epoll_helper_cb_param_s *cb_param);
+hy_s32_t log_epoll_del(log_epoll_s *context, log_epoll_cb_param_s *cb_param);
 
 #ifdef __cplusplus
 }
