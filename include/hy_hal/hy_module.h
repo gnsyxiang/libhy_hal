@@ -110,7 +110,7 @@ typedef struct {
  *
  * @return 成功返回0，失败返回-1
  */
-typedef hy_s32_t *(*HyModuleCreateBoolCb_t)(void *config);
+typedef hy_s32_t (*HyModuleCreateBoolCb_t)(void *config);
 
 /**
  * @brief 销毁bool模块
