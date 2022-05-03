@@ -57,6 +57,9 @@ hy_s32_t log_socket_create(const char *ip, hy_u16_t port, log_socket_type_e type
         } else {
             addr.sin_addr.s_addr  = htonl(INADDR_ANY);
 
+            int opt = SO_REUSEADDR;
+            setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
+
             if (bind(fd, (struct sockaddr *)&addr, sizeof(addr)) == -1) {
                 log_error("bind failed \n");
                 break;
