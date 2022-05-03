@@ -74,7 +74,7 @@ static void *_epoll_thread_cb(void *args)
             ret = epoll_ctl(context->fd, EPOLL_CTL_DEL, cb_param->fd, NULL);
             if (-1 == ret) {
                 log_error("epoll_ctl failed \n");
-                break;
+                continue;
             }
 
             if (cb_param->fd == context->pipe_fd[0]) {
