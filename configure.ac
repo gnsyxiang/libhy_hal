@@ -49,8 +49,8 @@ if test -n "$PKG_CONFIG"; then
     # Horrible hack for systems where the pkg-config install directory is simply wrong!
     if $PKG_CONFIG --variable=pc_path pkg-config 2>/dev/null | grep -q /lib/; then
         PKG_INSTALLDIR(['${prefix}/lib/pkgconfig'])
-        else
-            PKG_INSTALLDIR
+    else
+        PKG_INSTALLDIR
     fi
 fi
 
