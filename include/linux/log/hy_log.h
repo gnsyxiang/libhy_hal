@@ -68,13 +68,13 @@ typedef enum {
 typedef struct {
     HyLogLevel_e        level;              ///< 打印等级
     char                *err_str;           ///< 错误信息，由strerror(errno)提供
-    char                *file;              ///< 文件名，去掉了路径
+    const char          *file;              ///< 文件名，去掉了路径
     const char          *func;              ///< 函数名
     hy_u32_t            line;               ///< 行号
     pthread_t           tid;                ///< 线程id
     long                pid;                ///< 进程id
 
-    char                *fmt;               ///< 用户格式
+    const char          *fmt;               ///< 用户格式
     va_list             *str_args;          ///< 用户信息
 } HyLogAddiInfo_s;
 
@@ -196,7 +196,7 @@ void HyLogLevelSet(HyLogLevel_e level);
  * @param fmt 格式
  * @param ... 参数
  */
-void HyLogWrite(HyLogAddiInfo_s *addi_info, char *fmt, ...) HY_CHECK_PRINTF(2, 3);
+void HyLogWrite(HyLogAddiInfo_s *addi_info, const char *fmt, ...) HY_CHECK_PRINTF(2, 3);
 
 #define LOG(_level, _err_str, fmt, ...)                     \
     do {                                                    \
