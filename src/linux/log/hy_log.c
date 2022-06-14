@@ -60,7 +60,7 @@ void HyLogLevelSet(HyLogLevel_e level)
     _context.save_c.level = level;
 }
 
-void HyLogWrite(HyLogAddiInfo_s *addi_info, char *fmt, ...)
+void HyLogWrite(HyLogAddiInfo_s *addi_info, const char *fmt, ...)
 {
     _log_context_s *context = &_context;
     HyLogSaveConfig_s *save_c = &context->save_c;
