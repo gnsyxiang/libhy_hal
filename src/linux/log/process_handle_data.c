@@ -21,6 +21,7 @@
 #include <unistd.h>
 
 #include "log_private.h"
+#include "config.h"
 
 #include "process_handle_data.h"
 
@@ -140,7 +141,7 @@ process_handle_data_s *process_handle_data_create(const char *name,
             break;
         }
 
-#ifdef _GNU_SOURCE
+#ifdef HAVE_PTHREAD_SETNAME_NP
         pthread_setname_np(context->id, name);
 #endif
 

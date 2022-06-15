@@ -21,6 +21,7 @@
 #include <unistd.h>
 
 #include "log_private.h"
+#include "config.h"
 
 #include "log_epoll.h"
 
@@ -170,7 +171,7 @@ log_epoll_s *log_epoll_create(const char *name, hy_u32_t max_event,
             break;
         }
 
-#ifdef _GNU_SOURCE
+#ifdef HAVE_PTHREAD_SETNAME_NP
         pthread_setname_np(context->id, name);
 #endif
 

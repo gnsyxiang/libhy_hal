@@ -28,6 +28,7 @@
 #include "hy_mem.h"
 #include "hy_string.h"
 #include "hy_log.h"
+#include "config.h"
 
 #include "hy_thread.h"
 
@@ -95,7 +96,7 @@ static void *_thread_cb(void *args)
 
     LOGI("<%s> thread loop start, id: 0x%lx \n", save_c->name, context->id);
 
-#ifdef _GNU_SOURCE
+#ifdef HAVE_PTHREAD_SETNAME_NP
     pthread_setname_np(context->id, save_c->name);
 #endif
 
