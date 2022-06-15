@@ -73,7 +73,7 @@ AC_TYPE_MODE_T
 AC_TYPE_UINT8_T
 
 # Checks for library functions.
-AC_FUNC_MALLOC
+# AC_FUNC_MALLOC
 AC_FUNC_MKTIME
 AC_FUNC_REALLOC
 AC_CHECK_FUNCS([atexit gettimeofday inet_ntoa localtime_r memset mkfifo select socket strerror strstr])
