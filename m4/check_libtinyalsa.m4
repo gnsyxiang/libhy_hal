@@ -22,74 +22,74 @@ dnl ===============================================================
 # --------------------------------------------------------------
 # check libtinyalsa
 
-AC_DEFUN([CHECK_LIBTINYALSA], [
+AC_DEFUN([CHECK_LIBTINYALSA],
+    [
+        AC_ARG_ENABLE([tinyalsa],
+            [AS_HELP_STRING([--enable-tinyalsa], [enable support for tinyalsa])],
+            [],
+            [enable_tinyalsa=no])
 
-    AC_ARG_ENABLE([tinyalsa],
-        [AS_HELP_STRING([--enable-tinyalsa], [enable support for tinyalsa])],
-            [], [enable_tinyalsa=no])
+        case "$enable_tinyalsa" in
+            yes)
+                have_tinyalsa=no
 
-    case "$enable_tinyalsa" in
-        yes)
-            have_tinyalsa=no
+                case "$PKG_CONFIG" in
+                    '') ;;
+                    *)
+                        TINYALSA_LIBS=`$PKG_CONFIG --libs tinyalsa 2>/dev/null`
 
-            case "$PKG_CONFIG" in
-                '') ;;
-                *)
-                    TINYALSA_LIBS=`$PKG_CONFIG --libs tinyalsa 2>/dev/null`
+                        case "$TINYALSA_LIBS" in
+                            '') ;;
+                            *)
+                                TINYALSA_LIBS="$TINYALSA_LIBS"
+                                TINYALSA_INCS=`$PKG_CONFIG --cflags tinyalsa 2>/dev/null`
+                                have_tinyalsa=yes
+                            ;;
+                        esac
+                    ;;
+                esac
 
-                    case "$TINYALSA_LIBS" in
-                        '') ;;
-                        *)
-                            TINYALSA_LIBS="$TINYALSA_LIBS"
-                            have_tinyalsa=yes
-                        ;;
-                    esac
+                case "$have_tinyalsa" in
+                    yes) ;;
+                    *)
+                        save_LIBS="$LIBS"
+                        LIBS=""
+                        TINYALSA_LIBS=""
 
-                    TINYALSA_INCS=`$PKG_CONFIG --cflags tinyalsa 2>/dev/null`
-                ;;
-            esac
+                        # clear cache
+                        unset ac_cv_search_pcm_open
+                        AC_SEARCH_LIBS([pcm_open],
+                                [tinyalsa],
+                                [have_tinyalsa=yes TINYALSA_LIBS="$LIBS"],
+                                [have_tinyalsa=no],
+                                [-ldl])
+                        LIBS="$save_LIBS"
+                    ;;
+                esac
 
-            case "$have_tinyalsa" in
-                yes) ;;
-                *)
-                    save_LIBS="$LIBS"
-                    LIBS=""
-                    TINYALSA_LIBS=""
+                CPPFLAGS_SAVE=$CPPFLAGS
+                CPPFLAGS="$CPPFLAGS $TINYALSA_INCS"
+                AC_CHECK_HEADERS([tinyalsa/pcm.h], [], [have_tinyalsa=no])
 
-                    # clear cache
-                    unset ac_cv_search_pcm_open
-                    AC_SEARCH_LIBS([pcm_open], [tinyalsa],
-                            [have_tinyalsa=yes
-                                TINYALSA_LIBS="$LIBS"],
-                            [have_tinyalsa=no],
-                            [-ldl])
-                    LIBS="$save_LIBS"
-                ;;
-            esac
+                CPPFLAGS=$CPPFLAGS_SAVE
+                AC_SUBST(TINYALSA_INCS)
+                AC_SUBST(TINYALSA_LIBS)
 
-            CPPFLAGS_SAVE=$CPPFLAGS
-            CPPFLAGS="$CPPFLAGS $TINYALSA_INCS"
-            AC_CHECK_HEADERS([tinyalsa/pcm.h], [], [have_tinyalsa=no])
-
-            CPPFLAGS=$CPPFLAGS_SAVE
-            AC_SUBST(TINYALSA_INCS)
-            AC_SUBST(TINYALSA_LIBS)
-
-            case "$have_tinyalsa" in
-                yes)
-                    AC_DEFINE(HAVE_TINYALSA, 1, [Define if the system has tinyalsa])
-                ;;
-                *)
-                    AC_MSG_ERROR([tinyalsa is a must but can not be found. You should add the \
-directory containing `tinyalsa.pc' to the `PKG_CONFIG_PATH' environment variable, \
+                case "$have_tinyalsa" in
+                    yes)
+                        AC_DEFINE(HAVE_TINYALSA, 1, [Define if the system has tinyalsa])
+                    ;;
+                    *)
+                        AC_MSG_ERROR([tinyalsa is a must but can not be found. You should add the \
+directory co    ntaining `tinyalsa.pc' to the `PKG_CONFIG_PATH' environment variable, \
 or set `CPPFLAGS' and `LDFLAGS' directly for tinyalsa, or use `--disable-tinyalsa' \
 to disable support for tinyalsa encryption])
-                ;;
-            esac
-        ;;
-    esac
+                    ;;
+                esac
+            ;;
+        esac
 
-    # check if we have and should use tinyalsa
-    AM_CONDITIONAL(COMPILE_LIBTINYALSA, [test "$enable_tinyalsa" != "no" && test "$have_tinyalsa" = "yes"])
-])
+        # check if we have and should use tinyalsa
+        AM_CONDITIONAL(COMPILE_LIBTINYALSA, [test "$enable_tinyalsa" != "no" && test "$have_tinyalsa" = "yes"])
+    ])
 

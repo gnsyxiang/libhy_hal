@@ -15,16 +15,26 @@ AC_CONFIG_AUX_DIR([build-aux])
 AM_INIT_AUTOMAKE([foreign -Wall -Werror])
 AM_SILENT_RULES([yes])
 AM_PROG_AR
-
 LT_INIT
 
 PKG_PROG_PKG_CONFIG([0.24])
+PKG_INSTALLDIR
 
 # check m4 macro
 CHECK_PROJECT_INFO
 CHECK_VERSION_INFO
 CHECK_DOXYGEN
 # CHECK_JAVA
+
+SELECT_VENDER
+SELECT_CHIP
+# SELECT_PRODUCT
+# SELECT_LANGUAGE
+
+AC_ARG_ENABLE([debug_info],
+              [AS_HELP_STRING([--enable-debug_info], [enable support for output debug info])],
+              [], [enable_debug_info=no])
+AM_CONDITIONAL(COMPILE_DEBUG_INFO, [test "$enable_debug_info" = "yes"])
 
 # Checks for programs.
 AC_PROG_CXX
@@ -36,29 +46,10 @@ AC_PROG_LN_S
 AC_PROG_MAKE_SET
 # AC_PROG_RANLIB
 
-SELECT_VENDER
-SELECT_CHIP
-SELECT_PRODUCT
-SELECT_LANGUAGE
-
 CHECK_LIBHY_MCU
 CHECK_LIBTINYALSA
 CHECK_PTHREAD
 
-PKG_PROG_PKG_CONFIG
-if test -n "$PKG_CONFIG"; then
-    # Horrible hack for systems where the pkg-config install directory is simply wrong!
-    if $PKG_CONFIG --variable=pc_path pkg-config 2>/dev/null | grep -q /lib/; then
-        PKG_INSTALLDIR(['${prefix}/lib/pkgconfig'])
-    else
-        PKG_INSTALLDIR
-    fi
-fi
-
-AC_ARG_ENABLE([debug_info],
-              [AS_HELP_STRING([--enable-debug_info], [enable support for output debug info])],
-              [], [enable_debug_info=no])
-AM_CONDITIONAL(COMPILE_DEBUG_INFO, [test "$enable_debug_info" = "yes"])
 
 # Checks for libraries.
 AC_CHECK_LIB([pthread], [pthread_create])

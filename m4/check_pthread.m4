@@ -28,22 +28,17 @@ AC_DEFUN([CHECK_PTHREAD],
 
         # clear cache
         unset ac_cv_search_pthread_setname_np
-        AC_SEARCH_LIBS([pthread_setname_np], [pthread],
+        AC_SEARCH_LIBS([pthread_setname_np],
+            [pthread],
             [have_pthread_setname_np=yes],
             [have_pthread_setname_np=no],
             [])
 
-        echo "--------------------1"
-        echo $have_pthread_setname_np
-        echo "--------------------2"
-
         case "$have_pthread_setname_np" in
             yes)
-                echo "------------------3"
                 AC_DEFINE(HAVE_PTHREAD_SETNAME_NP, 1, [Define if the pthread has pthread_setname_np])
             ;;
             *)
-                echo "------------------4"
                 AC_MSG_WARN([don't have pthread_setname_np])
             ;;
         esac
