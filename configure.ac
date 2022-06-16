@@ -43,6 +43,7 @@ SELECT_LANGUAGE
 
 CHECK_LIBHY_MCU
 CHECK_LIBTINYALSA
+CHECK_PTHREAD
 
 PKG_PROG_PKG_CONFIG
 if test -n "$PKG_CONFIG"; then
@@ -73,7 +74,7 @@ AC_TYPE_MODE_T
 AC_TYPE_UINT8_T
 
 # Checks for library functions.
-AC_FUNC_MALLOC
+# AC_FUNC_MALLOC
 AC_FUNC_MKTIME
 AC_FUNC_REALLOC
 AC_CHECK_FUNCS([atexit gettimeofday inet_ntoa localtime_r memset mkfifo select socket strerror strstr])
@@ -85,6 +86,8 @@ AC_CONFIG_FILES([Makefile
                  build-script/arterytek/at32f4xx/Makefile
                  build-script/eeasytech/Makefile
                  build-script/eeasytech/SV823/Makefile
+                 build-script/fullhan/MC6810E/Makefile
+                 build-script/fullhan/Makefile
                  build-script/pc/Makefile
                  build-script/pc/pc-chip/Makefile
                  doc/Makefile

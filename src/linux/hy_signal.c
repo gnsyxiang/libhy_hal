@@ -173,8 +173,8 @@ hy_s32_t HySignalCreate(HySignalConfig_t *signal_c)
     return -1;
 }
 #else
-void *HySignalCreate(HySignalConfig_t *signal_c) {return NULL;}
-void HySignalDestroy(void **handle) {}
+hy_s32_t HySignalCreate(HySignalConfig_t *signal_c) {return 0;}
+void HySignalDestroy(void) {}
 #endif
 
 #if 0

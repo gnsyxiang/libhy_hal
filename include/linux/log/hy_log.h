@@ -29,6 +29,7 @@ extern "C" {
 #include <pthread.h>
 #include <sys/syscall.h>      /* Definition of SYS_* constants */
 #include <unistd.h>
+#include <stdarg.h>
 
 #include "hy_hal/hy_type.h"
 #include "hy_hal/hy_compile.h"
